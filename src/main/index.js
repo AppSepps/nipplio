@@ -107,8 +107,6 @@ const createWindow = () => {
         }, 50)
     })
     mainWindow.on('close', (e) => {
-        mainWindow.hide()
-        return
         if (!forceClose) {
             // Catch CMD + Q
             e.preventDefault()
