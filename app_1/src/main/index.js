@@ -175,8 +175,8 @@ function createWindow() {
 app.on('ready', () => {
   app.dock.hide() // Maybe find solution for short jump on mac os bar
   globalShortcut.register('CommandOrControl+P', () => {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide()
+    if (win.isVisible()) {
+      win.hide()
     } else {
       show()
     }
