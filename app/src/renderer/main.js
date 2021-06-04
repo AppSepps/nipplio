@@ -7,7 +7,10 @@ import './assets/style/main.scss'
 import router from './router/index'
 import store from './store/index'
 
-import Amplify, { Auth } from 'aws-amplify'
+import Chakra, { CThemeProvider } from '@chakra-ui/vue'
+
+import Amplify from 'aws-amplify'
+import '@aws-amplify/ui-vue'
 import awsconfig from './aws-exports'
 Amplify.configure(awsconfig)
 
@@ -17,12 +20,13 @@ Vue.config.devtools = isDev
 Vue.config.performance = isDev
 Vue.config.productionTip = isDev
 
+Vue.use(Chakra)
 // tslint:disable-next-line: no-unused-expression
 new Vue({
   el: '#app',
   router,
   store,
-  render: (h) => h(App),
+  render: (h) => h(CThemeProvider, [h(App)]),
 })
 
 // to avoild accesing electorn api from web app build

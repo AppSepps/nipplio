@@ -15,9 +15,9 @@
           <p class="subtitle is-6">
             The boilerplate for making electron applications using vue.js.
           </p>
-          <RouterLink class="button is-primary" to="about">
-            <i class="material-icons">info</i>
-            <span>About</span>
+          <RouterLink class="button is-primary" to="login">
+            <i class="material-icons">login</i>
+            <span>Login</span>
           </RouterLink>
           <RouterLink class="button is-primary" to="help">
             <i class="material-icons">help</i>

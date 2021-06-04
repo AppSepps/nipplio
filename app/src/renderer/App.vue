@@ -2,7 +2,13 @@
   <div id="app" class="container-fluid">
     <Transition mode="out-in" name="slide-up">
       <!-- <keep-alive> -->
-      <RouterView />
+      <amplify-authenticator>
+        <div>
+          <!--RouterView /!-->
+          My App
+          <amplify-sign-out></amplify-sign-out>
+        </div>
+      </amplify-authenticator>
       <!-- </keep-alive> -->
     </Transition>
   </div>
@@ -12,7 +18,7 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'ImageParsing',
+  name: 'Nipplio',
 })
 </script>
 

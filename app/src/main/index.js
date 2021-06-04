@@ -1,4 +1,13 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  nativeImage,
+  Tray,
+  globalShortcut,
+  screen,
+} from 'electron'
+import path from 'path'
 import pkg from '../../package.json'
 
 require('@electron/remote/main').initialize()
@@ -14,7 +23,46 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = false
 const gotTheLock = app.requestSingleInstanceLock()
 const isDev = process.env.NODE_ENV === 'development'
 const isDebug = process.argv.includes('--debug')
-let mainWindow
+
+const WINDOW_WIDTH = 1280
+const WINDOW_HEIGHT = 720
+
+let forceClose = false
+let tray = null
+let mainWindow = null
+
+const createTray = () => {
+  const platform = process.platform
+  let icon
+
+  if (platform === 'darwin' || platform === 'linux') {
+    icon = path.join(__dirname, 'assets', '/icon.png')
+  } else if (platform === 'win32') {
+    icon = path.join(__dirname, 'assets', '/icon.ico')
+  }
+  const trayImage = nativeImage.createFromPath(icon)
+  tray = new Tray(trayImage.resize({ width: 16 }))
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        show()
+      },
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        forceClose = true
+        app.quit()
+      },
+    },
+  ])
+
+  tray.setContextMenu(contextMenu)
+  tray.on('click', () => {
+    tray.popUpContextMenu() // Weird double appearence bug with focus/blur
+  })
+}
 
 // only allow single instance of application
 if (!isDev) {
@@ -45,16 +93,44 @@ async function installDevTools() {
   })
 }
 
+const show = () => {
+  const currentScreen = screen.getDisplayNearestPoint(
+    screen.getCursorScreenPoint()
+  )
+  let bounds = currentScreen.bounds
+  let x = Math.ceil(bounds.x + (bounds.width - WINDOW_WIDTH) / 2)
+  let y = Math.ceil(bounds.y + (bounds.height - WINDOW_HEIGHT) / 2)
+  const newBounds = {
+    x,
+    y,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+  }
+  mainWindow.setBounds(newBounds)
+  mainWindow.show()
+}
+
 function createWindow() {
+  if (!tray) {
+    createTray()
+  }
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
     backgroundColor: '#fff',
-    width: 960,
-    height: 540,
-    minWidth: 960,
-    minHeight: 540,
+    height: WINDOW_HEIGHT,
+    width: WINDOW_WIDTH,
+    maxHeight: WINDOW_HEIGHT,
+    maxWidth: WINDOW_WIDTH,
+    fullscreenable: false,
+    skipTaskbar: true,
+    show: false,
+    maximizable: false,
+    minimizable: false,
+    frame: false,
+    hasShadow: false,
+    icon: __dirname + '/icon.png',
     // useContentSize: true,
     webPreferences: {
       nodeIntegration: true,
@@ -62,11 +138,10 @@ function createWindow() {
       contextIsolation: false,
       webSecurity: false,
     },
-    show: false,
   })
 
-  // eslint-disable-next-line
-  setMenu()
+  mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+  mainWindow.setAlwaysOnTop(true, 'floating')
 
   // load root file/url
   if (isDev) {
@@ -79,40 +154,35 @@ function createWindow() {
       .replace(/\\/g, '\\\\')
   }
 
-  // Show when loaded
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-    mainWindow.focus()
+    setTimeout(() => {
+      show()
+    }, 50)
   })
-
+  mainWindow.on('close', (e) => {
+    if (!forceClose) {
+      // Catch CMD + Q
+      e.preventDefault()
+      mainWindow.hide()
+    }
+    forceClose = false
+  })
   mainWindow.on('closed', () => {
-    console.log('\nApplication exiting...')
+    mainWindow = null
   })
 }
 
 app.on('ready', () => {
+  app.dock.hide() // Maybe find solution for short jump on mac os bar
+  globalShortcut.register('CommandOrControl+P', () => {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide()
+    } else {
+      show()
+    }
+  })
+
   createWindow()
-
-  if (isDev) {
-    installDevTools()
-    mainWindow.webContents.openDevTools()
-  }
-
-  if (isDebug) {
-    mainWindow.webContents.openDevTools()
-  }
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
-
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
-  }
 })
 
 /**
@@ -134,80 +204,3 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
-
-const sendMenuEvent = async (data) => {
-  mainWindow.webContents.send('change-view', data)
-}
-
-const template = [
-  {
-    label: app.name,
-    submenu: [
-      {
-        label: 'Home',
-        accelerator: 'CommandOrControl+H',
-        click() {
-          sendMenuEvent({ route: '/' })
-        },
-      },
-      { type: 'separator' },
-      { role: 'minimize' },
-      { role: 'togglefullscreen' },
-      { type: 'separator' },
-      { role: 'quit', accelerator: 'Alt+F4' },
-    ],
-  },
-  {
-    role: 'help',
-    submenu: [
-      {
-        label: 'Get Help',
-        role: 'help',
-        accelerator: 'F1',
-        click() {
-          sendMenuEvent({ route: '/help' })
-        },
-      },
-      {
-        label: 'About',
-        role: 'about',
-        accelerator: 'CommandOrControl+A',
-        click() {
-          sendMenuEvent({ route: '/about' })
-        },
-      },
-    ],
-  },
-]
-
-function setMenu() {
-  if (process.platform === 'darwin') {
-    template.unshift({
-      label: app.name,
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideothers' },
-        { role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' },
-      ],
-    })
-
-    template.push({
-      role: 'window',
-    })
-
-    template.push({
-      role: 'help',
-    })
-
-    template.push({ role: 'services' })
-  }
-
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-}
