@@ -1,0 +1,33 @@
+{
+  "projectName": "vue-electron-template",
+  "projectOwner": "mubaidr",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "jbeguna04",
+      "name": "Jibbie R. Eguna",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/35353768?v=4",
+      "profile": "https://github.com/jbeguna04",
+      "contributions": [
+        "design"
+      ]
+    },
+    {
+      "login": "eiurur",
+      "name": "eiurur",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/4101830?v=4",
+      "profile": "https://github.com/eiurur",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true
+}

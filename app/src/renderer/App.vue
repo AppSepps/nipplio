@@ -1,15 +1,19 @@
 <template>
-    <div id="app">
-        <router-view></router-view>
-    </div>
+  <div id="app" class="container-fluid">
+    <Transition mode="out-in" name="slide-up">
+      <!-- <keep-alive> -->
+      <RouterView />
+      <!-- </keep-alive> -->
+    </Transition>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: 'nipplio',
-    }
+import Vue from 'vue'
+
+export default Vue.extend({
+  name: 'ImageParsing',
+})
 </script>
 
-<style>
-    /* CSS */
-</style>
+<style lang="scss"></style>
