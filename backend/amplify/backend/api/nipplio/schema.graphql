@@ -1,0 +1,29 @@
+type Sound @model @auth(rules: [{allow: private}]) {
+  id: ID!
+  board: Board @connection
+  name: String
+  User: User @connection
+}
+
+type User @model @auth(rules: [{allow: private}]) {
+  id: ID!
+  username: String
+  email: String
+  boards: [UserBoard] @connection(keyName: "byUser", fields: ["id"])
+  authUsername: String
+}
+
+type Board @model @auth(rules: [{allow: private}]) {
+  id: ID!
+  name: String
+  users: [UserBoard] @connection(keyName: "byBoard", fields: ["id"])
+}
+
+type UserBoard @model(queries: null) @key(name: "byUser", fields: ["userID", "boardID"]) @key(name: "byBoard", fields: ["boardID", "userID"]) @auth(rules: [{allow: private}, {allow: private}]) {
+  id: ID!
+  userID: ID!
+  boardID: ID!
+  user: User! @connection(fields: ["userID"])
+  board: Board! @connection(fields: ["boardID"])
+}
+ 

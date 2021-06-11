@@ -1,0 +1,21 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-nipplio-staging-84647-authRole",
+      "UnauthRoleArn": "arn:aws:iam::052767198790:role/amplify-nipplio-staging-84647-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::052767198790:role/amplify-nipplio-staging-84647-authRole",
+      "Region": "eu-west-1",
+      "DeploymentBucketName": "amplify-nipplio-staging-84647-deployment",
+      "UnauthRoleName": "amplify-nipplio-staging-84647-unauthRole",
+      "StackName": "amplify-nipplio-staging-84647",
+      "StackId": "arn:aws:cloudformation:eu-west-1:052767198790:stack/amplify-nipplio-staging-84647/3d232a50-bf91-11eb-99be-026e4ef1fdab",
+      "AmplifyAppId": "dqm0e0utqazdj",
+      "AuthTriggerTemplateURL": ""
+    },
+    "categories": {
+      "auth": {
+        "nipplio": {}
+      }
+    }
+  }
+}
