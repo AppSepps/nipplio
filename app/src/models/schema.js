@@ -305,6 +305,13 @@ export const schema = {
                         "associatedWith": "user"
                     }
                 },
+                "authUsername": {
+                    "name": "authUsername",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -350,5 +357,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "4c4a682b24bef3b2574d01591b68d9dd"
+    "version": "b3f4bb1e1520b4428320aa991b98e8f7"
 };

@@ -40,6 +40,7 @@ export declare class User {
   readonly username?: string;
   readonly email?: string;
   readonly boards?: (UserBoard | null)[];
+  readonly authUsername?: string;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   constructor(init: ModelInit<User>);

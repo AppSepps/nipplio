@@ -1,7 +1,6 @@
 <template>
     <amplify-authenticator>
         <div>
-            <amplify-sign-out></amplify-sign-out>
             <router-view></router-view>
         </div>
     </amplify-authenticator>
@@ -16,7 +15,7 @@ export default {
 
 <style>
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;

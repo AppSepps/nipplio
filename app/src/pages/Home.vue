@@ -1,5 +1,21 @@
 <template>
-    <div class="home-container">Home</div>
+    <div class="home-container">
+        <button style="float: right" v-on:click="signOut">Sign out</button>
+        <div v-if="activeBoard">
+            Verbunden mit <strong>{{ activeBoard.name }}</strong>
+        </div>
+        <div v-if="currentUser">
+            Willkommen <strong>{{ currentUser.username }}</strong>
+        </div>
+        <div v-if="boardUsers.length > 0">
+            <div>Verbundene Benutzer:</div>
+            <ul>
+                <li v-for="user in boardUsers" :key="user.id">
+                    {{ user.username }}
+                </li>
+            </ul>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -10,13 +26,22 @@ import { Auth } from '@aws-amplify/auth'
 export default {
     name: 'Home',
     components: {},
+    data() {
+        return {
+            currentUser: undefined,
+            boards: [],
+            activeBoard: undefined,
+            boardUsers: [],
+        }
+    },
     async mounted() {
         const authUser = await Auth.currentAuthenticatedUser()
-        console.log(authUser)
         const users = await DataStore.query(User, (u) =>
-            u.email('eq', 'jan-patrick.hespelt@wuerth-it.com')
+            u.authUsername('eq', authUser.username)
         )
         const currentUser = users[0]
+        this.currentUser = currentUser
+
         const userBoards = await DataStore.query(UserBoard)
         const boards = userBoards
             .filter((ub) => ub.user.id === currentUser.id)
@@ -25,7 +50,15 @@ export default {
         const boardUsers = userBoards
             .filter((ub) => ub.board.id === activeBoard.id)
             .map((ub) => ub.user)
-        console.log(boardUsers)
+
+        this.boards = boards
+        this.activeBoard = activeBoard
+        this.boardUsers = boardUsers
+    },
+    methods: {
+        signOut: async function () {
+            await Auth.signOut()
+        },
     },
 }
 </script>
