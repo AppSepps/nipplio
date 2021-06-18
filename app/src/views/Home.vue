@@ -37,12 +37,12 @@
             </div>
         </div>
         <div class="row q-pt-md">
-            <div class="col-8" v-if="currentUser">
+            <div class="col-8" v-if="user">
                 <h1 class="text-h5 q-mt-none">
-                    Hello <strong>{{ currentUser.username }}</strong>
+                    Hello <strong>{{ user.username }}</strong>
                 </h1>
             </div>
-            <div class="col-4" v-if="boardUsers.length > 0">
+            <div class="col-4" v-if="boardUsers && boardUsers.length > 0">
                 <q-list bordered separator dark>
                     <q-item
                         clickable
@@ -70,45 +70,26 @@
 </template>
 
 <script>
-import { User, UserBoard } from '../models'
-import { DataStore } from '@aws-amplify/datastore'
-import { Auth } from '@aws-amplify/auth'
+import { mapState } from 'vuex'
 
 export default {
     name: 'Home',
     components: {},
-    data() {
-        return {
-            currentUser: undefined,
-            boards: [],
-            activeBoard: undefined,
-            boardUsers: [],
-        }
-    },
-    async mounted() {
-        const authUser = await Auth.currentAuthenticatedUser()
-        const users = await DataStore.query(User, (u) =>
-            u.authUsername('eq', authUser.username)
-        )
-        const currentUser = users[0]
-        this.currentUser = currentUser
-
-        const userBoards = await DataStore.query(UserBoard)
-        const boards = userBoards
-            .filter((ub) => ub.user.id === currentUser.id)
-            .map((ub) => ub.board)
-        const activeBoard = boards[0]
-        const boardUsers = userBoards
-            .filter((ub) => ub.board.id === activeBoard.id)
-            .map((ub) => ub.user)
-
-        this.boards = boards
-        this.activeBoard = activeBoard
-        this.boardUsers = boardUsers
+    computed: mapState({
+        user: (state) => state.app.user,
+        activeBoard: (state) => state.app.activeBoard,
+        boardUsers: (state) => state.app.boardUsers,
+        boards: (state) => state.app.boards,
+    }),
+    mounted() {
+        this.$store.dispatch('app/getUserAndBoardData')
+        setTimeout(() => {
+            console.log(this)
+        }, 3000)
     },
     methods: {
-        signOut: async function () {
-            await Auth.signOut()
+        signOut: function () {
+            this.$store.dispatch('app/signOut')
             this.$router.push('/login')
         },
     },
