@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
-import ElementPlus from 'element-plus'
-import './styles/element-variables.scss'
+import './styles/main.scss'
 import router from './router'
 import {
     applyPolyfills,
@@ -20,5 +19,4 @@ applyPolyfills().then(() => {
 const app = createApp(App)
 app.config.isCustomElement = (tag) => tag.startsWith('amplify-')
 app.use(router)
-app.use(ElementPlus)
 app.mount('#app')
