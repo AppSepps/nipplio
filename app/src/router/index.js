@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { Auth } from '@aws-amplify/auth'
 
-import Home from './pages/Home.vue'
-import Login from './pages/Login.vue'
+import Home from '../views/Home.vue'
+import Login from '../views/Login.vue'
 
 const routes = [
     { path: '/', component: Home, meta: { auth: true } },

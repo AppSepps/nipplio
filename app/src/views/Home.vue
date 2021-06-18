@@ -28,6 +28,7 @@
             <div class="col-4 text-right q-gutter-sm q-ml-none">
                 <q-btn unelevated icon="settings" color="grey-9" />
                 <q-btn
+                    no-caps
                     unelevated
                     color="grey-9"
                     label="Sign out"

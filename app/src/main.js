@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import store from './store'
 import router from './router'
 import {
     applyPolyfills,
@@ -18,6 +19,7 @@ applyPolyfills().then(() => {
 
 const app = createApp(App)
 app.config.isCustomElement = (tag) => tag.startsWith('amplify-')
+app.use(store)
 app.use(Quasar, quasarUserOptions)
 app.use(router)
 app.mount('#app')

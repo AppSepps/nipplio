@@ -6,4 +6,7 @@ body.body--dark {
 
 .q-btn-dropdown {
     box-shadow: none;
+    button {
+        text-transform: none;
+    }
 }
