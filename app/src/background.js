@@ -15,7 +15,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-const WINDOW_WIDTH = 1280
+const WINDOW_WIDTH = 960
 const WINDOW_HEIGHT = 720
 
 let tray = null
