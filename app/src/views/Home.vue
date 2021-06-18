@@ -2,23 +2,39 @@
     <q-page padding>
         <div class="row">
             <div class="col-8">
-                <div v-if="activeBoard">
-                    <q-btn-dropdown
-                        split
-                        color="grey-9"
-                        :label="activeBoard.name"
-                    >
+                <div>
+                    <q-btn-dropdown split color="primary" label="Boards">
                         <q-list>
                             <q-item
                                 v-for="board in boards"
                                 :key="board.id"
                                 clickable
                                 v-close-popup
+                                @click="onBoardClick(board.id)"
                             >
                                 <q-item-section>
                                     <q-item-label>{{
                                         board.name
                                     }}</q-item-label>
+                                </q-item-section>
+                                <q-item-section avatar>
+                                    <q-icon color="white" name="web" />
+                                </q-item-section>
+                            </q-item>
+                            <q-item
+                                clickable
+                                v-close-popup
+                                @click="onJoinNewBoardClick"
+                            >
+                                <q-item-section>
+                                    <q-item-label>Join Board</q-item-label>
+                                    <q-item-label caption
+                                        >Click here to join a new
+                                        board</q-item-label
+                                    >
+                                </q-item-section>
+                                <q-item-section avatar>
+                                    <q-icon color="white" name="add" />
                                 </q-item-section>
                             </q-item>
                         </q-list>
@@ -41,6 +57,14 @@
                 <h1 class="text-h5 q-mt-none">
                     Hello <strong>{{ user.username }}</strong>
                 </h1>
+                <div v-if="activeBoard">
+                    You are currently connected with
+                    <strong>{{ activeBoard.name }}</strong>
+                </div>
+                <div v-else>
+                    You are currently not connected with any board. Select a
+                    board with the button above or join a new board.
+                </div>
             </div>
             <div class="col-4" v-if="boardUsers && boardUsers.length > 0">
                 <q-list bordered separator dark>
@@ -81,16 +105,20 @@ export default {
         boardUsers: (state) => state.app.boardUsers,
         boards: (state) => state.app.boards,
     }),
-    mounted() {
-        this.$store.dispatch('app/getUserAndBoardData')
-        setTimeout(() => {
-            console.log(this)
-        }, 3000)
+    async mounted() {
+        await this.$store.dispatch('app/getUser')
+        await this.$store.dispatch('app/getBoards')
     },
     methods: {
         signOut: function () {
             this.$store.dispatch('app/signOut')
             this.$router.push('/login')
+        },
+        onBoardClick: function (id) {
+            this.$store.dispatch('app/selectBoard', { id })
+        },
+        onJoinNewBoardClick: function () {
+            console.log('Trying to join a new board')
         },
     },
 }

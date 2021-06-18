@@ -12,21 +12,28 @@ const state = {
 const getters = {}
 
 const actions = {
-    async getUserAndBoardData({ commit }) {
+    async getUser({ commit }) {
         const authUser = await Auth.currentAuthenticatedUser()
         const users = await DataStore.query(User, (u) =>
             u.authUsername('eq', authUser.username)
         )
-        const currentUser = users[0]
+        const user = users[0]
+        commit('getUser', { user })
+    },
+    async getBoards({ commit, state }) {
         const userBoards = await DataStore.query(UserBoard)
         const boards = userBoards
-            .filter((ub) => ub.user.id === currentUser.id)
+            .filter((ub) => ub.user.id === state.user.id)
             .map((ub) => ub.board)
-        const activeBoard = boards[0]
-        const boardUsers = userBoards
-            .filter((ub) => ub.board.id === activeBoard.id)
-            .map((ub) => ub.user)
-        commit('getData', { currentUser, userBoards, activeBoard, boardUsers })
+        commit('getBoards', { boards })
+    },
+    async selectBoard({ commit }, params) {
+        const { id } = params
+        const userBoards = await DataStore.query(UserBoard)
+        const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
+        const activeBoard = filteredUserBoards[0].board
+        const boardUsers = filteredUserBoards.map((ub) => ub.user)
+        commit('selectBoard', { activeBoard, boardUsers })
     },
     async signOut({ commit }) {
         await Auth.signOut()
@@ -35,10 +42,13 @@ const actions = {
 }
 
 const mutations = {
-    getData(state, data) {
-        const { currentUser, userBoards, activeBoard, boardUsers } = data
-        state.user = currentUser
-        state.boards = userBoards
+    getUser(state, { user }) {
+        state.user = user
+    },
+    getBoards(state, { boards }) {
+        state.boards = boards
+    },
+    selectBoard(state, { activeBoard, boardUsers }) {
         state.activeBoard = activeBoard
         state.boardUsers = boardUsers
     },
