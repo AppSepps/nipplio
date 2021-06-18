@@ -18,7 +18,15 @@
                                     }}</q-item-label>
                                 </q-item-section>
                                 <q-item-section avatar>
-                                    <q-icon color="white" name="web" />
+                                    <q-icon
+                                        v-if="
+                                            activeBoard &&
+                                            activeBoard.id === board.id
+                                        "
+                                        color="primary"
+                                        name="check"
+                                    />
+                                    <q-icon v-else color="white" name="web" />
                                 </q-item-section>
                             </q-item>
                             <q-item
