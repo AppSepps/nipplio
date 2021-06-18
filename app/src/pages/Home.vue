@@ -1,6 +1,8 @@
 <template>
     <div class="home-container">
-        <button style="float: right" v-on:click="signOut">Sign out</button>
+        <el-button style="float: right" v-on:click="signOut"
+            >Sign out</el-button
+        >
         <div v-if="activeBoard">
             Verbunden mit <strong>{{ activeBoard.name }}</strong>
         </div>
@@ -66,7 +68,6 @@ export default {
 
 <style>
 .home-container {
-    color: #fff;
     padding: 20px;
 }
 </style>
