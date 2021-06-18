@@ -1,21 +1,34 @@
 <template>
-    <div class="home-container">
-        <button style="float: right" v-on:click="signOut">Sign out</button>
-        <div v-if="activeBoard">
-            Verbunden mit <strong>{{ activeBoard.name }}</strong>
+    <q-page padding>
+        <div class="row">
+            <div class="col-10">
+                <div v-if="activeBoard">
+                    Verbunden mit
+                    <strong>{{ activeBoard.name }}</strong>
+                </div>
+                <div v-if="currentUser">
+                    Willkommen
+                    <strong>{{ currentUser.username }}</strong>
+                </div>
+                <div v-if="boardUsers.length > 0">
+                    <div>Verbundene Benutzer:</div>
+                    <ul>
+                        <li v-for="user in boardUsers" :key="user.id">
+                            {{ user.username }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-2 text-right">
+                <q-btn
+                    unelevated
+                    color="primary"
+                    label="Sign out"
+                    v-on:click="signOut"
+                />
+            </div>
         </div>
-        <div v-if="currentUser">
-            Willkommen <strong>{{ currentUser.username }}</strong>
-        </div>
-        <div v-if="boardUsers.length > 0">
-            <div>Verbundene Benutzer:</div>
-            <ul>
-                <li v-for="user in boardUsers" :key="user.id">
-                    {{ user.username }}
-                </li>
-            </ul>
-        </div>
-    </div>
+    </q-page>
 </template>
 
 <script>
@@ -66,7 +79,6 @@ export default {
 
 <style>
 .home-container {
-    color: #fff;
     padding: 20px;
 }
 </style>
