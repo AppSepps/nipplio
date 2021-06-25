@@ -10,7 +10,7 @@
             <q-item-label caption>Not connected</q-item-label>
         </q-item-section>
         <q-item-section avatar>
-            <q-btn unelevated flat round icon="mic_off" color="negative" />
+            <q-btn unelevated flat round icon="mic_off" color="red" />
         </q-item-section>
     </q-item>
 </template>
