@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "api": {
+      "nipplio": [
+        "Query",
+        "Mutation",
+        "Subscription"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}

@@ -17,9 +17,9 @@
         "nipplio": {}
       },
       "function": {
-        "addUserModelToDatabaseOnSignUp": {
+        "addUserToDatabaseOnSignup": {
           "deploymentBucketName": "amplify-nipplio-staging-84647-deployment",
-          "s3Key": "amplify-builds/addUserModelToDatabaseOnSignUp-72484a6d4e7450674734-build.zip"
+          "s3Key": "amplify-builds/addUserToDatabaseOnSignup-6f4a707a7066364f4e76-build.zip"
         }
       }
     }
