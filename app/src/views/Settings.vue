@@ -1,14 +1,15 @@
 <template>
     <q-dialog
-        v-model="dialog"
         persistent
         maximized
         transition-show="slide-up"
         transition-hide="slide-down"
     >
-        <q-card class="bg-primary text-white">
-            <q-card-section>
-                <div class="text-h6">Alert</div>
+        <q-card>
+            <q-card-section class="row items-center">
+                <div class="text-h6">Settings</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup />
             </q-card-section>
             <q-card-section class="q-pt-none">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum

@@ -55,13 +55,18 @@
                     </div>
                 </div>
                 <div class="col-4 text-right q-gutter-sm q-ml-none">
-                    <q-btn unelevated icon="settings" color="grey-9" />
+                    <q-btn
+                        unelevated
+                        icon="settings"
+                        color="grey-9"
+                        @click="showSettingsModal = true"
+                    />
                     <q-btn
                         no-caps
                         unelevated
                         color="grey-9"
                         label="Sign out"
-                        v-on:click="signOut"
+                        @click="signOut"
                     />
                 </div>
             </div>
@@ -172,7 +177,7 @@
                 </div>
             </div>
         </q-page>
-        <settings />
+        <settings v-model="showSettingsModal" />
     </div>
 </template>
 
@@ -186,6 +191,7 @@ export default {
     data() {
         return {
             searchText: '',
+            showSettingsModal: false,
         }
     },
     computed: mapState({

@@ -81,7 +81,7 @@ async function createWindow() {
     }
     // Create the browser window.
     win = new BrowserWindow({
-        backgroundColor: '#fff',
+        backgroundColor: '#121212',
         height: WINDOW_HEIGHT,
         width: WINDOW_WIDTH,
         maxHeight: WINDOW_HEIGHT,
@@ -91,7 +91,6 @@ async function createWindow() {
         show: false,
         maximizable: false,
         minimizable: false,
-        frame: false,
         hasShadow: false,
         icon: __dirname + '/icon.png',
         webPreferences: {
