@@ -1,5 +1,5 @@
 <template>
-    <q-btn-dropdown split color="primary" label="Boards">
+    <q-btn-dropdown color="primary" label="Boards">
         <q-list>
             <q-item
                 v-for="board in boards"

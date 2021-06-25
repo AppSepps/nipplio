@@ -9,6 +9,7 @@
                     />
                 </div>
                 <div class="col-4 text-right q-gutter-sm q-ml-none">
+                    <q-badge color="primary">Alpha</q-badge>
                     <q-btn
                         unelevated
                         icon="settings"

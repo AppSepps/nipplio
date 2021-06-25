@@ -18,9 +18,32 @@
                 unelevated
                 flat
                 round
-                icon="favorite_border"
-                color="negative"
+                :icon="sound.favorite ? 'favorite' : 'favorite_border'"
+                color="red"
+                @click="onFavoriteToggle"
             />
+        </q-item-section>
+        <q-item-section avatar>
+            <q-btn unelevated flat round icon="more_horiz" color="white">
+                <q-menu>
+                    <q-list style="min-width: 100px">
+                        <q-item clickable v-close-popup>
+                            <q-item-section avatar>
+                                <q-icon name="edit" />
+                            </q-item-section>
+                            <q-item-section>Edit</q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup>
+                            <q-item-section avatar>
+                                <q-icon name="delete" color="red" />
+                            </q-item-section>
+                            <q-item-section class="text-red"
+                                >Delete</q-item-section
+                            >
+                        </q-item>
+                    </q-list>
+                </q-menu>
+            </q-btn>
         </q-item-section>
     </q-item>
 </template>
@@ -33,6 +56,9 @@ export default {
     methods: {
         onSoundPlay: async function (id) {
             await this.$store.dispatch('app/playSound', { id })
+        },
+        onFavoriteToggle: async function (id) {
+            await this.$store.dispatch('app/toggleFavoriteSound', { id })
         },
     },
 }
