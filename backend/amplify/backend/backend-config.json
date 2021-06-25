@@ -29,18 +29,11 @@
     }
   },
   "function": {
-    "addUserModelToDatabaseOnSignUp": {
+    "addUserToDatabaseOnSignup": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
       "dependsOn": [
-        {
-          "category": "auth",
-          "resourceName": "nipplio",
-          "attributes": [
-            "UserPoolId"
-          ]
-        },
         {
           "category": "api",
           "resourceName": "nipplio",
