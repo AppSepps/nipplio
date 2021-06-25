@@ -31,7 +31,6 @@ const createTray = () => {
     let icon
 
     if (platform === 'darwin' || platform === 'linux') {
-        console.log(__static)
         icon = path.join(__static, 'assets', '/icon.png')
     } else if (platform === 'win32') {
         icon = path.join(__static, 'assets', '/icon.ico')

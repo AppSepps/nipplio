@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="row q-pt-md">
-            <div class="col-8" v-if="user">
+            <div class="col-8 q-pr-md" v-if="user">
                 <h1 class="text-h5 q-mt-none">
                     Hello <strong>{{ user.username }}</strong>
                 </h1>
@@ -73,15 +73,39 @@
                     You are currently not connected with any board. Select a
                     board with the button above or join a new board.
                 </div>
+                <div class="q-pt-md">
+                    <q-list bordered separator dark>
+                        <q-item v-for="sound in sounds" :key="sound.id">
+                            <q-item-section avatar>
+                                <q-btn
+                                    unelevated
+                                    round
+                                    icon="play_arrow"
+                                    color="positive"
+                                />
+                            </q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ sound.name }}</q-item-label>
+                                <q-item-label caption>{{
+                                    sound['User'].username
+                                }}</q-item-label>
+                            </q-item-section>
+                            <q-item-section avatar>
+                                <q-btn
+                                    unelevated
+                                    flat
+                                    round
+                                    icon="favorite_border"
+                                    color="negative"
+                                />
+                            </q-item-section>
+                        </q-item>
+                    </q-list>
+                </div>
             </div>
             <div class="col-4" v-if="boardUsers && boardUsers.length > 0">
                 <q-list bordered separator dark>
-                    <q-item
-                        clickable
-                        v-ripple
-                        v-for="user in boardUsers"
-                        :key="user.id"
-                    >
+                    <q-item v-for="user in boardUsers" :key="user.id">
                         <q-item-section avatar>
                             <q-avatar color="secondary" text-color="white">
                                 {{ user.username[0].toUpperCase() }}
@@ -92,7 +116,13 @@
                             <q-item-label caption>Not connected</q-item-label>
                         </q-item-section>
                         <q-item-section avatar>
-                            <q-icon color="negative" name="mic_off" />
+                            <q-btn
+                                unelevated
+                                flat
+                                round
+                                icon="mic_off"
+                                color="negative"
+                            />
                         </q-item-section>
                     </q-item>
                 </q-list>
@@ -112,6 +142,7 @@ export default {
         activeBoard: (state) => state.app.activeBoard,
         boardUsers: (state) => state.app.boardUsers,
         boards: (state) => state.app.boards,
+        sounds: (state) => state.app.sounds,
     }),
     async mounted() {
         await this.$store.dispatch('app/getUser')
@@ -122,8 +153,9 @@ export default {
             this.$store.dispatch('app/signOut')
             this.$router.push('/login')
         },
-        onBoardClick: function (id) {
-            this.$store.dispatch('app/selectBoard', { id })
+        onBoardClick: async function (id) {
+            await this.$store.dispatch('app/selectBoard', { id })
+            await this.$store.dispatch('app/getBoardData')
         },
         onJoinNewBoardClick: function () {
             console.log('Trying to join a new board')

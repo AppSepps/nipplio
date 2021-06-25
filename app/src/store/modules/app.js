@@ -1,4 +1,4 @@
-import { User, UserBoard } from '../../models'
+import { User, UserBoard, Sound } from '../../models'
 import { DataStore } from '@aws-amplify/datastore'
 import { Auth } from '@aws-amplify/auth'
 
@@ -7,6 +7,7 @@ const state = {
     user: undefined,
     boards: [],
     boardUsers: [],
+    sounds: [],
 }
 
 const getters = {}
@@ -32,8 +33,21 @@ const actions = {
         const userBoards = await DataStore.query(UserBoard)
         const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
         const activeBoard = filteredUserBoards[0].board
-        const boardUsers = filteredUserBoards.map((ub) => ub.user)
-        commit('selectBoard', { activeBoard, boardUsers })
+        commit('selectBoard', { activeBoard })
+    },
+    async getBoardData({ commit, state }) {
+        const { activeBoard } = state
+        const userBoards = await DataStore.query(UserBoard)
+        const activeUserBoard = userBoards.filter(
+            (ub) => ub.board.id === activeBoard.id
+        )
+        const boardUsers = activeUserBoard.map((ub) => ub.user)
+        const sounds = await DataStore.query(Sound)
+        console.log(sounds)
+        const boardSounds = sounds.filter(
+            (sound) => sound.board.id === activeBoard.id
+        )
+        commit('getBoardData', { boardUsers, boardSounds })
     },
     async signOut({ commit }) {
         await Auth.signOut()
@@ -48,9 +62,12 @@ const mutations = {
     getBoards(state, { boards }) {
         state.boards = boards
     },
-    selectBoard(state, { activeBoard, boardUsers }) {
+    selectBoard(state, { activeBoard }) {
         state.activeBoard = activeBoard
+    },
+    getBoardData(state, { boardUsers, boardSounds }) {
         state.boardUsers = boardUsers
+        state.sounds = boardSounds
     },
     signOut(state) {
         state.user = undefined
