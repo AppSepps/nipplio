@@ -1,3 +1,4 @@
+import { PubSub } from 'aws-amplify'
 import { User, UserBoard, Sound } from '../../models'
 import { DataStore } from '@aws-amplify/datastore'
 import { Auth } from '@aws-amplify/auth'
@@ -43,11 +44,15 @@ const actions = {
         )
         const boardUsers = activeUserBoard.map((ub) => ub.user)
         const sounds = await DataStore.query(Sound)
-        console.log(sounds)
         const boardSounds = sounds.filter(
             (sound) => sound.board.id === activeBoard.id
         )
         commit('getBoardData', { boardUsers, boardSounds })
+    },
+    async playSound(action, params) {
+        const { id } = params
+        console.log('Play sound with id: ' + id)
+        await PubSub.publish('myTopic1', { msg: 'Hello to all subscribers!' })
     },
     async signOut({ commit }) {
         await Auth.signOut()
@@ -74,6 +79,7 @@ const mutations = {
         state.boards = []
         state.activeBoard = undefined
         state.boardUsers = []
+        state.sounds = []
     },
 }
 
