@@ -11,11 +11,14 @@
                 <q-space />
                 <q-btn icon="close" flat round dense v-close-popup />
             </q-card-section>
-            <q-card-section class="q-pt-none">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-                repellendus sit voluptate voluptas eveniet porro. Rerum
-                blanditiis perferendis totam, ea at omnis vel numquam
-                exercitationem aut, natus minima, porro labore.
+            <q-card-section>
+                <q-btn
+                    no-caps
+                    unelevated
+                    color="negative"
+                    label="Sign out"
+                    @click="signOut"
+                />
             </q-card-section>
         </q-card>
     </q-dialog>
@@ -25,6 +28,12 @@
 export default {
     name: 'Settings',
     components: {},
+    methods: {
+        signOut: function () {
+            this.$store.dispatch('app/signOut')
+            this.$router.push('/login')
+        },
+    },
 }
 </script>
 

@@ -52,7 +52,13 @@ const actions = {
     async playSound(action, params) {
         const { id } = params
         console.log('Play sound with id: ' + id)
-        await PubSub.publish('myTopic1', { msg: 'Hello to all subscribers!' })
+        try {
+            await PubSub.publish('myTopic1', {
+                msg: 'Hello to all subscribers!',
+            })
+        } catch (e) {
+            console.log(e)
+        }
     },
     async signOut({ commit }) {
         await Auth.signOut()
