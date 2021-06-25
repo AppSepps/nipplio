@@ -20,6 +20,10 @@
         "addUserToDatabaseOnSignup": {
           "deploymentBucketName": "amplify-nipplio-staging-84647-deployment",
           "s3Key": "amplify-builds/addUserToDatabaseOnSignup-6f4a707a7066364f4e76-build.zip"
+        },
+        "S3Trigger77e5233d": {
+          "deploymentBucketName": "amplify-nipplio-staging-84647-deployment",
+          "s3Key": "amplify-builds/S3Trigger77e5233d-5a30322b454c63394147-build.zip"
         }
       }
     }
