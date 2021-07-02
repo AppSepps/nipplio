@@ -108,11 +108,11 @@ export default {
         }
     },
     computed: mapState({
-        user: (state) => state.app.user,
-        activeBoard: (state) => state.app.activeBoard,
-        boardUsers: (state) => state.app.boardUsers,
-        boards: (state) => state.app.boards,
-        sounds: (state) => state.app.sounds,
+        user: state => state.app.user,
+        activeBoard: state => state.app.activeBoard,
+        boardUsers: state => state.app.boardUsers,
+        boards: state => state.app.boards,
+        sounds: state => state.app.sounds,
     }),
     async mounted() {
         await this.$store.dispatch('app/getUser')

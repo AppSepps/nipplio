@@ -16,7 +16,10 @@ const getters = {}
 const actions = {
     async getUser({ commit }) {
         const authUser = await Auth.currentAuthenticatedUser()
-        const users = await DataStore.query(User, (u) =>
+
+        const credentials = await Auth.currentCredentials()
+        console.log(credentials)
+        const users = await DataStore.query(User, u =>
             u.authUsername('eq', authUser.username)
         )
         const user = users[0]
@@ -25,14 +28,14 @@ const actions = {
     async getBoards({ commit, state }) {
         const userBoards = await DataStore.query(UserBoard)
         const boards = userBoards
-            .filter((ub) => ub.user.id === state.user.id)
-            .map((ub) => ub.board)
+            .filter(ub => ub.user.id === state.user.id)
+            .map(ub => ub.board)
         commit('getBoards', { boards })
     },
     async selectBoard({ commit }, params) {
         const { id } = params
         const userBoards = await DataStore.query(UserBoard)
-        const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
+        const filteredUserBoards = userBoards.filter(ub => ub.board.id === id)
         const activeBoard = filteredUserBoards[0].board
         commit('selectBoard', { activeBoard })
     },
@@ -40,12 +43,12 @@ const actions = {
         const { activeBoard } = state
         const userBoards = await DataStore.query(UserBoard)
         const activeUserBoard = userBoards.filter(
-            (ub) => ub.board.id === activeBoard.id
+            ub => ub.board.id === activeBoard.id
         )
-        const boardUsers = activeUserBoard.map((ub) => ub.user)
+        const boardUsers = activeUserBoard.map(ub => ub.user)
         const sounds = await DataStore.query(Sound)
         const boardSounds = sounds.filter(
-            (sound) => sound.board.id === activeBoard.id
+            sound => sound.board.id === activeBoard.id
         )
         commit('getBoardData', { boardUsers, boardSounds })
     },
