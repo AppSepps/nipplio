@@ -3,17 +3,21 @@
 </template>
 
 <script>
-// import firebase from 'firebase'
-// import firebaseui from 'firebaseui'
+import firebase from 'firebase'
+import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 
 export default {
     name: 'Login',
     components: {},
     mounted() {
-        /*const ui = new firebaseui.auth.AuthUI(firebase.auth())
-        ui.start('#firebaseui-auth-container', {})*/
-        // TODO:
+        this.ui =
+            firebaseui.auth.AuthUI.getInstance() ||
+            new firebaseui.auth.AuthUI(firebase.auth())
+        const uiConfig = {
+            signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+        }
+        this.ui.start('#firebaseui-auth-container', uiConfig)
     },
 }
 </script>

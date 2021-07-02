@@ -22,9 +22,9 @@
             </q-item>
             <q-item clickable v-close-popup @click="onJoinNewBoardClick">
                 <q-item-section>
-                    <q-item-label>Join Board</q-item-label>
+                    <q-item-label>Create Board</q-item-label>
                     <q-item-label caption
-                        >Click here to join a new board</q-item-label
+                        >Click here to create a new board</q-item-label
                     >
                 </q-item-section>
                 <q-item-section avatar>

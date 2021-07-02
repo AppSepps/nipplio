@@ -1,3 +1,5 @@
+import firebase from 'firebase'
+
 function initialState() {
     return {
         selfMute: false,
@@ -78,7 +80,8 @@ const actions = {
         cbSuccess()
     },
     async signOut({ commit }) {
-        commit('signOut', null)
+        await firebase.auth().signOut()
+        commit('signOut')
     },
 }
 
