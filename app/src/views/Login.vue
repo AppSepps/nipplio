@@ -3,8 +3,8 @@
 </template>
 
 <script>
-import firebase from 'firebase'
-import firebaseui from 'firebaseui'
+// import firebase from 'firebase'
+// import firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 
 export default {
