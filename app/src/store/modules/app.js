@@ -3,17 +3,21 @@ import { User, UserBoard, Sound } from '../../models'
 import { DataStore } from '@aws-amplify/datastore'
 import { Auth } from '@aws-amplify/auth'
 
-const state = {
-    selfMute: false,
-    activeBoard: undefined,
-    user: undefined,
-    boards: [],
-    boardUsers: [],
-    sounds: [],
+function initialState() {
+    return {
+        selfMute: false,
+        activeBoard: undefined,
+        user: undefined,
+        boards: [],
+        boardUsers: [],
+        mutedUsers: [],
+        sounds: [],
+    }
 }
 
 const getters = {}
 
+// TODO: Better modularization
 const actions = {
     async toggleSelfMute({ commit, state }) {
         const { selfMute } = state
@@ -69,6 +73,10 @@ const actions = {
         const { id } = params
         action.commit('toggleFavoriteSound', { id })
     },
+    async toggleUserMute(action, params) {
+        const { id } = params
+        action.commit('toggleUserMute', { id })
+    },
     async uploadSoundFile(action, params) {
         const { file, cbSuccess } = params
         console.log('Trying to upload file ' + file)
@@ -76,7 +84,7 @@ const actions = {
     },
     async signOut({ commit }) {
         await Auth.signOut()
-        commit('signOut')
+        commit('signOut', null)
     },
 }
 
@@ -109,19 +117,22 @@ const mutations = {
             return sound
         })
     },
+    toggleUserMute(state, { id }) {
+        state.mutedUsers = state.mutedUsers.includes(id)
+            ? state.mutedUsers.filter((u) => u !== id)
+            : [...state.mutedUsers, id]
+    },
     signOut(state) {
-        state.selfMute = false
-        state.user = undefined
-        state.boards = []
-        state.activeBoard = undefined
-        state.boardUsers = []
-        state.sounds = []
+        const s = initialState()
+        Object.keys(s).forEach((key) => {
+            state[key] = s[key]
+        })
     },
 }
 
 export default {
     namespaced: true,
-    state,
+    state: initialState,
     getters,
     actions,
     mutations,

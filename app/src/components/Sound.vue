@@ -27,13 +27,21 @@
             <q-btn unelevated flat round icon="more_horiz" color="white">
                 <q-menu>
                     <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup>
+                        <q-item
+                            clickable
+                            v-close-popup
+                            @click="onEditClick(sound.id)"
+                        >
                             <q-item-section avatar>
                                 <q-icon name="edit" />
                             </q-item-section>
                             <q-item-section>Edit</q-item-section>
                         </q-item>
-                        <q-item clickable v-close-popup>
+                        <q-item
+                            clickable
+                            v-close-popup
+                            @click="onDeleteClick(sound.id)"
+                        >
                             <q-item-section avatar>
                                 <q-icon name="delete" color="red" />
                             </q-item-section>
@@ -59,6 +67,12 @@ export default {
         },
         onFavoriteToggle: async function (id) {
             await this.$store.dispatch('app/toggleFavoriteSound', { id })
+        },
+        onEditClick: async function (id) {
+            console.log('Trying to edit sound ' + id)
+        },
+        onDeleteClick: async function (id) {
+            console.log('Trying to delete sound ' + id)
         },
     },
 }

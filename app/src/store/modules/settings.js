@@ -1,6 +1,8 @@
-const state = {
-    windowToggleShortCut: 'CommandOrControl+P',
-    selfMuteShortCut: 'CommandOrControl+Alt+O',
+function initialState() {
+    return {
+        windowToggleShortCut: 'CommandOrControl+P',
+        selfMuteShortCut: 'CommandOrControl+Alt+O',
+    }
 }
 
 const getters = {}
@@ -27,7 +29,7 @@ const mutations = {
 
 export default {
     namespaced: true,
-    state,
+    state: initialState,
     getters,
     actions,
     mutations,

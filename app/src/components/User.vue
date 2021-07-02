@@ -13,7 +13,14 @@
             <q-item-label caption>Not connected</q-item-label>
         </q-item-section>
         <q-item-section avatar v-if="!isCurrentUser">
-            <q-btn unelevated flat round icon="mic_off" color="red" />
+            <q-btn
+                unelevated
+                flat
+                round
+                :icon="muted ? 'mic_off' : 'mic'"
+                :color="muted ? 'red' : 'primary'"
+                @click="onToggleUserMute(user.id)"
+            />
         </q-item-section>
     </q-item>
 </template>
@@ -21,9 +28,13 @@
 <script>
 export default {
     name: 'User',
-    props: ['user', 'isCurrentUser'],
+    props: ['user', 'isCurrentUser', 'muted'],
     components: {},
-    methods: {},
+    methods: {
+        async onToggleUserMute(id) {
+            await this.$store.dispatch('app/toggleUserMute', { id })
+        },
+    },
 }
 </script>
 

@@ -27,12 +27,12 @@
                     </div>
                 </div>
                 <div class="col-8 q-pr-md">
-                    <div class="row q-pb-md">
+                    <div class="row q-pb-md" v-if="activeBoard">
                         <q-input
                             class="col-9 q-pr-md"
                             outlined
                             v-model="searchText"
-                            placeholder="Search"
+                            placeholder="Search for Sounds..."
                             dense
                         >
                             <template v-slot:prepend>
@@ -69,6 +69,7 @@
                             :key="boardUser.id"
                             :user="boardUser"
                             :isCurrentUser="user.id === boardUser.id"
+                            :muted="mutedUsers.includes(boardUser.id)"
                         />
                     </q-list>
                 </div>
@@ -108,6 +109,7 @@ export default {
         user: (state) => state.app.user,
         activeBoard: (state) => state.app.activeBoard,
         boardUsers: (state) => state.app.boardUsers,
+        mutedUsers: (state) => state.app.mutedUsers,
         boards: (state) => state.app.boards,
         sounds: (state) => state.app.sounds,
     }),
