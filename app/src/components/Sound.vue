@@ -20,7 +20,7 @@
                 round
                 :icon="sound.favorite ? 'favorite' : 'favorite_border'"
                 color="red"
-                @click="onFavoriteToggle"
+                @click="onFavoriteToggle(sound.id)"
             />
         </q-item-section>
         <q-item-section avatar>

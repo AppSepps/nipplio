@@ -10,6 +10,7 @@
                 </div>
                 <div class="col-4 text-right q-gutter-sm q-ml-none">
                     <q-badge color="primary">Alpha</q-badge>
+                    <self-mute-button :selfMute="selfMute" />
                     <q-btn
                         unelevated
                         icon="settings"
@@ -79,9 +80,10 @@
                 <div class="col-4" v-if="boardUsers && boardUsers.length > 0">
                     <q-list bordered separator dark>
                         <user
-                            v-for="user in boardUsers"
-                            :key="user.id"
-                            :user="user"
+                            v-for="boardUser in boardUsers"
+                            :key="boardUser.id"
+                            :user="boardUser"
+                            :isCurrentUser="user.id === boardUser.id"
                         />
                     </q-list>
                 </div>
@@ -96,11 +98,12 @@ import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
 import User from '../components/User.vue'
+import SelfMuteButton from '../components/SelfMuteButton.vue'
 import { mapState } from 'vuex'
 
 export default {
     name: 'Home',
-    components: { Settings, Sound, User, BoardDropdown },
+    components: { Settings, Sound, User, BoardDropdown, SelfMuteButton },
     data() {
         return {
             searchText: '',
@@ -108,6 +111,7 @@ export default {
         }
     },
     computed: mapState({
+        selfMute: (state) => state.app.selfMute,
         user: (state) => state.app.user,
         activeBoard: (state) => state.app.activeBoard,
         boardUsers: (state) => state.app.boardUsers,
