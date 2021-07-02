@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import firebase from 'firebase'
 
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
@@ -14,18 +15,22 @@ const router = createRouter({
 })
 
 router.beforeResolve(async (to, from, next) => {
-    if (to.matched.some((record) => record.meta.auth)) {
-        try {
-            //await Auth.currentAuthenticatedUser()
-            next()
-        } catch {
-            next({
-                path: '/login',
-            })
-        }
+    const requiresAuth = to.matched.some((record) => record.meta.auth)
+    const user = await getCurrentUser()
+    if (requiresAuth && !user) {
+        next('login')
     } else {
         next()
     }
 })
+
+const getCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+        const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+            unsubscribe()
+            resolve(user)
+        }, reject)
+    })
+}
 
 export default router

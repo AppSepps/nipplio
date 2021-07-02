@@ -7,26 +7,28 @@
 </template>
 
 <script>
+import firebase from 'firebase'
+
 export default {
     name: 'App',
     components: {},
     data() {
         return {
-            //unsubscribeAuth: undefined,
+            unsubscribeAuth: undefined,
         }
     },
     created() {
         this.$q.dark.set(true)
-        /*this.unsubscribeAuth = onAuthUIStateChange((authState, user) => {
+        this.unsubscribeAuth = firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 this.$router.push('/')
             } else {
                 this.$router.push('/login')
             }
-        })*/
+        })
     },
     beforeUnmount() {
-        //this.unsubscribeAuth()
+        this.unsubscribeAuth()
     },
 }
 </script>
