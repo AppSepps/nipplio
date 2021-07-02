@@ -16,7 +16,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const WINDOW_WIDTH = 960
-const WINDOW_HEIGHT = 720
+const WINDOW_HEIGHT = 960
 
 let tray = null
 let win = null
@@ -121,11 +121,10 @@ async function createWindow() {
 app.on('ready', async () => {
     app.dock.hide() // Maybe find solution for short jump on mac os bar
     globalShortcut.register('CommandOrControl+P', () => {
-        if (win.isVisible()) {
-            win.hide()
-        } else {
-            show()
-        }
+        onToggleWindowShortCut()
+    })
+    globalShortcut.register('CommandOrControl+Alt+O', () => {
+        onToggleSelfMuteShortCut()
     })
     if (isDevelopment && !process.env.IS_TEST) {
         // Install Vue Devtools
@@ -136,6 +135,10 @@ app.on('ready', async () => {
         }
     }
     createWindow()
+})
+
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
 })
 
 // Exit cleanly on request from parent process in development mode.
@@ -151,4 +154,16 @@ if (isDevelopment) {
             app.quit()
         })
     }
+}
+
+const onToggleWindowShortCut = () => {
+    if (win.isVisible()) {
+        win.hide()
+    } else {
+        show()
+    }
+}
+
+const onToggleSelfMuteShortCut = () => {
+    console.log('Trying to self mute')
 }

@@ -21,6 +21,8 @@ const actions = {
     },
     async getUser({ commit }) {
         const authUser = await Auth.currentAuthenticatedUser()
+        const test = await Auth.currentUserCredentials()
+        console.log(test)
         const users = await DataStore.query(User, (u) =>
             u.authUsername('eq', authUser.username)
         )

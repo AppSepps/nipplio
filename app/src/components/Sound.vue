@@ -5,7 +5,7 @@
                 unelevated
                 round
                 icon="play_arrow"
-                color="positive"
+                color="primary"
                 @click="onSoundPlay(sound.id)"
             />
         </q-item-section>
