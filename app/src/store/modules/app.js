@@ -1,8 +1,3 @@
-import { PubSub } from 'aws-amplify'
-import { User, UserBoard, Sound } from '../../models'
-import { DataStore } from '@aws-amplify/datastore'
-import { Auth } from '@aws-amplify/auth'
-
 function initialState() {
     return {
         selfMute: false,
@@ -24,30 +19,37 @@ const actions = {
         commit('toggleSelfMute', { selfMute: !selfMute })
     },
     async getUser({ commit }) {
-        const authUser = await Auth.currentAuthenticatedUser()
+        console.log(commit)
+        /*const authUser = await Auth.currentAuthenticatedUser()
         const users = await DataStore.query(User, (u) =>
             u.authUsername('eq', authUser.username)
         )
         const user = users[0]
-        commit('getUser', { user })
+        commit('getUser', { user })*/
     },
     async getBoards({ commit, state }) {
-        const userBoards = await DataStore.query(UserBoard)
+        console.log(state)
+        console.log(commit)
+        /*const userBoards = await DataStore.query(UserBoard)
         const boards = userBoards
             .filter((ub) => ub.user.id === state.user.id)
             .map((ub) => ub.board)
-        commit('getBoards', { boards })
+        commit('getBoards', { boards })*/
     },
     async selectBoard({ commit }, params) {
-        const { id } = params
+        console.log(commit)
+        console.log(params)
+        /*const { id } = params
         const userBoards = await DataStore.query(UserBoard)
         const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
         const activeBoard = filteredUserBoards[0].board
-        commit('selectBoard', { activeBoard })
+        commit('selectBoard', { activeBoard })*/
     },
     async getBoardData({ commit, state }) {
         const { activeBoard } = state
-        const userBoards = await DataStore.query(UserBoard)
+        console.log(activeBoard)
+        console.log(commit)
+        /*const userBoards = await DataStore.query(UserBoard)
         const activeUserBoard = userBoards.filter(
             (ub) => ub.board.id === activeBoard.id
         )
@@ -56,18 +58,11 @@ const actions = {
         const boardSounds = sounds.filter(
             (sound) => sound.board.id === activeBoard.id
         )
-        commit('getBoardData', { boardUsers, boardSounds })
+        commit('getBoardData', { boardUsers, boardSounds })*/
     },
     async playSound(action, params) {
         const { id } = params
         console.log('Play sound with id: ' + id)
-        try {
-            await PubSub.publish('myTopic1', {
-                msg: 'Hello to all subscribers!',
-            })
-        } catch (e) {
-            console.log(e)
-        }
     },
     async toggleFavoriteSound(action, params) {
         const { id } = params
@@ -83,7 +78,6 @@ const actions = {
         cbSuccess()
     },
     async signOut({ commit }) {
-        await Auth.signOut()
         commit('signOut', null)
     },
 }

@@ -7,28 +7,26 @@
 </template>
 
 <script>
-import { onAuthUIStateChange } from '@aws-amplify/ui-components'
-
 export default {
     name: 'App',
     components: {},
     data() {
         return {
-            unsubscribeAuth: undefined,
+            //unsubscribeAuth: undefined,
         }
     },
     created() {
         this.$q.dark.set(true)
-        this.unsubscribeAuth = onAuthUIStateChange((authState, user) => {
+        /*this.unsubscribeAuth = onAuthUIStateChange((authState, user) => {
             if (user) {
                 this.$router.push('/')
             } else {
                 this.$router.push('/login')
             }
-        })
+        })*/
     },
     beforeUnmount() {
-        this.unsubscribeAuth()
+        //this.unsubscribeAuth()
     },
 }
 </script>

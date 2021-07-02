@@ -1,5 +1,6 @@
 <template>
-    <amplify-authenticator> </amplify-authenticator>
+    <!-- <amplify-authenticator> </amplify-authenticator> -->
+    <div>Login</div>
 </template>
 
 <script>
