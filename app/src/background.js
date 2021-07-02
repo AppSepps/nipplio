@@ -81,6 +81,7 @@ async function createWindow() {
     }
     // Create the browser window.
     win = new BrowserWindow({
+        userAgent: 'Chrome',
         backgroundColor: '#121212',
         height: WINDOW_HEIGHT,
         width: WINDOW_WIDTH,
@@ -93,20 +94,20 @@ async function createWindow() {
         minimizable: false,
         hasShadow: false,
         icon: __dirname + '/icon.png',
+        nativeWindowOpen: true,
         webPreferences: {
-            // Use pluginOptions.nodeIntegration, leave this alone
-            // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
             nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
         },
     })
-
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
-        await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+        await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL, {
+            userAgent: 'Chrome',
+        })
         if (!process.env.IS_TEST) win.webContents.openDevTools()
     } else {
         createProtocol('app')
