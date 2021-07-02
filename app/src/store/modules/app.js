@@ -4,6 +4,7 @@ import { DataStore } from '@aws-amplify/datastore'
 import { Auth } from '@aws-amplify/auth'
 
 const state = {
+    selfMute: false,
     activeBoard: undefined,
     user: undefined,
     boards: [],
@@ -14,6 +15,10 @@ const state = {
 const getters = {}
 
 const actions = {
+    async toggleSelfMute({ commit, state }) {
+        const { selfMute } = state
+        commit('toggleSelfMute', { selfMute: !selfMute })
+    },
     async getUser({ commit }) {
         const authUser = await Auth.currentAuthenticatedUser()
 
@@ -63,6 +68,10 @@ const actions = {
             console.log(e)
         }
     },
+    async toggleFavoriteSound(action, params) {
+        const { id } = params
+        action.commit('toggleFavoriteSound', { id })
+    },
     async signOut({ commit }) {
         await Auth.signOut()
         commit('signOut')
@@ -70,6 +79,9 @@ const actions = {
 }
 
 const mutations = {
+    toggleSelfMute(state, { selfMute }) {
+        state.selfMute = selfMute
+    },
     getUser(state, { user }) {
         state.user = user
     },
@@ -83,7 +95,20 @@ const mutations = {
         state.boardUsers = boardUsers
         state.sounds = boardSounds
     },
+    toggleFavoriteSound(state, { id }) {
+        // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
+        state.sounds = state.sounds.map((sound) => {
+            if (sound.id === id) {
+                return {
+                    ...sound,
+                    favorite: !sound.favorite,
+                }
+            }
+            return sound
+        })
+    },
     signOut(state) {
+        state.selfMute = false
         state.user = undefined
         state.boards = []
         state.activeBoard = undefined
