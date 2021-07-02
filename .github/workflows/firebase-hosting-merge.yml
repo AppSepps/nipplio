@@ -14,6 +14,7 @@ jobs:
       - run: cd app && npm install && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          entryPoint: "./firebase"
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIPPLIO }}"
           channelId: live
