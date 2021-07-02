@@ -166,5 +166,5 @@ const onToggleWindowShortCut = () => {
 }
 
 const onToggleSelfMuteShortCut = () => {
-    console.log('Trying to self mute')
+    win.webContents.send('mute')
 }

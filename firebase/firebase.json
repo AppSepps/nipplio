@@ -8,7 +8,11 @@
   },
   "hosting": {
     "public": "../app/dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",
@@ -27,7 +31,7 @@
       "port": 5001
     },
     "firestore": {
-      "port": 8080
+      "port": 5003
     },
     "database": {
       "port": 9000

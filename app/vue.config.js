@@ -4,6 +4,9 @@ module.exports = {
             importStrategy: 'kebab',
             rtlSupport: true,
         },
+        electronBuilder: {
+            nodeIntegration: true,
+        },
     },
     transpileDependencies: ['quasar'],
 }
