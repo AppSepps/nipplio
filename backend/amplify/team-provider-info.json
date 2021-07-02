@@ -24,6 +24,14 @@
         "S3Trigger77e5233d": {
           "deploymentBucketName": "amplify-nipplio-staging-84647-deployment",
           "s3Key": "amplify-builds/S3Trigger77e5233d-5a30322b454c63394147-build.zip"
+        },
+        "attachPublicPublish": {
+          "deploymentBucketName": "amplify-nipplio-staging-84647-deployment",
+          "s3Key": "amplify-builds/attachPublicPublish-7454367a6a583355356c-build.zip"
+        },
+        "getIdentityId": {
+          "deploymentBucketName": "amplify-nipplio-staging-84647-deployment",
+          "s3Key": "amplify-builds/getIdentityId-34453833785759763572-build.zip"
         }
       }
     }
