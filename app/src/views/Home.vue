@@ -21,14 +21,7 @@
             </div>
             <div class="row q-pt-md">
                 <div class="col-12 q-pb-md" v-if="user">
-                    <h1 class="text-h5 q-mt-none">
-                        Hello <strong>{{ user.username }}</strong>
-                    </h1>
-                    <div v-if="activeBoard">
-                        You are currently connected with
-                        <strong>{{ activeBoard.name }}</strong>
-                    </div>
-                    <div v-else>
+                    <div v-if="!activeBoard">
                         You are currently not connected with any board. Select a
                         board with the button above or join a new board.
                     </div>
@@ -54,15 +47,7 @@
                                 />
                             </template>
                         </q-input>
-                        <q-btn
-                            class="col-3"
-                            no-caps
-                            unelevated
-                            color="secondary"
-                        >
-                            <q-icon left name="upload" />
-                            <div>Upload</div>
-                        </q-btn>
+                        <sound-upload class="col-3" />
                     </div>
                     <q-list
                         bordered
@@ -99,11 +84,19 @@ import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
 import User from '../components/User.vue'
 import SelfMuteButton from '../components/SelfMuteButton.vue'
+import SoundUpload from '../components/SoundUpload.vue'
 import { mapState } from 'vuex'
 
 export default {
     name: 'Home',
-    components: { Settings, Sound, User, BoardDropdown, SelfMuteButton },
+    components: {
+        Settings,
+        Sound,
+        User,
+        BoardDropdown,
+        SelfMuteButton,
+        SoundUpload,
+    },
     data() {
         return {
             searchText: '',

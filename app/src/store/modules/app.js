@@ -69,6 +69,11 @@ const actions = {
         const { id } = params
         action.commit('toggleFavoriteSound', { id })
     },
+    async uploadSoundFile(action, params) {
+        const { file, cbSuccess } = params
+        console.log('Trying to upload file ' + file)
+        cbSuccess()
+    },
     async signOut({ commit }) {
         await Auth.signOut()
         commit('signOut')
