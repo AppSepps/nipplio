@@ -20,6 +20,12 @@ const actions = {
         const { selfMute } = state
         commit('toggleSelfMute', { selfMute: !selfMute })
     },
+    async createBoard({ commit }, params) {
+        console.log(commit)
+        console.log(params)
+        const createBoard = firebase.functions().httpsCallable('createBoard')
+        await createBoard({ boardName: params.boardName })
+    },
     async getUser({ commit }) {
         console.log(commit)
         /*const authUser = await Auth.currentAuthenticatedUser()
@@ -104,7 +110,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map((sound) => {
+        state.sounds = state.sounds.map(sound => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -116,12 +122,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter((u) => u !== id)
+            ? state.mutedUsers.filter(u => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },
