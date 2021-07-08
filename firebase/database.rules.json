@@ -1,6 +1,16 @@
 {
   "rules": {
     ".read": false,
-    ".write": false
+    ".write": false,
+    "boards": {
+      "$boardId": {
+        ".read": "data.child('users').child(auth.uid).val() !== null"
+      }
+    },
+    "users": {
+      "$userId": {
+        ".read": "$userId === auth.uid"
+      }
+    }
   }
 }

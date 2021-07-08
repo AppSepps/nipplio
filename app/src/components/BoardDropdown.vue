@@ -48,7 +48,7 @@ export default {
         onJoinNewBoardClick: async function() {
             console.log('Trying to join a new board')
             await this.$store.dispatch('app/createBoard', {
-                boardName: 'NewBoardName',
+                boardName: 'NewBoardName' + Math.random() * 1000,
             })
         },
     },

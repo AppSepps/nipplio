@@ -38,15 +38,39 @@ const actions = {
     async getBoards({ commit, state }) {
         console.log(state)
         console.log(commit)
+        commit('getBoards', [])
+        var boardsRef = firebase
+            .database()
+            .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
+
+        boardsRef.on('child_added', snapshot => {
+            firebase
+                .database()
+                .ref('/boards/' + snapshot.key + '/')
+                .on('value', snapshot => {
+                    var name = snapshot.val()['name']
+                    var id = snapshot.key
+                    var obj = {
+                        name,
+                        id,
+                    }
+                    commit('addBoard', obj)
+                })
+        })
         /*const userBoards = await DataStore.query(UserBoard)
         const boards = userBoards
             .filter((ub) => ub.user.id === state.user.id)
             .map((ub) => ub.board)
         commit('getBoards', { boards })*/
     },
-    async selectBoard({ commit }, params) {
+    async selectBoard({ commit, state }, params) {
         console.log(commit)
         console.log(params)
+        state.boards.forEach(board => {
+            if (board.id === params.id) {
+                commit('selectBoard', board)
+            }
+        })
         /*const { id } = params
         const userBoards = await DataStore.query(UserBoard)
         const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
@@ -57,6 +81,14 @@ const actions = {
         const { activeBoard } = state
         console.log(activeBoard)
         console.log(commit)
+        firebase
+            .database()
+            .ref('/sounds/' + activeBoard.id)
+            .on('value', snapshot => {
+                snapshot.forEach(sound => {
+                    console.log(sound.val())
+                })
+            })
         /*const userBoards = await DataStore.query(UserBoard)
         const activeUserBoard = userBoards.filter(
             (ub) => ub.board.id === activeBoard.id
@@ -98,10 +130,14 @@ const mutations = {
     getUser(state, { user }) {
         state.user = user
     },
-    getBoards(state, { boards }) {
+    addBoard(state, board) {
+        console.log(board)
+        state.boards.push(board)
+    },
+    getBoards(state, boards) {
         state.boards = boards
     },
-    selectBoard(state, { activeBoard }) {
+    selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard
     },
     getBoardData(state, { boardUsers, boardSounds }) {
