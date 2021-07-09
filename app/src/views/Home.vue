@@ -7,6 +7,7 @@
                         <board-dropdown
                             :boards="boards"
                             :activeBoard="activeBoard"
+                            v-on:openDialog="showAddBoardDialog = true"
                         />
                         <board-invite />
                     </div>
@@ -79,10 +80,15 @@
             </div>
         </q-page>
         <settings v-model="showSettingsModal" />
+        <add-board-dialog
+            v-model="showAddBoardDialog"
+            v-on:closeDialog="showAddBoardDialog = false"
+        />
     </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
@@ -90,7 +96,7 @@ import User from '../components/User.vue'
 import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
-import { mapState } from 'vuex'
+import AddBoardDialog from '../components/AddBoardDialog.vue'
 
 export default {
     name: 'Home',
@@ -102,11 +108,13 @@ export default {
         SelfMuteButton,
         SoundUpload,
         BoardInvite,
+        AddBoardDialog,
     },
     data() {
         return {
             searchText: '',
             showSettingsModal: false,
+            showAddBoardDialog: false,
         }
     },
     computed: mapState({

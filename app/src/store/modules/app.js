@@ -27,20 +27,16 @@ const actions = {
     },
     async inviteUser(context) {
         const { activeBoard } = context.state
-        let snapshot = await firebase
+        const snapshot = await firebase
             .database()
             .ref('/boardInvites/' + activeBoard.id)
             .push(true)
         console.log('Firebase Invite Key: ' + snapshot.key)
     },
     async getUser({ commit }) {
-        console.log(commit)
-        /*const authUser = await Auth.currentAuthenticatedUser()
-        const users = await DataStore.query(User, (u) =>
-            u.authUsername('eq', authUser.username)
-        )
-        const user = users[0]
-        commit('getUser', { user })*/
+        // TODO: Get user from database
+        const user = firebase.auth().currentUser
+        commit('getUser', { user })
     },
     async getBoards({ commit }) {
         const boardsRef = firebase
@@ -68,6 +64,10 @@ const actions = {
         if (activeBoard) {
             commit('selectBoard', activeBoard)
         }
+    },
+    async joinBoard(context, params) {
+        const { inviteUrl } = params
+        console.log(`Trying to join Board with url ${inviteUrl}`)
     },
     async getBoardData({ commit, state }) {
         console.log(commit)
