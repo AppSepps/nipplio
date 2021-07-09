@@ -11,6 +11,11 @@
       "$userId": {
         ".read": "$userId === auth.uid"
       }
+    },
+    "boardInvites": {
+      "$boardId": {
+        ".write": "root.child('boards').child($boardId).child('owner').val() === auth.uid"
+      }
     }
   }
 }
