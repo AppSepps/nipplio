@@ -19,7 +19,8 @@
     },
     "sounds": {
       "$boardId": {
-        ".write": "root.child('boards').child($boardId).child('users').val().contains(auth.uid)"
+        ".write": "root.child('boards').child($boardId).child('users').child(auth.uid).val() === true",
+        ".read": "root.child('boards').child($boardId).child('users').child(auth.uid).val() === true"
       }
     }
   }
