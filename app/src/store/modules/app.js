@@ -25,7 +25,7 @@ const actions = {
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName })
     },
-    async inviteUser(context, params) {
+    async inviteUser(context) {
         const { activeBoard } = context.state
         /*let snapshot = await firebase
             .database()
