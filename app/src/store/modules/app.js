@@ -25,10 +25,8 @@ const actions = {
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName })
     },
-    async inviteUser({ commit, state }, params) {
-        console.log(commit)
-        console.log(state)
-        console.log(params)
+    async inviteUser(context) {
+        const { activeBoard } = context.state
         /*let snapshot = await firebase
             .database()
             .ref('/boardInvites/' + activeBoard.id)
@@ -39,29 +37,25 @@ const actions = {
             .functions()
             .httpsCallable('createBoard')
         await inviteUserByToken({
-            boardId: state.activeBoard.id,
+            boardId: activeBoard.id,
             token: '-Me8sUTMxS4RahMFtrot',
         })
     },
     async getUser({ commit }) {
-        console.log(commit)
-        /*const authUser = await Auth.currentAuthenticatedUser()
-        const users = await DataStore.query(User, (u) =>
-            u.authUsername('eq', authUser.username)
-        )
-        const user = users[0]
-        commit('getUser', { user })*/
+        // TODO: Get user from database
+        const user = firebase.auth().currentUser
+        commit('getUser', { user })
     },
     async getBoards({ commit }) {
         const boardsRef = firebase
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', snapshot => {
+        boardsRef.on('child_added', (snapshot) => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', snapshot => {
+                .on('value', (snapshot) => {
                     const name = snapshot.val()['name']
                     const id = snapshot.key
                     const board = {
@@ -74,10 +68,14 @@ const actions = {
     },
     async selectBoard({ commit, state }, params) {
         const { id } = params
-        const activeBoard = state.boards.filter(board => board.id === id)[0]
+        const activeBoard = state.boards.filter((board) => board.id === id)[0]
         if (activeBoard) {
             commit('selectBoard', activeBoard)
         }
+    },
+    async joinBoard(context, params) {
+        const { inviteUrl } = params
+        console.log(`Trying to join Board with url ${inviteUrl}`)
     },
     async getBoardData({ commit, state }) {
         console.log(commit)
@@ -85,8 +83,8 @@ const actions = {
         firebase
             .database()
             .ref('/sounds/' + activeBoard.id)
-            .on('value', snapshot => {
-                snapshot.forEach(sound => {
+            .on('value', (snapshot) => {
+                snapshot.forEach((sound) => {
                     console.log(sound.val())
                 })
             })
@@ -146,7 +144,7 @@ const mutations = {
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
-        const ids = state.boards.map(b => b.id)
+        const ids = state.boards.map((b) => b.id)
         const filtered = state.boards.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
@@ -161,7 +159,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map(sound => {
+        state.sounds = state.sounds.map((sound) => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -173,12 +171,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter(u => u !== id)
+            ? state.mutedUsers.filter((u) => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach(key => {
+        Object.keys(s).forEach((key) => {
             state[key] = s[key]
         })
     },

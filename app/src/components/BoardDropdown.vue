@@ -20,11 +20,12 @@
                     <q-icon v-else color="white" name="web" />
                 </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="onJoinNewBoardClick">
+            <q-item clickable v-close-popup @click="openAddBoardDialog">
                 <q-item-section>
-                    <q-item-label>Create Board</q-item-label>
+                    <q-item-label>Add Board</q-item-label>
                     <q-item-label caption
-                        >Click here to create a new board</q-item-label
+                        >Create a new board or join an existing
+                        one</q-item-label
                     >
                 </q-item-section>
                 <q-item-section avatar>
@@ -45,11 +46,8 @@ export default {
             await this.$store.dispatch('app/selectBoard', { id })
             await this.$store.dispatch('app/getBoardData')
         },
-        onJoinNewBoardClick: async function () {
-            console.log('Trying to join a new board')
-            await this.$store.dispatch('app/createBoard', {
-                boardName: 'NewBoardName' + (Math.random() * 1000).toFixed(0),
-            })
+        openAddBoardDialog: function () {
+            this.$emit('openDialog')
         },
     },
 }
