@@ -15,7 +15,7 @@
             @click="$refs.file.click()"
         >
             <q-icon left name="upload" />
-            <div>Upload</div>
+            <div>Upload Sound</div>
         </q-btn>
     </div>
 </template>

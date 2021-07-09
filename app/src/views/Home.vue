@@ -1,90 +1,93 @@
 <template>
-    <div>
-        <q-page padding>
-            <div class="row">
-                <div class="col-8">
-                    <div class="row q-gutter-sm">
-                        <board-dropdown
-                            :boards="boards"
-                            :activeBoard="activeBoard"
-                            v-on:openDialog="showAddBoardDialog = true"
+    <q-layout view="lHh lpr lFf" container style="height: 100vh">
+        <q-header>
+            <q-toolbar class="bg-dark text-white">
+                <board-dropdown
+                    :boards="boards"
+                    :activeBoard="activeBoard"
+                    v-on:openDialog="showAddBoardDialog = true"
+                />
+                <board-invite v-if="activeBoard" class="q-mx-sm" />
+                <sound-upload v-if="activeBoard" />
+                <q-space />
+                <q-input
+                    v-if="activeBoard"
+                    dark
+                    dense
+                    standout
+                    v-model="searchText"
+                    class="q-mx-sm row"
+                    placeholder="Search..."
+                    style="width: 300px !important"
+                >
+                    <template v-slot:append>
+                        <q-icon v-if="searchText === ''" name="search" />
+                        <q-icon
+                            v-else
+                            name="clear"
+                            class="cursor-pointer"
+                            @click="searchText = ''"
                         />
-                        <board-invite />
+                    </template>
+                </q-input>
+                <q-space />
+                <q-badge color="primary">Alpha</q-badge>
+                <self-mute-button :selfMute="selfMute" class="q-mx-sm" />
+                <q-btn
+                    unelevated
+                    icon="settings"
+                    color="grey-9"
+                    @click="showSettingsModal = true"
+                />
+            </q-toolbar>
+        </q-header>
+        <q-page-container>
+            <q-page padding>
+                <div class="row q-pt-md">
+                    <div class="col-12 q-pb-md" v-if="user">
+                        <div v-if="!activeBoard">
+                            You are currently not connected with any board.
+                            Select a board with the button above or join a new
+                            board.
+                        </div>
                     </div>
-                </div>
-                <div class="col-4 text-right q-gutter-sm q-ml-none">
-                    <q-badge color="primary">Alpha</q-badge>
-                    <self-mute-button :selfMute="selfMute" />
-                    <q-btn
-                        unelevated
-                        icon="settings"
-                        color="grey-9"
-                        @click="showSettingsModal = true"
-                    />
-                </div>
-            </div>
-            <div class="row q-pt-md">
-                <div class="col-12 q-pb-md" v-if="user">
-                    <div v-if="!activeBoard">
-                        You are currently not connected with any board. Select a
-                        board with the button above or join a new board.
-                    </div>
-                </div>
-                <div class="col-8 q-pr-md" v-if="activeBoard">
-                    <div class="row">
-                        <q-input
-                            class="q-pr-md col-9"
-                            outlined
-                            v-model="searchText"
-                            placeholder="Search for Sounds..."
-                            dense
+                    <div class="col-8 q-pr-md" v-if="activeBoard">
+                        <q-list
+                            bordered
+                            separator
+                            dark
+                            v-if="sounds && sounds.length > 0"
                         >
-                            <template v-slot:prepend>
-                                <q-icon name="search" />
-                            </template>
-                            <template v-slot:append>
-                                <q-icon
-                                    v-if="searchText !== ''"
-                                    name="close"
-                                    @click="searchText = ''"
-                                    class="cursor-pointer"
-                                />
-                            </template>
-                        </q-input>
-                        <sound-upload class="col-3" />
+                            <sound
+                                v-for="sound in sounds"
+                                :key="sound.id"
+                                :sound="sound"
+                            />
+                        </q-list>
                     </div>
-                    <q-list
-                        bordered
-                        separator
-                        dark
-                        v-if="sounds && sounds.length > 0"
+                    <div
+                        class="col-4"
+                        v-if="boardUsers && boardUsers.length > 0"
                     >
-                        <sound
-                            v-for="sound in sounds"
-                            :key="sound.id"
-                            :sound="sound"
-                        />
-                    </q-list>
+                        <q-list bordered separator dark>
+                            <user
+                                v-for="boardUser in boardUsers"
+                                :key="boardUser.id"
+                                :user="boardUser"
+                                :isCurrentUser="user.id === boardUser.id"
+                                :muted="mutedUsers.includes(boardUser.id)"
+                            />
+                        </q-list>
+                    </div>
                 </div>
-                <div class="col-4" v-if="boardUsers && boardUsers.length > 0">
-                    <q-list bordered separator dark>
-                        <user
-                            v-for="boardUser in boardUsers"
-                            :key="boardUser.id"
-                            :user="boardUser"
-                            :isCurrentUser="user.id === boardUser.id"
-                            :muted="mutedUsers.includes(boardUser.id)"
-                        />
-                    </q-list>
-                </div>
-            </div>
-        </q-page>
+            </q-page>
+        </q-page-container>
         <settings v-model="showSettingsModal" />
         <add-board-dialog
             v-model="showAddBoardDialog"
             v-on:closeDialog="showAddBoardDialog = false"
         />
-    </div>
+    </q-layout>
 </template>
 
 <script>
