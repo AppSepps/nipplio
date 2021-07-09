@@ -39,7 +39,7 @@ const actions = {
             .functions()
             .httpsCallable('createBoard')
         await inviteUserByToken({
-            boardId: activeBoard.id,
+            boardId: state.activeBoard.id,
             token: '-Me8sUTMxS4RahMFtrot',
         })
     },
