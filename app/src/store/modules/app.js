@@ -20,11 +20,10 @@ const actions = {
         const { selfMute } = state
         commit('toggleSelfMute', { selfMute: !selfMute })
     },
-    async createBoard({ commit }, params) {
-        console.log(commit)
-        console.log(params)
+    async createBoard(context, params) {
+        const { boardName } = params
         const createBoard = firebase.functions().httpsCallable('createBoard')
-        await createBoard({ boardName: params.boardName })
+        await createBoard({ boardName })
     },
     async inviteUser({ commit, state }, params) {
         console.log(commit)
@@ -32,7 +31,7 @@ const actions = {
         console.log(params)
         /*let snapshot = await firebase
             .database()
-            .ref('/boardInvites/' + state.activeBoard.id)
+            .ref('/boardInvites/' + activeBoard.id)
             .push(true)
         console.log('Firebase Invite Key: ' + snapshot.key)
         */
@@ -40,7 +39,7 @@ const actions = {
             .functions()
             .httpsCallable('createBoard')
         await inviteUserByToken({
-            boardId: state.activeBoard.id,
+            boardId: activeBoard.id,
             token: '-Me8sUTMxS4RahMFtrot',
         })
     },
@@ -53,11 +52,8 @@ const actions = {
         const user = users[0]
         commit('getUser', { user })*/
     },
-    async getBoards({ commit, state }) {
-        console.log(state)
-        console.log(commit)
-        commit('getBoards', [])
-        var boardsRef = firebase
+    async getBoards({ commit }) {
+        const boardsRef = firebase
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
@@ -66,39 +62,26 @@ const actions = {
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
                 .on('value', snapshot => {
-                    var name = snapshot.val()['name']
-                    var id = snapshot.key
-                    var obj = {
+                    const name = snapshot.val()['name']
+                    const id = snapshot.key
+                    const board = {
                         name,
                         id,
                     }
-                    commit('addBoard', obj)
+                    commit('addBoard', board)
                 })
         })
-        /*const userBoards = await DataStore.query(UserBoard)
-        const boards = userBoards
-            .filter((ub) => ub.user.id === state.user.id)
-            .map((ub) => ub.board)
-        commit('getBoards', { boards })*/
     },
     async selectBoard({ commit, state }, params) {
-        console.log(commit)
-        console.log(params)
-        state.boards.forEach(board => {
-            if (board.id === params.id) {
-                commit('selectBoard', board)
-            }
-        })
-        /*const { id } = params
-        const userBoards = await DataStore.query(UserBoard)
-        const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
-        const activeBoard = filteredUserBoards[0].board
-        commit('selectBoard', { activeBoard })*/
+        const { id } = params
+        const activeBoard = state.boards.filter(board => board.id === id)[0]
+        if (activeBoard) {
+            commit('selectBoard', activeBoard)
+        }
     },
     async getBoardData({ commit, state }) {
-        const { activeBoard } = state
-        console.log(activeBoard)
         console.log(commit)
+        const { activeBoard } = state
         firebase
             .database()
             .ref('/sounds/' + activeBoard.id)
@@ -149,11 +132,12 @@ const mutations = {
         state.user = user
     },
     addBoard(state, board) {
-        console.log(board)
-        state.boards.push(board)
-    },
-    getBoards(state, boards) {
-        state.boards = boards
+        state.boards = [...state.boards, board]
+        const ids = state.boards.map(b => b.id)
+        const filtered = state.boards.filter(
+            ({ id }, index) => !ids.includes(id, index + 1)
+        )
+        state.boards = filtered
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard

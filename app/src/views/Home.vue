@@ -3,10 +3,13 @@
         <q-page padding>
             <div class="row">
                 <div class="col-8">
-                    <board-dropdown
-                        :boards="boards"
-                        :activeBoard="activeBoard"
-                    />
+                    <div class="row q-gutter-sm">
+                        <board-dropdown
+                            :boards="boards"
+                            :activeBoard="activeBoard"
+                        />
+                        <board-invite />
+                    </div>
                 </div>
                 <div class="col-4 text-right q-gutter-sm q-ml-none">
                     <q-badge color="primary">Alpha</q-badge>
@@ -26,10 +29,10 @@
                         board with the button above or join a new board.
                     </div>
                 </div>
-                <div class="col-8 q-pr-md">
-                    <div class="row q-pb-md" v-if="activeBoard">
+                <div class="col-8 q-pr-md" v-if="activeBoard">
+                    <div class="row">
                         <q-input
-                            class="col-6 q-pr-md"
+                            class="q-pr-md col-9"
                             outlined
                             v-model="searchText"
                             placeholder="Search for Sounds..."
@@ -47,8 +50,7 @@
                                 />
                             </template>
                         </q-input>
-                        <board-invite class="col-3 q-mr-md" />
-                        <sound-upload class="col-2" />
+                        <sound-upload class="col-3" />
                     </div>
                     <q-list
                         bordered
@@ -87,8 +89,8 @@ import Sound from '../components/Sound.vue'
 import User from '../components/User.vue'
 import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
-import { mapState } from 'vuex'
 import BoardInvite from '../components/BoardInvite.vue'
+import { mapState } from 'vuex'
 
 export default {
     name: 'Home',
@@ -108,13 +110,13 @@ export default {
         }
     },
     computed: mapState({
-        selfMute: state => state.app.selfMute,
-        user: state => state.app.user,
-        activeBoard: state => state.app.activeBoard,
-        boardUsers: state => state.app.boardUsers,
-        mutedUsers: state => state.app.mutedUsers,
-        boards: state => state.app.boards,
-        sounds: state => state.app.sounds,
+        selfMute: (state) => state.app.selfMute,
+        user: (state) => state.app.user,
+        activeBoard: (state) => state.app.activeBoard,
+        boardUsers: (state) => state.app.boardUsers,
+        mutedUsers: (state) => state.app.mutedUsers,
+        boards: (state) => state.app.boards,
+        sounds: (state) => state.app.sounds,
     }),
     async mounted() {
         await this.$store.dispatch('app/getUser')
