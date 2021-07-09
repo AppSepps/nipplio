@@ -44,7 +44,6 @@ export default {
     methods: {
         onBoardClick: async function (id) {
             await this.$store.dispatch('app/selectBoard', { id })
-            await this.$store.dispatch('app/getBoardData')
         },
         openAddBoardDialog: function () {
             this.$emit('openDialog')

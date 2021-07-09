@@ -50,11 +50,11 @@ const actions = {
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', snapshot => {
+        boardsRef.on('child_added', (snapshot) => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', snapshot => {
+                .on('value', (snapshot) => {
                     const name = snapshot.val()['name']
                     const id = snapshot.key
                     const board = {
@@ -65,14 +65,16 @@ const actions = {
                 })
         })
     },
-    async selectBoard({ commit, state }, params) {
+    async selectBoard({ commit, state, dispatch }, params) {
         const { id } = params
-        const activeBoard = state.boards.filter(board => board.id === id)[0]
+        const activeBoard = state.boards.filter((board) => board.id === id)[0]
         if (activeBoard) {
             commit('selectBoard', activeBoard)
+            dispatch('getSounds')
+            dispatch('subscribeToPlay')
         }
     },
-    async joinBoard(context, params) {
+    async joinBoard({ dispatch }, params) {
         const { inviteUrl } = params
         console.log(`Trying to join Board with url ${inviteUrl}`)
         const url = new URL(inviteUrl)
@@ -82,37 +84,68 @@ const actions = {
         const inviteUserByToken = firebase
             .functions()
             .httpsCallable('addUserByInvite')
-        let response = await inviteUserByToken({
-            boardId: boardId,
-            token: token,
-        })
-        console.log(response)
-    },
-    async getBoardData({ commit, state }) {
-        console.log(commit)
-        const { activeBoard } = state
-        firebase
-            .database()
-            .ref('/sounds/' + activeBoard.id)
-            .on('value', snapshot => {
-                snapshot.forEach(sound => {
-                    console.log(sound.val())
-                })
+        try {
+            let response = await inviteUserByToken({
+                boardId: boardId,
+                token: token,
             })
-        /*const userBoards = await DataStore.query(UserBoard)
-        const activeUserBoard = userBoards.filter(
-            (ub) => ub.board.id === activeBoard.id
-        )
-        const boardUsers = activeUserBoard.map((ub) => ub.user)
-        const sounds = await DataStore.query(Sound)
-        const boardSounds = sounds.filter(
-            (sound) => sound.board.id === activeBoard.id
-        )
-        commit('getBoardData', { boardUsers, boardSounds })*/
+            console.log(response) // TODO: Check response result
+            dispatch('selectBoard', { boardId })
+        } catch (error) {
+            console.log(error)
+        }
     },
-    async playSound(action, params) {
+    async getSounds({ commit, state }) {
+        const { activeBoard } = state
+        const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
+
+        soundsRef.on('child_added', (snapshot) => {
+            commit('addSound', {
+                id: snapshot.key,
+                ...snapshot.val(),
+            })
+        })
+    },
+    async unsubscribeToPlay({ state }) {
+        const { activeBoard } = state
+        if (activeBoard) {
+            firebase
+                .database()
+                .ref('/play/' + activeBoard.id)
+                .off()
+        }
+    },
+    async subscribeToPlay({ state, dispatch }, params) {
+        const { activeBoard } = state
+        const { cbSuccess } = params
+        dispatch('unsubscribeToPlay')
+        if (activeBoard) {
+            const playRef = firebase.database().ref('/play/' + activeBoard.id)
+
+            // TODO: Verhindern, dass der Sound beim Start abgespielt wird
+            playRef.on('value', async (snapshot) => {
+                const play = snapshot.val()
+                const soundUrl = await firebase
+                    .storage()
+                    .ref(`boards/${activeBoard.id}/${play.soundId}`)
+                    .getDownloadURL()
+                cbSuccess(soundUrl) // TODO: Callback richtig handhaben an allen Stellen. Sound am besten in der Sound Komponente abspielen oder extra Komponente
+            })
+        }
+    },
+    async triggerPlaySound({ state }, params) {
+        const { activeBoard, user } = state
         const { id } = params
-        console.log('Play sound with id: ' + id)
+        // const timestamp = firebase.database.ServerValue.TIMESTAMP // Der kommt wieder rein. wenns geht
+        await firebase
+            .database()
+            .ref('/play/' + activeBoard.id)
+            .set({
+                timestamp: new Date(),
+                soundId: id,
+                playedBy: user.uid,
+                mutedUsers: {},
+            })
     },
     async toggleFavoriteSound(action, params) {
         const { id } = params
@@ -124,14 +157,13 @@ const actions = {
     },
     async uploadSoundFile({ state }, params) {
         const { file, cbSuccess } = params
-        console.log('Trying to upload file ' + JSON.stringify(file))
         const soundSnap = await firebase
             .database()
             .ref('/sounds/' + state.activeBoard.id)
             .push({
-                name: 'Soundname',
+                name: file.name,
                 type: file.type,
-                createdAt: new Date(),
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
                 createdBy: firebase.auth().currentUser.uid,
             })
         await firebase
@@ -140,8 +172,9 @@ const actions = {
             .put(file)
         cbSuccess()
     },
-    async signOut({ commit }) {
+    async signOut({ commit, dispatch }) {
         await firebase.auth().signOut()
+        dispatch('unsubscribeToPlay')
         commit('signOut')
     },
 }
@@ -155,11 +188,19 @@ const mutations = {
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
-        const ids = state.boards.map(b => b.id)
+        const ids = state.boards.map((b) => b.id)
         const filtered = state.boards.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
         state.boards = filtered
+    },
+    addSound(state, sound) {
+        state.sounds = [...state.sounds, sound]
+        const ids = state.sounds.map((s) => s.id)
+        const filtered = state.sounds.filter(
+            ({ id }, index) => !ids.includes(id, index + 1)
+        )
+        state.sounds = filtered
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard
@@ -170,7 +211,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map(sound => {
+        state.sounds = state.sounds.map((sound) => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -182,12 +223,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter(u => u !== id)
+            ? state.mutedUsers.filter((u) => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach(key => {
+        Object.keys(s).forEach((key) => {
             state[key] = s[key]
         })
     },

@@ -11,7 +11,7 @@
         </q-item-section>
         <q-item-section>
             <q-item-label>{{ sound.name }}</q-item-label>
-            <q-item-label caption>{{ sound['User'].username }}</q-item-label>
+            <q-item-label caption>{{ sound.createdBy }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
             <q-btn
@@ -63,7 +63,7 @@ export default {
     components: {},
     methods: {
         onSoundPlay: async function (id) {
-            await this.$store.dispatch('app/playSound', { id })
+            await this.$store.dispatch('app/triggerPlaySound', { id })
         },
         onFavoriteToggle: async function (id) {
             await this.$store.dispatch('app/toggleFavoriteSound', { id })

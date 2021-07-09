@@ -107,6 +107,7 @@ export default {
             await this.$store.dispatch('app/joinBoard', {
                 inviteUrl: this.inviteUrlText,
             })
+            this.$emit('closeDialog')
         },
     },
 }

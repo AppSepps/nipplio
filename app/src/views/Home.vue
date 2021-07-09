@@ -44,12 +44,9 @@
         <q-page-container>
             <q-page padding>
                 <div class="row q-pt-md">
-                    <div class="col-12 q-pb-md" v-if="user">
-                        <div v-if="!activeBoard">
-                            You are currently not connected with any board.
-                            Select a board with the button above or join a new
-                            board.
-                        </div>
+                    <div v-if="!activeBoard">
+                        You are currently not connected with any board. Select a
+                        board with the button above or join a new board.
                     </div>
                     <div class="col-8 q-pr-md" v-if="activeBoard">
                         <q-list
@@ -92,6 +89,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import { Howl } from 'howler'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
@@ -118,6 +116,7 @@ export default {
             searchText: '',
             showSettingsModal: false,
             showAddBoardDialog: false,
+            sound: null,
         }
     },
     computed: mapState({
@@ -132,6 +131,21 @@ export default {
     async mounted() {
         await this.$store.dispatch('app/getUser')
         await this.$store.dispatch('app/getBoards')
+        await this.$store.dispatch('app/getSounds')
+        await this.$store.dispatch('app/subscribeToPlay', {
+            cbSuccess: (soundUrl) => {
+                if (this.sound != null) {
+                    this.sound.stop()
+                    this.sound.unload()
+                    this.sound = null
+                }
+                this.sound = new Howl({
+                    src: [soundUrl],
+                    format: ['mp3'],
+                })
+                this.sound.play()
+            },
+        })
     },
     methods: {},
 }
