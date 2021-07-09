@@ -31,7 +31,13 @@ const actions = {
             .database()
             .ref('/boardInvites/' + activeBoard.id)
             .push(true)
-        console.log('Firebase Invite Key: ' + snapshot.key)
+        let url =
+            window.location.origin +
+            '?boardId=' +
+            activeBoard.id +
+            '&token=' +
+            snapshot.key
+        console.log('Firebase Invite Key: ' + url)
     },
     async getUser({ commit }) {
         // TODO: Get user from database
