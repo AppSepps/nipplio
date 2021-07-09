@@ -26,6 +26,16 @@ const actions = {
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName: params.boardName })
     },
+    async inviteUser({ commit, state }, params) {
+        console.log(commit)
+        console.log(state)
+        console.log(params)
+        let snapshot = await firebase
+            .database()
+            .ref('/boardInvites/' + state.activeBoard.id)
+            .push(true)
+        console.log('Firebase Invite Key: ' + snapshot.key)
+    },
     async getUser({ commit }) {
         console.log(commit)
         /*const authUser = await Auth.currentAuthenticatedUser()

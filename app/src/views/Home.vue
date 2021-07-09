@@ -29,7 +29,7 @@
                 <div class="col-8 q-pr-md">
                     <div class="row q-pb-md" v-if="activeBoard">
                         <q-input
-                            class="col-9 q-pr-md"
+                            class="col-6 q-pr-md"
                             outlined
                             v-model="searchText"
                             placeholder="Search for Sounds..."
@@ -47,7 +47,8 @@
                                 />
                             </template>
                         </q-input>
-                        <sound-upload class="col-3" />
+                        <board-invite class="col-3 q-mr-md" />
+                        <sound-upload class="col-2" />
                     </div>
                     <q-list
                         bordered
@@ -87,6 +88,7 @@ import User from '../components/User.vue'
 import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import { mapState } from 'vuex'
+import BoardInvite from '../components/BoardInvite.vue'
 
 export default {
     name: 'Home',
@@ -97,6 +99,7 @@ export default {
         BoardDropdown,
         SelfMuteButton,
         SoundUpload,
+        BoardInvite,
     },
     data() {
         return {
@@ -105,13 +108,13 @@ export default {
         }
     },
     computed: mapState({
-        selfMute: (state) => state.app.selfMute,
-        user: (state) => state.app.user,
-        activeBoard: (state) => state.app.activeBoard,
-        boardUsers: (state) => state.app.boardUsers,
-        mutedUsers: (state) => state.app.mutedUsers,
-        boards: (state) => state.app.boards,
-        sounds: (state) => state.app.sounds,
+        selfMute: state => state.app.selfMute,
+        user: state => state.app.user,
+        activeBoard: state => state.app.activeBoard,
+        boardUsers: state => state.app.boardUsers,
+        mutedUsers: state => state.app.mutedUsers,
+        boards: state => state.app.boards,
+        sounds: state => state.app.sounds,
     }),
     async mounted() {
         await this.$store.dispatch('app/getUser')
