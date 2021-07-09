@@ -1,5 +1,5 @@
 <template>
-    <q-btn-dropdown color="primary" label="Boards">
+    <q-btn-dropdown color="primary" label="Boards" no-caps>
         <q-list>
             <q-item
                 v-for="board in boards"
@@ -41,11 +41,11 @@ export default {
     props: ['boards', 'activeBoard'],
     components: {},
     methods: {
-        onBoardClick: async function(id) {
+        onBoardClick: async function (id) {
             await this.$store.dispatch('app/selectBoard', { id })
             await this.$store.dispatch('app/getBoardData')
         },
-        onJoinNewBoardClick: async function() {
+        onJoinNewBoardClick: async function () {
             console.log('Trying to join a new board')
             await this.$store.dispatch('app/createBoard', {
                 boardName: 'NewBoardName' + (Math.random() * 1000).toFixed(0),

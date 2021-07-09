@@ -25,13 +25,11 @@ const actions = {
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName })
     },
-    async inviteUser({ commit, state }, params) {
-        console.log(commit)
-        console.log(state)
-        console.log(params)
+    async inviteUser(context) {
+        const { activeBoard } = context.state
         let snapshot = await firebase
             .database()
-            .ref('/boardInvites/' + state.activeBoard.id)
+            .ref('/boardInvites/' + activeBoard.id)
             .push(true)
         console.log('Firebase Invite Key: ' + snapshot.key)
     },
@@ -124,8 +122,12 @@ const mutations = {
         state.user = user
     },
     addBoard(state, board) {
-        // Maybe need to filter duplicates
         state.boards = [...state.boards, board]
+        const ids = state.boards.map((b) => b.id)
+        const filtered = state.boards.filter(
+            ({ id }, index) => !ids.includes(id, index + 1)
+        )
+        state.boards = filtered
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard

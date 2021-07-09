@@ -8,7 +8,7 @@
             @click="onInviteClicked"
         >
             <q-icon left name="person_add" />
-            <div>Invite Users</div>
+            <div>Invite users</div>
         </q-btn>
     </div>
 </template>
@@ -18,7 +18,7 @@ export default {
     name: 'BoardInvite',
     components: {},
     methods: {
-        onInviteClicked: async function() {
+        onInviteClicked: async function () {
             await this.$store.dispatch('app/inviteUser')
         },
     },
