@@ -1,5 +1,6 @@
 const onauth = require("./onauth");
 const board = require("./board");
+const invite = require("./invite");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
@@ -12,3 +13,4 @@ admin.initializeApp();
 // });
 exports.onUserCreated = onauth.createUserInDatabase;
 exports.createBoard = board.createBoard;
+exports.addUserByInvite = invite.addUserByInvite;

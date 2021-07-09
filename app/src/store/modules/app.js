@@ -30,11 +30,19 @@ const actions = {
         console.log(commit)
         console.log(state)
         console.log(params)
-        let snapshot = await firebase
+        /*let snapshot = await firebase
             .database()
             .ref('/boardInvites/' + state.activeBoard.id)
             .push(true)
         console.log('Firebase Invite Key: ' + snapshot.key)
+        */
+        const inviteUserByToken = firebase
+            .functions()
+            .httpsCallable('createBoard')
+        await inviteUserByToken({
+            boardId: state.activeBoard.id,
+            token: '-Me8sUTMxS4RahMFtrot',
+        })
     },
     async getUser({ commit }) {
         console.log(commit)
