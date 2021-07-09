@@ -27,19 +27,18 @@ const actions = {
     },
     async inviteUser(context) {
         const { activeBoard } = context.state
-        /*let snapshot = await firebase
+        let snapshot = await firebase
             .database()
             .ref('/boardInvites/' + activeBoard.id)
             .push(true)
-        console.log('Firebase Invite Key: ' + snapshot.key)
-        */
-        const inviteUserByToken = firebase
-            .functions()
-            .httpsCallable('createBoard')
-        await inviteUserByToken({
-            boardId: activeBoard.id,
-            token: '-Me8sUTMxS4RahMFtrot',
-        })
+        let url =
+            window.location.origin +
+            window.location.pathname +
+            '?boardId=' +
+            activeBoard.id +
+            '&token=' +
+            snapshot.key
+        console.log('Firebase Invite Key: ' + url)
     },
     async getUser({ commit }) {
         // TODO: Get user from database
@@ -51,11 +50,11 @@ const actions = {
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', (snapshot) => {
+        boardsRef.on('child_added', snapshot => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
+                .on('value', snapshot => {
                     const name = snapshot.val()['name']
                     const id = snapshot.key
                     const board = {
@@ -68,7 +67,7 @@ const actions = {
     },
     async selectBoard({ commit, state }, params) {
         const { id } = params
-        const activeBoard = state.boards.filter((board) => board.id === id)[0]
+        const activeBoard = state.boards.filter(board => board.id === id)[0]
         if (activeBoard) {
             commit('selectBoard', activeBoard)
         }
@@ -76,6 +75,18 @@ const actions = {
     async joinBoard(context, params) {
         const { inviteUrl } = params
         console.log(`Trying to join Board with url ${inviteUrl}`)
+        const url = new URL(inviteUrl)
+        const boardId = url.searchParams.get('boardId')
+        const token = url.searchParams.get('token')
+
+        const inviteUserByToken = firebase
+            .functions()
+            .httpsCallable('addUserByInvite')
+        let response = await inviteUserByToken({
+            boardId: boardId,
+            token: token,
+        })
+        console.log(response)
     },
     async getBoardData({ commit, state }) {
         console.log(commit)
@@ -83,8 +94,8 @@ const actions = {
         firebase
             .database()
             .ref('/sounds/' + activeBoard.id)
-            .on('value', (snapshot) => {
-                snapshot.forEach((sound) => {
+            .on('value', snapshot => {
+                snapshot.forEach(sound => {
                     console.log(sound.val())
                 })
             })
@@ -144,7 +155,7 @@ const mutations = {
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
-        const ids = state.boards.map((b) => b.id)
+        const ids = state.boards.map(b => b.id)
         const filtered = state.boards.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
@@ -159,7 +170,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map((sound) => {
+        state.sounds = state.sounds.map(sound => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -171,12 +182,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter((u) => u !== id)
+            ? state.mutedUsers.filter(u => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },
