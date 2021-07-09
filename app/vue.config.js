@@ -6,6 +6,12 @@ module.exports = {
         },
         electronBuilder: {
             nodeIntegration: true,
+            builderOptions: {
+                appId: "com.appsepps.nipplio",
+                mac: {
+                    category: "public.app-category.entertainment"
+                }
+            }
         },
     },
     transpileDependencies: ['quasar'],

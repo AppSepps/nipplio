@@ -13,6 +13,16 @@ import {
 import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import ex from 'express'
+
+const express = ex()
+const port = 12345
+
+const appPath = app.getAppPath()
+express.use(require('express').static(path.join(appPath, '/')))
+express.get('/', (_, res) => res.sendFile(path.join(appPath, '/index.html')))
+express.listen(port, () => console.log('Running on ' + port))
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const WINDOW_WIDTH = 960
@@ -112,7 +122,8 @@ async function createWindow() {
     } else {
         createProtocol('app')
         // Load the index.html when not in development
-        win.loadURL('app://./index.html')
+        win.loadURL('http://localhost:' + port)
+        //win.loadURL('app://./index.html')
     }
 }
 

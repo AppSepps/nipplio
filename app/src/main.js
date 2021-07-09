@@ -8,7 +8,7 @@ import App from './App.vue'
 import config from './config'
 
 firebase.initializeApp(config)
-if (location.hostname === 'localhost') {
+if (location.hostname === 'localhost' && location.port !== "12345") {
     firebase.auth().useEmulator('http://localhost:9099')
     firebase.database().useEmulator('localhost', 9000)
     firebase.storage().useEmulator('localhost', 9199)
