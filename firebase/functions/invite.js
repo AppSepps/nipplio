@@ -28,7 +28,14 @@ exports.addUserByInvite = functions.https.onCall(async (data, context) => {
       });
     // Remove invite code
     await inviteTokenRef.set(null);
+    return {
+      message: "added user successfully to board",
+    };
   } else {
     console.log("invite code not valid");
+    throw new functions.https.HttpsError(
+      "invalid-code",
+      "The invite code is not valid"
+    );
   }
 });
