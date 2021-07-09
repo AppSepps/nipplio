@@ -33,6 +33,7 @@ const actions = {
             .push(true)
         let url =
             window.location.origin +
+            window.location.pathname +
             '?boardId=' +
             activeBoard.id +
             '&token=' +
