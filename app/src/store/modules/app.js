@@ -113,9 +113,22 @@ const actions = {
         const { id } = params
         action.commit('toggleUserMute', { id })
     },
-    async uploadSoundFile(action, params) {
+    async uploadSoundFile({ state }, params) {
         const { file, cbSuccess } = params
-        console.log('Trying to upload file ' + file)
+        console.log('Trying to upload file ' + JSON.stringify(file))
+        const soundSnap = await firebase
+            .database()
+            .ref('/sounds/' + state.activeBoard.id)
+            .push({
+                name: 'Soundname',
+                type: file.type,
+                createdAt: new Date(),
+                createdBy: firebase.auth().currentUser.uid,
+            })
+        await firebase
+            .storage()
+            .ref('/boards/' + state.activeBoard.id + '/' + soundSnap.key)
+            .put(file)
         cbSuccess()
     },
     async signOut({ commit }) {
