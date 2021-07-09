@@ -20,11 +20,10 @@ const actions = {
         const { selfMute } = state
         commit('toggleSelfMute', { selfMute: !selfMute })
     },
-    async createBoard({ commit }, params) {
-        console.log(commit)
-        console.log(params)
+    async createBoard(context, params) {
+        const { boardName } = params
         const createBoard = firebase.functions().httpsCallable('createBoard')
-        await createBoard({ boardName: params.boardName })
+        await createBoard({ boardName })
     },
     async getUser({ commit }) {
         console.log(commit)
@@ -35,57 +34,41 @@ const actions = {
         const user = users[0]
         commit('getUser', { user })*/
     },
-    async getBoards({ commit, state }) {
-        console.log(state)
-        console.log(commit)
-        commit('getBoards', [])
-        var boardsRef = firebase
+    async getBoards({ commit }) {
+        const boardsRef = firebase
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', snapshot => {
+        boardsRef.on('child_added', (snapshot) => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', snapshot => {
-                    var name = snapshot.val()['name']
-                    var id = snapshot.key
-                    var obj = {
+                .on('value', (snapshot) => {
+                    const name = snapshot.val()['name']
+                    const id = snapshot.key
+                    const board = {
                         name,
                         id,
                     }
-                    commit('addBoard', obj)
+                    commit('addBoard', board)
                 })
         })
-        /*const userBoards = await DataStore.query(UserBoard)
-        const boards = userBoards
-            .filter((ub) => ub.user.id === state.user.id)
-            .map((ub) => ub.board)
-        commit('getBoards', { boards })*/
     },
     async selectBoard({ commit, state }, params) {
-        console.log(commit)
-        console.log(params)
-        state.boards.forEach(board => {
-            if (board.id === params.id) {
-                commit('selectBoard', board)
-            }
-        })
-        /*const { id } = params
-        const userBoards = await DataStore.query(UserBoard)
-        const filteredUserBoards = userBoards.filter((ub) => ub.board.id === id)
-        const activeBoard = filteredUserBoards[0].board
-        commit('selectBoard', { activeBoard })*/
+        const { id } = params
+        const activeBoard = state.boards.filter((board) => board.id === id)[0]
+        if (activeBoard) {
+            commit('selectBoard', activeBoard)
+        }
     },
     async getBoardData({ commit, state }) {
-        const { activeBoard } = state
-        console.log(activeBoard)
         console.log(commit)
+        const { activeBoard } = state
         firebase
             .database()
             .ref('/sounds/' + activeBoard.id)
-            .on('value', snapshot => {
-                snapshot.forEach(sound => {
+            .on('value', (snapshot) => {
+                snapshot.forEach((sound) => {
                     console.log(sound.val())
                 })
             })
@@ -131,11 +114,8 @@ const mutations = {
         state.user = user
     },
     addBoard(state, board) {
-        console.log(board)
-        state.boards.push(board)
-    },
-    getBoards(state, boards) {
-        state.boards = boards
+        // Maybe need to filter duplicates
+        state.boards = [...state.boards, board]
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard
@@ -146,7 +126,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map(sound => {
+        state.sounds = state.sounds.map((sound) => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -158,12 +138,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter(u => u !== id)
+            ? state.mutedUsers.filter((u) => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach(key => {
+        Object.keys(s).forEach((key) => {
             state[key] = s[key]
         })
     },
