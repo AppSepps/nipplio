@@ -1,4 +1,5 @@
 import firebase from 'firebase'
+import { v4 as uuidv4 } from 'uuid'
 
 function initialState() {
     return {
@@ -72,7 +73,7 @@ const actions = {
         if (activeBoard) {
             commit('selectBoard', activeBoard)
             dispatch('getSounds')
-            dispatch('subscribeToPlay')
+            dispatch('subscribeToPlay', { skipInitial: false })
         }
     },
     async joinBoard({ dispatch }, params) {
@@ -119,14 +120,21 @@ const actions = {
                 .off()
         }
     },
-    async subscribeToPlay({ state, commit, dispatch }) {
+    async subscribeToPlay({ state, commit, dispatch }, params) {
+        let skipInitial =
+            params && params.skipInitial ? params.skipInitial : true
         const { activeBoard } = state
         dispatch('unsubscribeToPlay')
         if (activeBoard) {
             const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
             // TODO: Verhindern, dass der Sound beim Start abgespielt wird
+
             playRef.on('value', async (snapshot) => {
+                if (skipInitial) {
+                    skipInitial = false
+                    return
+                }
                 const play = snapshot.val()
                 const soundUrl = await firebase
                     .storage()
@@ -140,12 +148,11 @@ const actions = {
     async triggerPlaySound({ state }, params) {
         const { activeBoard, user } = state
         const { id } = params
-        // const timestamp = firebase.database.ServerValue.TIMESTAMP // Der kommt wieder rein. wenns geht
         await firebase
             .database()
             .ref('/play/' + activeBoard.id)
             .set({
-                timestamp: new Date(),
+                uuid: uuidv4(),
                 soundId: id,
                 playedBy: user.uid,
                 mutedUsers: {},
