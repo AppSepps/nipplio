@@ -7,7 +7,6 @@ import store from './store'
 import router from './router'
 import App from './App.vue'
 import config from './config'
-import isElectron from 'is-electron'
 
 firebase.initializeApp(config)
 if (location.hostname === 'localhost') {
@@ -31,9 +30,7 @@ firebase.auth().onAuthStateChanged(() => {
     }
 })
 
-if (isElectron()) {
-    require('electron').ipcRenderer.on('mute', async () => {
-        await store.dispatch('app/toggleSelfMute')
-        require('electron').ipcRenderer.send('fromWebToElectron')
-    })
-}
+require('electron').ipcRenderer.on('mute', async () => {
+    await store.dispatch('app/toggleSelfMute')
+    require('electron').ipcRenderer.send('fromWebToElectron')
+})

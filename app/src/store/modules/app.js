@@ -1,6 +1,5 @@
 import firebase from 'firebase'
 import { v4 as uuidv4 } from 'uuid'
-import isElectron from 'is-electron'
 
 function initialState() {
     return {
@@ -36,11 +35,9 @@ const actions = {
         }
 
         commit('toggleSelfMute', { selfMute: !selfMute })
-        if (isElectron()) {
-            require('electron').ipcRenderer.send(
-                !selfMute ? 'setIconToMute' : 'setIconToUnmute'
-            )
-        }
+        require('electron').ipcRenderer.send(
+            !selfMute ? 'setIconToMute' : 'setIconToUnmute'
+        )
     },
     async createBoard(context, params) {
         const { boardName } = params
@@ -67,11 +64,11 @@ const actions = {
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', (snapshot) => {
+        boardsRef.on('child_added', snapshot => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
+                .on('value', snapshot => {
                     const name = snapshot.val()['name']
                     const id = snapshot.key
                     const board = {
@@ -91,14 +88,14 @@ const actions = {
             .database()
             .ref(`/boardUsers/${activeBoard.id}`)
 
-        boardUsersRef.on('child_added', (snapshot) => {
+        boardUsersRef.on('child_added', snapshot => {
             commit('addBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        boardUsersRef.on('child_changed', (snapshot) => {
+        boardUsersRef.on('child_changed', snapshot => {
             commit('changeBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
@@ -108,7 +105,7 @@ const actions = {
     async selectBoard({ commit, state, dispatch }, params) {
         const { boards, selfMute } = state
         const { id } = params
-        const activeBoard = boards.filter((board) => board.id === id)[0]
+        const activeBoard = boards.filter(board => board.id === id)[0]
         if (activeBoard) {
             // TODO: Mark previous board as disconnected
             await firebase
@@ -159,7 +156,7 @@ const actions = {
         }
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
-        soundsRef.on('child_added', (snapshot) => {
+        soundsRef.on('child_added', snapshot => {
             commit('addSound', {
                 id: snapshot.key,
                 ...snapshot.val(),
@@ -182,7 +179,7 @@ const actions = {
         if (activeBoard) {
             const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
-            playRef.on('value', async (snapshot) => {
+            playRef.on('value', async snapshot => {
                 if (skipInitial) {
                     skipInitial = false
                     return
@@ -260,20 +257,20 @@ const mutations = {
     },
     addBoardUser(state, user) {
         state.boardUsers = [...state.boardUsers, user]
-        const ids = state.boardUsers.map((u) => u.id)
+        const ids = state.boardUsers.map(u => u.id)
         const filtered = state.boardUsers.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
         state.boardUsers = filtered
     },
     changeBoardUser(state, user) {
-        state.boardUsers = state.boardUsers.map((u) => {
+        state.boardUsers = state.boardUsers.map(u => {
             return u.id === user.id ? user : u
         })
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
-        const ids = state.boards.map((b) => b.id)
+        const ids = state.boards.map(b => b.id)
         const filtered = state.boards.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
@@ -281,7 +278,7 @@ const mutations = {
     },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
-        const ids = state.sounds.map((s) => s.id)
+        const ids = state.sounds.map(s => s.id)
         const filtered = state.sounds.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
@@ -295,7 +292,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map((sound) => {
+        state.sounds = state.sounds.map(sound => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -307,12 +304,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter((u) => u !== id)
+            ? state.mutedUsers.filter(u => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },
