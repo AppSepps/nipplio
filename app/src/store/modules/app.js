@@ -21,6 +21,9 @@ const actions = {
     async toggleSelfMute({ commit, state }) {
         const { selfMute } = state
         commit('toggleSelfMute', { selfMute: !selfMute })
+        require('electron').ipcRenderer.send(
+            !selfMute ? 'setIconToMute' : 'setIconToUnmute'
+        )
     },
     async createBoard(context, params) {
         const { boardName } = params
@@ -47,11 +50,11 @@ const actions = {
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', (snapshot) => {
+        boardsRef.on('child_added', snapshot => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
+                .on('value', snapshot => {
                     const name = snapshot.val()['name']
                     const id = snapshot.key
                     const board = {
@@ -71,7 +74,7 @@ const actions = {
     },
     async selectBoard({ commit, state, dispatch }, params) {
         const { id } = params
-        const activeBoard = state.boards.filter((board) => board.id === id)[0]
+        const activeBoard = state.boards.filter(board => board.id === id)[0]
         if (activeBoard) {
             commit('selectBoard', activeBoard)
             dispatch('getBoardUsers')
@@ -108,7 +111,7 @@ const actions = {
         }
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
-        soundsRef.on('child_added', (snapshot) => {
+        soundsRef.on('child_added', snapshot => {
             commit('addSound', {
                 id: snapshot.key,
                 ...snapshot.val(),
@@ -131,7 +134,7 @@ const actions = {
         if (activeBoard) {
             const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
-            playRef.on('value', async (snapshot) => {
+            playRef.on('value', async snapshot => {
                 if (skipInitial) {
                     skipInitial = false
                     return
@@ -212,7 +215,7 @@ const mutations = {
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
-        const ids = state.boards.map((b) => b.id)
+        const ids = state.boards.map(b => b.id)
         const filtered = state.boards.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
@@ -220,7 +223,7 @@ const mutations = {
     },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
-        const ids = state.sounds.map((s) => s.id)
+        const ids = state.sounds.map(s => s.id)
         const filtered = state.sounds.filter(
             ({ id }, index) => !ids.includes(id, index + 1)
         )
@@ -238,7 +241,7 @@ const mutations = {
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map((sound) => {
+        state.sounds = state.sounds.map(sound => {
             if (sound.id === id) {
                 return {
                     ...sound,
@@ -250,12 +253,12 @@ const mutations = {
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter((u) => u !== id)
+            ? state.mutedUsers.filter(u => u !== id)
             : [...state.mutedUsers, id]
     },
     signOut(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

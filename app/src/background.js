@@ -34,12 +34,12 @@ const createTray = () => {
     let icon
 
     if (platform === 'darwin' || platform === 'linux') {
-        icon = path.join(__static, 'assets', '/icon.png')
+        icon = path.join(__static, 'assets', '/trayUnmuteTemplate.png')
     } else if (platform === 'win32') {
         icon = path.join(__static, 'assets', '/icon.ico')
     }
     const trayImage = nativeImage.createFromPath(icon)
-    tray = new Tray(trayImage.resize({ width: 16 }))
+    tray = new Tray(trayImage)
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'Show App',
@@ -143,6 +143,20 @@ app.on('ready', async () => {
 
     ipcMain.on('fromWebToElectron', () => {
         console.log('fromWebToElectron')
+    })
+    ipcMain.on('setIconToMute', () => {
+        console.log('setIconToMute')
+        const trayImage = nativeImage.createFromPath(
+            path.join(__static, 'assets', '/trayMuteTemplate.png')
+        )
+        tray.setImage(trayImage)
+    })
+    ipcMain.on('setIconToUnmute', () => {
+        console.log('setIconToUnmute')
+        const trayImage = nativeImage.createFromPath(
+            path.join(__static, 'assets', '/trayUnmuteTemplate.png')
+        )
+        tray.setImage(trayImage)
     })
 })
 
