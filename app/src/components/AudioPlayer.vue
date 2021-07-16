@@ -21,6 +21,7 @@
             <q-btn
                 unelevated
                 no-caps
+                dense
                 flat
                 icon-right="history"
                 label="Recently played"
@@ -43,6 +44,7 @@
                 </q-menu>
             </q-btn>
         </q-item-section>
+        <q-btn dense unelevated color="purple" icon="casino" />
     </q-toolbar>
 </template>
 

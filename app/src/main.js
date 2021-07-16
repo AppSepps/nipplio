@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import firebase from 'firebase'
 import { Quasar } from 'quasar'
-import quasarUserOptions from './quasar-user-options'
+import mitt from 'mitt'
+import quasarConfig from './quasar.conf'
 import store from './store'
 import router from './router'
 import App from './App.vue'
@@ -19,9 +20,12 @@ if (location.hostname === 'localhost') {
 let app
 firebase.auth().onAuthStateChanged(() => {
     if (!app) {
+        const bus = mitt()
+
         app = createApp(App)
+        app.config.globalProperties.bus = bus
         app.use(store)
-        app.use(Quasar, quasarUserOptions)
+        app.use(Quasar, quasarConfig)
         app.use(router)
         app.mount('#app')
     }

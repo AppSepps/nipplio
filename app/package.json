@@ -27,6 +27,7 @@
         "firebase": "^8.7.0",
         "firebaseui": "^4.8.0",
         "howler": "^2.2.3",
+        "mitt": "^3.0.0",
         "is-electron": "^2.2.0",
         "moment": "^2.29.1",
         "path": "^0.12.7",
