@@ -10,6 +10,7 @@ import {
     globalShortcut,
     screen,
 } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -21,6 +22,8 @@ const WINDOW_HEIGHT = 960
 
 let tray = null
 let win = null
+
+autoUpdater.checkForUpdatesAndNotify()
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
