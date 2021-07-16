@@ -23,8 +23,6 @@ const WINDOW_HEIGHT = 960
 let tray = null
 let win = null
 
-autoUpdater.checkForUpdatesAndNotify()
-
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } },
@@ -142,6 +140,7 @@ app.on('ready', async () => {
         }
     }
     createWindow()
+    autoUpdater.checkForUpdatesAndNotify()
 })
 
 app.on('will-quit', () => {
