@@ -98,8 +98,8 @@ async function createWindow() {
         icon: __dirname + '/icon.png',
         nativeWindowOpen: true,
         webPreferences: {
-            nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+            nodeIntegration: true,
+            contextIsolation: false,
         },
     })
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
