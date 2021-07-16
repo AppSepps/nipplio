@@ -13,15 +13,6 @@ import {
 import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import ex from 'express'
-
-const express = ex()
-const port = 12345
-
-const appPath = app.getAppPath()
-express.use(require('express').static(path.join(appPath, '/')))
-express.get('/', (_, res) => res.sendFile(path.join(appPath, '/index.html')))
-express.listen(port, () => console.log('Running on ' + port))
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -114,6 +105,7 @@ async function createWindow() {
     win.setAlwaysOnTop(true, 'floating')
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
+        console.log('is WEBPACK_DEV_SERVER_URL')
         // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL, {
             userAgent: 'Chrome',
@@ -122,7 +114,7 @@ async function createWindow() {
     } else {
         createProtocol('app')
         // Load the index.html when not in development
-        win.loadURL('http://localhost:' + port)
+        win.loadURL('https://nipplio.web.app')
         //win.loadURL('app://./index.html')
     }
 }
@@ -156,7 +148,7 @@ app.on('will-quit', () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
-        process.on('message', (data) => {
+        process.on('message', data => {
             if (data === 'graceful-exit') {
                 app.quit()
             }
