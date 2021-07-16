@@ -10,9 +10,8 @@
                 {{ soundName }}
             </div>
             <div class="text-caption">
-                {{ playedSound ? playedSound.playedBy : '*zirp*' }}
+                {{ playedBy.displayName }} [{{ soundDate }}]
             </div>
-            <div class="text-cation">Played at: {{ soundDate }}</div>
         </div>
         <q-space />
         <div>{{ progress }}</div>
@@ -89,7 +88,14 @@ export default {
                     'HH:mm:ss'
                 )
             }
-            return moment()
+            return moment().format('HH:mm:ss')
+        },
+        playedBy: (state) => {
+            return state.app.playedSound
+                ? state.app.boardUsers.filter(
+                      (u) => u.id === state.app.playedSound.playedBy
+                  )[0]
+                : '*chirp*'
         },
         playedSound: (state) => state.app.playedSound,
         playingColor: function (state) {
