@@ -71,13 +71,7 @@
                         v-if="boardUsers && boardUsers.length > 0"
                     >
                         <q-list bordered separator dark>
-                            <user
-                                v-for="boardUser in boardUsers"
-                                :key="boardUser.id"
-                                :user="boardUser"
-                                :isCurrentUser="user.id === boardUser.id"
-                                :muted="mutedUsers.includes(boardUser.id)"
-                            />
+                            <div>User</div>
                         </q-list>
                     </div>
                 </div>
@@ -91,10 +85,7 @@
             v-model="showAddBoardDialog"
             v-on:closeDialog="showAddBoardDialog = false"
         />
-        <board-invite-dialog
-            v-model="showBoardInviteDialog"
-            :url="boardInviteUrl"
-        />
+        <board-invite-dialog v-model="showBoardInviteDialog" />
     </q-layout>
 </template>
 
@@ -103,7 +94,6 @@ import { mapState } from 'vuex'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
-import User from '../components/User.vue'
 import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
@@ -116,7 +106,6 @@ export default {
     components: {
         Settings,
         Sound,
-        User,
         BoardDropdown,
         SelfMuteButton,
         SoundUpload,
@@ -146,6 +135,7 @@ export default {
         await this.$store.dispatch('app/getUser')
         await this.$store.dispatch('app/getBoards')
         await this.$store.dispatch('app/getSounds')
+        await this.$store.dispatch('app/getBoardUsers')
         await this.$store.dispatch('app/unsubscribeToPlay')
         await this.$store.dispatch('app/subscribeToPlay')
     },
