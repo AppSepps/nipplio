@@ -1,20 +1,32 @@
 <template>
-    <q-toolbar class="bg-dark footer q-py-md">
-        <q-avatar
-            :color="playingColor"
-            text-color="white"
-            :icon="playingIcon"
-        />
-        <div class="column q-mx-md">
-            <div class="text-bold">
-                {{ soundName }}
-            </div>
-            <div class="text-caption">
-                {{ playedBy.displayName }} [{{ soundDate }}]
+    <q-toolbar class="bg-dark row footer q-py-md">
+        <div class="col-4 row">
+            <q-avatar
+                :color="playingColor"
+                text-color="white"
+                :icon="playingIcon"
+            />
+            <div class="column q-mx-md">
+                <div class="text-bold audio-player-sound-name">
+                    {{ soundName }}
+                </div>
+                <div class="text-caption">
+                    {{ playedBy.displayName }} [{{ soundDate }}]
+                </div>
             </div>
         </div>
-        <q-space />
-        <div>{{ progress }}</div>
+        <div class="col-4 row">
+            <div class="text-caption">0:00</div>
+            <q-linear-progress
+                :value="progress"
+                :color="
+                    playedSound && playedSound.random ? 'purple' : 'primary'
+                "
+                class="q-mx-sm"
+                style="max-width: 350px; margin-top: 7px"
+            />
+            <div class="text-caption">0:10</div>
+        </div>
         <q-space />
         <q-item-section avatar>
             <q-btn
@@ -122,7 +134,7 @@ export default {
                     this.playing = true
                     this.progressInterval = setInterval(() => {
                         this.updateProgress()
-                    }, 200)
+                    }, 100)
                 },
                 onstop: () => {
                     this.playing = false

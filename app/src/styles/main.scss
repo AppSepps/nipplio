@@ -11,6 +11,13 @@ body.body--dark {
     }
 }
 
+.audio-player-sound-name {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+}
+
 .footer {
     border-top: 1px solid #ffffff47;
 }
