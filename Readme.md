@@ -26,7 +26,7 @@
       }
     }
   },
-  "connectedUsers": {
+  "boardUsers": {
     "boardid1": {
       "userid1": {
         "displayName": "Max Mustermann",
