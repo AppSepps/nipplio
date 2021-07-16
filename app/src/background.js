@@ -138,7 +138,7 @@ app.on('ready', async () => {
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
-    globalShortcut.register('CommandOrControl+Alt+O', () => {
+    globalShortcut.register('CommandOrControl+Shift+S', () => {
         onToggleSelfMuteShortCut()
     })
     if (isDevelopment && !process.env.IS_TEST) {
