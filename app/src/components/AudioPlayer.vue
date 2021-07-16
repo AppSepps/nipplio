@@ -12,6 +12,7 @@
             <div class="text-caption">
                 {{ playedSound ? playedSound.playedBy : '*zirp*' }}
             </div>
+            <div class="text-cation">Played at: {{ soundDate }}</div>
         </div>
         <q-space />
         <div>{{ progress }}</div>
@@ -48,6 +49,7 @@
 <script>
 import { mapState } from 'vuex'
 import { Howl } from 'howler'
+import moment from 'moment'
 
 export default {
     name: 'Player',
@@ -71,6 +73,14 @@ export default {
                 }
             }
             return 'Crickets are zirping.mp3'
+        },
+        soundDate: (state) => {
+            if (state.app.playedSound) {
+                return moment(state.app.playedSound.timestamp).format(
+                    'HH:mm:ss'
+                )
+            }
+            return moment()
         },
         playedSound: (state) => state.app.playedSound,
     }),

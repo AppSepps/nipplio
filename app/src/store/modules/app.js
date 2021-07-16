@@ -73,6 +73,7 @@ const actions = {
         if (activeBoard) {
             commit('selectBoard', activeBoard)
             dispatch('getSounds')
+            dispatch('unsubscribeToPlay')
             dispatch('subscribeToPlay', { skipInitial: false })
         }
     },
@@ -120,15 +121,12 @@ const actions = {
                 .off()
         }
     },
-    async subscribeToPlay({ state, commit, dispatch }, params) {
+    async subscribeToPlay({ state, commit }, params) {
         let skipInitial =
             params && params.skipInitial ? params.skipInitial : true
         const { activeBoard } = state
-        dispatch('unsubscribeToPlay')
         if (activeBoard) {
             const playRef = firebase.database().ref('/play/' + activeBoard.id)
-
-            // TODO: Verhindern, dass der Sound beim Start abgespielt wird
 
             playRef.on('value', async (snapshot) => {
                 if (skipInitial) {
@@ -140,7 +138,7 @@ const actions = {
                     .storage()
                     .ref(`boards/${activeBoard.id}/${play.soundId}`)
                     .getDownloadURL()
-                const playedSound = { ...play, soundUrl }
+                const playedSound = { ...play, soundUrl, timestamp: new Date() }
                 commit('updatePlayedSound', { playedSound })
             })
         }

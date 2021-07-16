@@ -135,6 +135,7 @@ export default {
         await this.$store.dispatch('app/getUser')
         await this.$store.dispatch('app/getBoards')
         await this.$store.dispatch('app/getSounds')
+        await this.$store.dispatch('app/unsubscribeToPlay')
         await this.$store.dispatch('app/subscribeToPlay')
     },
     methods: {},
