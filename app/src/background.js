@@ -21,6 +21,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 const WINDOW_WIDTH = 1400
 const WINDOW_HEIGHT = 960
 
+let willQuitApp = false
 let tray = null
 let win = null
 
@@ -103,6 +104,16 @@ async function createWindow() {
     })
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
+    win.on('close', e => {
+        if (willQuitApp) {
+            /* the user tried to quit the app */
+            win = null
+        } else {
+            /* the user only tried to close the window */
+            e.preventDefault()
+            win.hide()
+        }
+    })
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         console.log('is WEBPACK_DEV_SERVER_URL')
@@ -163,6 +174,10 @@ app.on('ready', async () => {
 app.on('will-quit', () => {
     globalShortcut.unregisterAll()
 })
+
+/* 'before-quit' is emitted when Electron receives
+ * the signal to exit and wants to start closing windows */
+app.on('before-quit', () => (willQuitApp = true))
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
