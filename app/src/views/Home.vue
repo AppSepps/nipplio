@@ -47,12 +47,13 @@
         </q-header>
         <q-page-container>
             <q-page padding>
-                <div class="row q-pt-md">
+                <div class="row">
                     <div v-if="!activeBoard">
                         You are currently not connected with any board. Select a
                         board with the button above or join a new board.
                     </div>
                     <div class="col-8 q-pr-md" v-if="activeBoard">
+                        <div class="text-h6 q-pb-sm">Sounds</div>
                         <q-list
                             bordered
                             separator
@@ -70,8 +71,15 @@
                         class="col-4"
                         v-if="boardUsers && boardUsers.length > 0"
                     >
+                        <div class="text-h6 q-pb-sm">Users</div>
                         <q-list bordered separator dark>
-                            <div>User</div>
+                            <user
+                                v-for="boardUser in boardUsers"
+                                :key="boardUser.id"
+                                :user="boardUser"
+                                :isCurrentUser="user.uid === boardUser.id"
+                                :muted="mutedUsers.includes(boardUser.id)"
+                            />
                         </q-list>
                     </div>
                 </div>
@@ -94,6 +102,7 @@ import { mapState } from 'vuex'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
+import User from '../components/User.vue'
 import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
@@ -106,6 +115,7 @@ export default {
     components: {
         Settings,
         Sound,
+        User,
         BoardDropdown,
         SelfMuteButton,
         SoundUpload,

@@ -20,7 +20,21 @@ const getters = {}
 // TODO: Better modularization
 const actions = {
     async toggleSelfMute({ commit, state }) {
-        const { selfMute } = state
+        const { selfMute, activeBoard } = state
+
+        if (activeBoard) {
+            await firebase
+                .database()
+                .ref(
+                    `/boardUsers/${activeBoard.id}/${
+                        firebase.auth().currentUser.uid
+                    }`
+                )
+                .update({
+                    muted: !selfMute,
+                })
+        }
+
         commit('toggleSelfMute', { selfMute: !selfMute })
         if (isElectron()) {
             require('electron').ipcRenderer.send(
@@ -79,6 +93,13 @@ const actions = {
 
         boardUsersRef.on('child_added', (snapshot) => {
             commit('addBoardUser', {
+                id: snapshot.key,
+                ...snapshot.val(),
+            })
+        })
+
+        boardUsersRef.on('child_changed', (snapshot) => {
+            commit('changeBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
@@ -244,6 +265,11 @@ const mutations = {
             ({ id }, index) => !ids.includes(id, index + 1)
         )
         state.boardUsers = filtered
+    },
+    changeBoardUser(state, user) {
+        state.boardUsers = state.boardUsers.map((u) => {
+            return u.id === user.id ? user : u
+        })
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
