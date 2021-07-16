@@ -9,6 +9,7 @@ import {
     Tray,
     globalShortcut,
     screen,
+    ipcMain,
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
@@ -17,7 +18,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-const WINDOW_WIDTH = 960
+const WINDOW_WIDTH = 1400
 const WINDOW_HEIGHT = 960
 
 let tray = null
@@ -87,8 +88,6 @@ async function createWindow() {
         backgroundColor: '#121212',
         height: WINDOW_HEIGHT,
         width: WINDOW_WIDTH,
-        maxHeight: WINDOW_HEIGHT,
-        maxWidth: WINDOW_WIDTH,
         fullscreenable: false,
         skipTaskbar: true,
         show: false,
@@ -141,6 +140,10 @@ app.on('ready', async () => {
     }
     createWindow()
     autoUpdater.checkForUpdatesAndNotify()
+
+    ipcMain.on('fromWebToElectron', () => {
+        console.log('fromWebToElectron')
+    })
 })
 
 app.on('will-quit', () => {
