@@ -119,6 +119,7 @@ export default {
                     }, 200)
                 },
                 onstop: () => {
+                    this.playing = false
                     this.progress = 0.0
                     clearInterval(this.progressInterval)
                 },
@@ -145,7 +146,7 @@ export default {
             }
         },
         updateProgress() {
-            if (this.playing) {
+            if (this.playing && this.audio) {
                 const progress = (
                     this.audio.seek() / this.audio.duration()
                 ).toFixed(2)
