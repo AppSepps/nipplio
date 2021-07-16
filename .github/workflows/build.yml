@@ -19,6 +19,9 @@ jobs:
           node-version: 14
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
+        env:
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
         with:
           package_root: "./app/"
           build_script_name: "electron:build"
