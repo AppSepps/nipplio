@@ -5,7 +5,7 @@ module.exports = {
             rtlSupport: true,
         },
         electronBuilder: {
-            nodeIntegration: true,
+            nodeIntegration: false,
             publish: ['github'],
             builderOptions: {
                 appId: 'com.appsepps.nipplio',
