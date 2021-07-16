@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "description": "The best Nippleboard of the World!",
     "author": "AppSepps",
+    "repository": "https://github.com/AppSepps/nipplio.git",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
