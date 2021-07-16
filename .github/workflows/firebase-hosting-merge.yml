@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: cd app && npm install && npm run buildForFirebase
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - run: cd app && npm install && npm run buildForFirebase && cd ../firebase/functions && npm install
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
         with:
-          entryPoint: "./firebase"
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIPPLIO }}"
-          channelId: live
-          projectId: nipplio
+          args: deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_PATH: "./firebase"
