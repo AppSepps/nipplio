@@ -1,11 +1,15 @@
 <template>
     <q-item>
         <q-item-section avatar>
+            <q-avatar v-if="user.photoURL">
+                <img v-if="user.photoURL" :src="user.photoURL" />
+            </q-avatar>
             <q-avatar
+                v-else
                 :color="isCurrentUser ? 'primary' : 'secondary'"
                 text-color="white"
             >
-                {{ user.displayName[0].toUpperCase() }}
+                <div>{{ user.displayName[0].toUpperCase() }}</div>
             </q-avatar>
         </q-item-section>
         <q-item-section>

@@ -117,6 +117,7 @@ const actions = {
                 )
                 .set({
                     displayName: firebase.auth().currentUser.displayName,
+                    photoURL: firebase.auth().currentUser.photoURL,
                     connected: true,
                     muted: selfMute,
                 })
