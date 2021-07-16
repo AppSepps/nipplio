@@ -128,7 +128,6 @@ export default {
     data() {
         return {
             searchText: '',
-            boardInviteUrl: '', // TODO: Parent view should not need to know about this
             showSettingsModal: false,
             showAddBoardDialog: false,
             showBoardInviteDialog: false,

@@ -1,9 +1,9 @@
 <template>
     <q-toolbar class="bg-dark footer q-py-md">
         <q-avatar
-            :color="playing ? 'primary' : 'grey'"
+            :color="playingColor"
             text-color="white"
-            icon="graphic_eq"
+            :icon="playingIcon"
         />
         <div class="column q-mx-md">
             <div class="text-bold">
@@ -44,7 +44,13 @@
                 </q-menu>
             </q-btn>
         </q-item-section>
-        <q-btn dense unelevated color="purple" icon="casino" />
+        <q-btn
+            dense
+            unelevated
+            color="purple"
+            icon="casino"
+            @click="onPlayRandomSoundClicked"
+        />
     </q-toolbar>
 </template>
 
@@ -84,8 +90,18 @@ export default {
             }
             return moment()
         },
-        playedSound: state => state.app.playedSound,
         selfMute: state => state.app.selfMute,
+        playedSound: state => state.app.playedSound,
+        playingColor: function(state) {
+            if (!this.playing) {
+                return 'grey'
+            }
+            return state.app.playedSound.random ? 'purple' : 'primary'
+        },
+        playingIcon: state =>
+            state.app.playedSound && state.app.playedSound.random
+                ? 'casino'
+                : 'graphic_eq',
     }),
     watch: {
         selfMute(selfMuted) {
@@ -131,6 +147,9 @@ export default {
                 ).toFixed(2)
                 this.progress = progress
             }
+        },
+        onPlayRandomSoundClicked() {
+            this.$store.dispatch('app/playRandomSound')
         },
     },
 }

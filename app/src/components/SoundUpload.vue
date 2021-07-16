@@ -5,6 +5,7 @@
             ref="file"
             style="display: none"
             accept="audio/mpeg3,.mp4"
+            multiple="multiple"
             @change="onFileUpload"
         />
         <q-btn
@@ -26,9 +27,9 @@ export default {
     methods: {
         async onFileUpload(event) {
             await this.$store.dispatch('app/uploadSoundFile', {
-                file: event.target.files[0],
+                files: event.target.files,
                 cbSuccess: () => {
-                    console.log('File successfully uploaded')
+                    console.log('Files successfully uploaded')
                 },
                 cbError: (error) => {
                     console.log(error)
