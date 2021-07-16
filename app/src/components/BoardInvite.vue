@@ -5,11 +5,10 @@
             no-caps
             unelevated
             color="secondary"
+            icon="person_add"
+            label="Invite users"
             @click="onInviteClicked"
-        >
-            <q-icon left name="person_add" />
-            <div>Invite users</div>
-        </q-btn>
+        />
     </div>
 </template>
 

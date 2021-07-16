@@ -12,11 +12,10 @@
             no-caps
             unelevated
             color="secondary"
+            icon="upload"
+            label="Upload sound"
             @click="$refs.file.click()"
-        >
-            <q-icon left name="upload" />
-            <div>Upload Sound</div>
-        </q-btn>
+        />
     </div>
 </template>
 

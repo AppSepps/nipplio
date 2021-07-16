@@ -79,6 +79,9 @@
                 </div>
             </q-page>
         </q-page-container>
+        <q-footer v-if="activeBoard">
+            <audio-player />
+        </q-footer>
         <settings v-model="showSettingsModal" />
         <add-board-dialog
             v-model="showAddBoardDialog"
@@ -89,7 +92,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import { Howl } from 'howler'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
@@ -98,6 +100,7 @@ import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
+import AudioPlayer from '../components/AudioPlayer.vue'
 
 export default {
     name: 'Home',
@@ -110,13 +113,13 @@ export default {
         SoundUpload,
         BoardInvite,
         AddBoardDialog,
+        AudioPlayer,
     },
     data() {
         return {
             searchText: '',
             showSettingsModal: false,
             showAddBoardDialog: false,
-            sound: null,
         }
     },
     computed: mapState({
@@ -132,20 +135,7 @@ export default {
         await this.$store.dispatch('app/getUser')
         await this.$store.dispatch('app/getBoards')
         await this.$store.dispatch('app/getSounds')
-        await this.$store.dispatch('app/subscribeToPlay', {
-            cbSuccess: (soundUrl) => {
-                if (this.sound != null) {
-                    this.sound.stop()
-                    this.sound.unload()
-                    this.sound = null
-                }
-                this.sound = new Howl({
-                    src: [soundUrl],
-                    format: ['mp3'],
-                })
-                this.sound.play()
-            },
-        })
+        await this.$store.dispatch('app/subscribeToPlay')
     },
     methods: {},
 }

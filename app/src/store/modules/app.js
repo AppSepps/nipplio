@@ -9,6 +9,7 @@ function initialState() {
         boardUsers: [],
         mutedUsers: [],
         sounds: [],
+        playedSound: undefined,
     }
 }
 
@@ -97,6 +98,9 @@ const actions = {
     },
     async getSounds({ commit, state }) {
         const { activeBoard } = state
+        if (!activeBoard) {
+            return
+        }
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
         soundsRef.on('child_added', (snapshot) => {
@@ -115,9 +119,8 @@ const actions = {
                 .off()
         }
     },
-    async subscribeToPlay({ state, dispatch }, params) {
+    async subscribeToPlay({ state, commit, dispatch }) {
         const { activeBoard } = state
-        const { cbSuccess } = params
         dispatch('unsubscribeToPlay')
         if (activeBoard) {
             const playRef = firebase.database().ref('/play/' + activeBoard.id)
@@ -129,7 +132,8 @@ const actions = {
                     .storage()
                     .ref(`boards/${activeBoard.id}/${play.soundId}`)
                     .getDownloadURL()
-                cbSuccess(soundUrl) // TODO: Callback richtig handhaben an allen Stellen. Sound am besten in der Sound Komponente abspielen oder extra Komponente
+                const playedSound = { ...play, soundUrl }
+                commit('updatePlayedSound', { playedSound })
             })
         }
     },
@@ -208,6 +212,9 @@ const mutations = {
     getBoardData(state, { boardUsers, boardSounds }) {
         state.boardUsers = boardUsers
         state.sounds = boardSounds
+    },
+    updatePlayedSound(state, { playedSound }) {
+        state.playedSound = playedSound
     },
     toggleFavoriteSound(state, { id }) {
         // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?

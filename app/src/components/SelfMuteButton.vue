@@ -3,7 +3,7 @@
         unelevated
         round
         flat
-        :icon="selfMute ? 'music_off' : 'audiotrack'"
+        :icon="selfMute ? 'headset_off' : 'headset'"
         color="secondary"
         @click="onMuteToggle"
     />
