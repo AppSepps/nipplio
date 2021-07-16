@@ -27,20 +27,15 @@ const actions = {
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName })
     },
-    async inviteUser(context) {
-        const { activeBoard } = context.state
-        let snapshot = await firebase
+    async inviteUser({ state }, params) {
+        const { activeBoard } = state
+        const { cb } = params
+        const snapshot = await firebase
             .database()
             .ref('/boardInvites/' + activeBoard.id)
             .push(true)
-        let url =
-            window.location.origin +
-            window.location.pathname +
-            '?boardId=' +
-            activeBoard.id +
-            '&token=' +
-            snapshot.key
-        console.log('Firebase Invite Key: ' + url)
+        const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
+        cb(url)
     },
     async getUser({ commit }) {
         // TODO: Get user from database

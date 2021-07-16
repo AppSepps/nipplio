@@ -7,7 +7,11 @@
                     :activeBoard="activeBoard"
                     v-on:openDialog="showAddBoardDialog = true"
                 />
-                <board-invite v-if="activeBoard" class="q-mx-sm" />
+                <board-invite
+                    v-if="activeBoard"
+                    class="q-mx-sm"
+                    v-on:openDialog="showBoardInviteDialog = true"
+                />
                 <sound-upload v-if="activeBoard" />
                 <q-space />
                 <q-input
@@ -87,6 +91,10 @@
             v-model="showAddBoardDialog"
             v-on:closeDialog="showAddBoardDialog = false"
         />
+        <board-invite-dialog
+            v-model="showBoardInviteDialog"
+            :url="boardInviteUrl"
+        />
     </q-layout>
 </template>
 
@@ -101,6 +109,7 @@ import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
+import BoardInviteDialog from '../components/BoardInviteDialog.vue'
 
 export default {
     name: 'Home',
@@ -114,12 +123,15 @@ export default {
         BoardInvite,
         AddBoardDialog,
         AudioPlayer,
+        BoardInviteDialog,
     },
     data() {
         return {
             searchText: '',
+            boardInviteUrl: '', // TODO: Parent view should not need to know about this
             showSettingsModal: false,
             showAddBoardDialog: false,
+            showBoardInviteDialog: false,
         }
     },
     computed: mapState({
