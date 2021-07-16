@@ -6,12 +6,13 @@ module.exports = {
         },
         electronBuilder: {
             nodeIntegration: true,
+            publish: ['github'],
             builderOptions: {
-                appId: "com.appsepps.nipplio",
+                appId: 'com.appsepps.nipplio',
                 mac: {
-                    category: "public.app-category.entertainment"
-                }
-            }
+                    category: 'public.app-category.entertainment',
+                },
+            },
         },
     },
     transpileDependencies: ['quasar'],
