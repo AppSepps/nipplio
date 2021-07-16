@@ -71,6 +71,7 @@ export default {
         }
     },
     computed: mapState({
+        muted: (state) => state.app.selfMute,
         soundName: (state) => {
             if (state.app.playedSound) {
                 const sound = state.app.sounds.filter(
@@ -104,11 +105,10 @@ export default {
     }),
     watch: {
         playedSound(val) {
-            if (this.audio) {
-                this.audio.stop()
-                this.audio.unload()
-                this.audio = undefined
+            if (this.$store.state.app.selfMute) {
+                return
             }
+            this.stopAudioPlaying()
             this.audio = new Howl({
                 src: [val.soundUrl],
                 format: ['mp3'],
@@ -130,8 +130,20 @@ export default {
             })
             this.audio.play()
         },
+        muted(muted) {
+            if (muted) {
+                this.stopAudioPlaying()
+            }
+        },
     },
     methods: {
+        stopAudioPlaying() {
+            if (this.audio) {
+                this.audio.stop()
+                this.audio.unload()
+                this.audio = undefined
+            }
+        },
         updateProgress() {
             if (this.playing) {
                 const progress = (
