@@ -65,10 +65,10 @@ export default {
         }
     },
     computed: mapState({
-        soundName: (state) => {
+        soundName: state => {
             if (state.app.playedSound) {
                 const sound = state.app.sounds.filter(
-                    (sound) => sound.id === state.app.playedSound.soundId
+                    sound => sound.id === state.app.playedSound.soundId
                 )[0]
                 if (sound) {
                     return sound.name
@@ -76,7 +76,7 @@ export default {
             }
             return 'Crickets are zirping.mp3'
         },
-        soundDate: (state) => {
+        soundDate: state => {
             if (state.app.playedSound) {
                 return moment(state.app.playedSound.timestamp).format(
                     'HH:mm:ss'
@@ -84,9 +84,17 @@ export default {
             }
             return moment()
         },
-        playedSound: (state) => state.app.playedSound,
+        playedSound: state => state.app.playedSound,
+        selfMute: state => state.app.selfMute,
     }),
     watch: {
+        selfMute(selfMuted) {
+            if (selfMuted && this.audio) {
+                this.audio.stop()
+                this.audio.unload()
+                this.audio = undefined
+            }
+        },
         playedSound(val) {
             if (this.audio) {
                 this.audio.stop()
