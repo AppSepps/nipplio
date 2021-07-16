@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 14
       - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: lucienkerl/action-electron-builder@master
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
