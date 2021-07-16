@@ -1,5 +1,6 @@
 import firebase from 'firebase'
 import { v4 as uuidv4 } from 'uuid'
+import isElectron from 'is-electron'
 
 function initialState() {
     return {
@@ -21,9 +22,11 @@ const actions = {
     async toggleSelfMute({ commit, state }) {
         const { selfMute } = state
         commit('toggleSelfMute', { selfMute: !selfMute })
-        require('electron').ipcRenderer.send(
-            !selfMute ? 'setIconToMute' : 'setIconToUnmute'
-        )
+        if (isElectron()) {
+            require('electron').ipcRenderer.send(
+                !selfMute ? 'setIconToMute' : 'setIconToUnmute'
+            )
+        }
     },
     async createBoard(context, params) {
         const { boardName } = params
