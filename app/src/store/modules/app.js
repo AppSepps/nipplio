@@ -62,11 +62,19 @@ const actions = {
                 })
         })
     },
+    async getBoardUsers({ state, commit }) {
+        const { activeBoard } = state
+        if (!activeBoard) {
+            return
+        }
+        commit('getBoardUsers', { users: [] })
+    },
     async selectBoard({ commit, state, dispatch }, params) {
         const { id } = params
         const activeBoard = state.boards.filter((board) => board.id === id)[0]
         if (activeBoard) {
             commit('selectBoard', activeBoard)
+            dispatch('getBoardUsers')
             dispatch('getSounds')
             dispatch('unsubscribeToPlay')
             dispatch('subscribeToPlay', { skipInitial: false })
@@ -138,9 +146,14 @@ const actions = {
             })
         }
     },
+    async playRandomSound({ state, dispatch }) {
+        const { sounds } = state
+        const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
+        dispatch('triggerPlaySound', { id: randomSound.id, random: true }) // TODO: Maybe we should extract business logic to utils class and only handle vuex behaviour here
+    },
     async triggerPlaySound({ state }, params) {
         const { activeBoard, user } = state
-        const { id } = params
+        const { id, random = false } = params
         await firebase
             .database()
             .ref('/play/' + activeBoard.id)
@@ -149,6 +162,7 @@ const actions = {
                 soundId: id,
                 playedBy: user.uid,
                 mutedUsers: {},
+                random,
             })
     },
     async toggleFavoriteSound(action, params) {
@@ -160,20 +174,23 @@ const actions = {
         action.commit('toggleUserMute', { id })
     },
     async uploadSoundFile({ state }, params) {
-        const { file, cbSuccess } = params
-        const soundSnap = await firebase
-            .database()
-            .ref('/sounds/' + state.activeBoard.id)
-            .push({
-                name: file.name,
-                type: file.type,
-                createdAt: firebase.database.ServerValue.TIMESTAMP,
-                createdBy: firebase.auth().currentUser.uid,
-            })
-        await firebase
-            .storage()
-            .ref('/boards/' + state.activeBoard.id + '/' + soundSnap.key)
-            .put(file)
+        const { files, cbSuccess } = params
+        for (let file of files) {
+            const soundSnap = await firebase
+                .database()
+                .ref('/sounds/' + state.activeBoard.id)
+                .push({
+                    name: file.name,
+                    type: file.type,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    createdBy: firebase.auth().currentUser.uid,
+                })
+            await firebase
+                .storage()
+                .ref('/boards/' + state.activeBoard.id + '/' + soundSnap.key)
+                .put(file)
+        }
+
         cbSuccess()
     },
     async signOut({ commit, dispatch }) {
@@ -189,6 +206,9 @@ const mutations = {
     },
     getUser(state, { user }) {
         state.user = user
+    },
+    getBoardUsers(state, { users }) {
+        state.boardUsers = users
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]

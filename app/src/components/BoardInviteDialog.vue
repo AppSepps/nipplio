@@ -50,6 +50,7 @@ export default {
             input.select()
             document.execCommand('copy')
             // this.$q.notify('Test') // TODO: Add notify plugin
+            // Maybe Close dialog after copy
         },
     },
 }
