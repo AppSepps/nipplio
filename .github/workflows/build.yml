@@ -17,8 +17,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
-      - name: NPM install
-        run: cd app && npm install
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
