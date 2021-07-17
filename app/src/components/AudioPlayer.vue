@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="col-4 row">
-            <div class="text-caption">0:00</div>
+            <div class="text-caption">{{ audioLengthCurrentFormatted }}</div>
             <q-linear-progress
                 :value="progress"
                 :color="
@@ -25,7 +25,7 @@
                 class="q-mx-sm"
                 style="max-width: 350px; margin-top: 7px"
             />
-            <div class="text-caption">0:10</div>
+            <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
         <q-space />
         <q-item-section avatar>
@@ -78,49 +78,51 @@ export default {
             audio: undefined,
             playing: false,
             progress: 0.0,
+            audioLengthCurrentFormatted: '--:--',
+            audioLengthSecondsFormatted: '--:--',
             progressInterval: undefined,
         }
     },
     computed: mapState({
-        muted: state => state.app.selfMute,
-        soundName: state => {
-            if (state.app.playedSound) {
-                const sound = state.app.sounds.filter(
-                    sound => sound.id === state.app.playedSound.soundId
-                )[0]
-                if (sound) {
-                    return sound.name
+            muted: (state) => state.app.selfMute,
+            soundName: (state) => {
+                if (state.app.playedSound) {
+                    const sound = state.app.sounds.filter(
+                        (sound) => sound.id === state.app.playedSound.soundId
+                    )[0]
+                    if (sound) {
+                        return sound.name
+                    }
                 }
-            }
-            return 'Crickets are zirping.mp3'
-        },
-        soundDate: state => {
-            if (state.app.playedSound) {
-                return moment(state.app.playedSound.timestamp).format(
-                    'HH:mm:ss'
-                )
-            }
-            return moment().format('HH:mm:ss')
-        },
-        playedBy: state => {
-            return state.app.playedSound
-                ? state.app.boardUsers.filter(
-                      u => u.id === state.app.playedSound.playedBy
-                  )[0]
-                : '*chirp*'
-        },
-        playedSound: state => state.app.playedSound,
-        playingColor: function(state) {
-            if (!this.playing) {
-                return 'grey'
-            }
-            return state.app.playedSound.random ? 'purple' : 'primary'
-        },
-        playingIcon: state =>
-            state.app.playedSound && state.app.playedSound.random
-                ? 'casino'
-                : 'graphic_eq',
-    }),
+                return 'Crickets are zirping.mp3'
+            },
+            soundDate: (state) => {
+                if (state.app.playedSound) {
+                    return moment(state.app.playedSound.timestamp).format(
+                        'HH:mm:ss'
+                    )
+                }
+                return moment().format('HH:mm:ss')
+            },
+            playedBy: (state) => {
+                return state.app.playedSound
+                    ? state.app.boardUsers.filter(
+                          (u) => u.id === state.app.playedSound.playedBy
+                      )[0]
+                    : '*chirp*'
+            },
+            playedSound: (state) => state.app.playedSound,
+            playingColor: function (state) {
+                if (!this.playing) {
+                    return 'grey'
+                }
+                return state.app.playedSound.random ? 'purple' : 'primary'
+            },
+            playingIcon: (state) =>
+                state.app.playedSound && state.app.playedSound.random
+                    ? 'casino'
+                    : 'graphic_eq',
+        }),
     watch: {
         playedSound(val) {
             if (this.$store.state.app.selfMute) {
@@ -156,6 +158,12 @@ export default {
         },
     },
     methods: {
+        formatSecondsToString(seconds) {
+            var date = new Date(0)
+            date.setSeconds(seconds) // specify value for SECONDS here
+            var timeString = date.toISOString().substr(14, 5)
+            return timeString
+        },
         stopAudioPlaying() {
             if (this.audio) {
                 this.audio.stop()
@@ -168,7 +176,13 @@ export default {
                 const progress = (
                     this.audio.seek() / this.audio.duration()
                 ).toFixed(2)
-                this.progress = progress
+                this.progress = Number(progress)
+                this.audioLengthCurrentFormatted = this.formatSecondsToString(
+                    this.audio.seek()
+                )
+                this.audioLengthSecondsFormatted = this.formatSecondsToString(
+                    this.audio.duration()
+                )
             }
         },
         onPlayRandomSoundClicked() {
