@@ -149,6 +149,7 @@ export default {
         await this.$store.dispatch('app/getBoardUsers')
         await this.$store.dispatch('app/unsubscribeToPlay')
         await this.$store.dispatch('app/subscribeToPlay')
+        await this.$store.dispatch('app/updateConnectionStatus')
     },
     methods: {},
 }

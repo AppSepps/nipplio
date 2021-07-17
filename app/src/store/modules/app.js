@@ -118,12 +118,9 @@ const actions = {
             })
         })
     },
-    async selectBoard({ commit, state, dispatch }, params) {
-        const { boards, selfMute } = state
-        const { id } = params
-        const activeBoard = boards.filter(board => board.id === id)[0]
+    async updateConnectionStatus({state}) {
+        const { activeBoard, selfMute } = state
         if (activeBoard) {
-            // TODO: Mark previous board as disconnected
             const boardUserRef = firebase.database().ref(`/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid}`)
             await boardUserRef.set({
                     displayName: firebase.auth().currentUser.displayName,
@@ -134,8 +131,17 @@ const actions = {
             await boardUserRef.onDisconnect().update({
                 connected: false
             })
+        }
+    },
+    async selectBoard({ commit, state, dispatch }, params) {
+        const { boards } = state
+        const { id } = params
+        const activeBoard = boards.filter(board => board.id === id)[0]
+        if (activeBoard) {
+            // TODO: Mark previous board as disconnected
 
             commit('selectBoard', activeBoard)
+            dispatch('updateConnectionStatus')
             dispatch('getBoardUsers')
             dispatch('getSounds')
             dispatch('unsubscribeToPlay')
