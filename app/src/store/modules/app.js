@@ -1,5 +1,6 @@
 import firebase from 'firebase'
 import { v4 as uuidv4 } from 'uuid'
+import { useRoute } from 'vue-router'
 
 function initialState() {
     return {
@@ -18,6 +19,16 @@ const getters = {}
 
 // TODO: Better modularization
 const actions = {
+    async checkForInviteLinkInUrl({ dispatch }) {
+        const params = useRoute().query
+        if (params) {
+            const boardId = params.boardId
+            const token = params.token
+            if (boardId && token) {
+                dispatch('joinBoard', { token, boardId })
+            }
+        }
+    },
     async toggleSelfMute({ commit, state }) {
         const { selfMute, activeBoard } = state
 
@@ -35,9 +46,14 @@ const actions = {
         }
 
         commit('toggleSelfMute', { selfMute: !selfMute })
-        require('electron').ipcRenderer.send(
-            !selfMute ? 'setIconToMute' : 'setIconToUnmute'
-        )
+
+        try {
+            require('electron').ipcRenderer.send(
+                !selfMute ? 'setIconToMute' : 'setIconToUnmute'
+            )
+        } catch (error) {
+            console.error(error)
+        }
     },
     async createBoard(context, params) {
         const { boardName } = params
@@ -51,7 +67,7 @@ const actions = {
             .database()
             .ref('/boardInvites/' + activeBoard.id)
             .push(true)
-        const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
+        const url = `${window.location.origin}${window.location.pathname}#/?boardId=${activeBoard.id}&token=${snapshot.key}`
         cb(url)
     },
     async getUser({ commit }) {
@@ -129,13 +145,16 @@ const actions = {
             dispatch('subscribeToPlay', { skipInitial: false })
         }
     },
-    async joinBoard({ dispatch }, params) {
+    async joinBoardWithUrl({ dispatch }, params) {
         const { inviteUrl } = params
         console.log(`Trying to join Board with url ${inviteUrl}`)
         const url = new URL(inviteUrl)
         const boardId = url.searchParams.get('boardId')
         const token = url.searchParams.get('token')
-
+        dispatch('joinBoard', { boardId, token })
+    },
+    async joinBoard({ dispatch }, params) {
+        const { boardId, token } = params
         const inviteUserByToken = firebase
             .functions()
             .httpsCallable('addUserByInvite')

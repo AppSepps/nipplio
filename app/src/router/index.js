@@ -15,7 +15,7 @@ const router = createRouter({
 })
 
 router.beforeResolve(async (to, from, next) => {
-    const requiresAuth = to.matched.some((record) => record.meta.auth)
+    const requiresAuth = to.matched.some(record => record.meta.auth)
     const user = await getCurrentUser()
     if (requiresAuth && !user) {
         next('login')
@@ -26,7 +26,7 @@ router.beforeResolve(async (to, from, next) => {
 
 const getCurrentUser = () => {
     return new Promise((resolve, reject) => {
-        const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+        const unsubscribe = firebase.auth().onAuthStateChanged(user => {
             unsubscribe()
             resolve(user)
         }, reject)

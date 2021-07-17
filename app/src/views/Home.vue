@@ -133,15 +133,16 @@ export default {
         }
     },
     computed: mapState({
-        selfMute: (state) => state.app.selfMute,
-        user: (state) => state.app.user,
-        activeBoard: (state) => state.app.activeBoard,
-        boardUsers: (state) => state.app.boardUsers,
-        mutedUsers: (state) => state.app.mutedUsers,
-        boards: (state) => state.app.boards,
-        sounds: (state) => state.app.sounds,
+        selfMute: state => state.app.selfMute,
+        user: state => state.app.user,
+        activeBoard: state => state.app.activeBoard,
+        boardUsers: state => state.app.boardUsers,
+        mutedUsers: state => state.app.mutedUsers,
+        boards: state => state.app.boards,
+        sounds: state => state.app.sounds,
     }),
     async mounted() {
+        await this.$store.dispatch('app/checkForInviteLinkInUrl')
         await this.$store.dispatch('app/getUser')
         await this.$store.dispatch('app/getBoards')
         await this.$store.dispatch('app/getSounds')

@@ -10,7 +10,7 @@
                 <div class="text-bold audio-player-sound-name">
                     {{ soundName }}
                 </div>
-                <div class="text-caption">
+                <div v-if="playedBy" class="text-caption">
                     {{ playedBy.displayName }} [{{ soundDate }}]
                 </div>
             </div>
@@ -82,11 +82,11 @@ export default {
         }
     },
     computed: mapState({
-        muted: (state) => state.app.selfMute,
-        soundName: (state) => {
+        muted: state => state.app.selfMute,
+        soundName: state => {
             if (state.app.playedSound) {
                 const sound = state.app.sounds.filter(
-                    (sound) => sound.id === state.app.playedSound.soundId
+                    sound => sound.id === state.app.playedSound.soundId
                 )[0]
                 if (sound) {
                     return sound.name
@@ -94,7 +94,7 @@ export default {
             }
             return 'Crickets are zirping.mp3'
         },
-        soundDate: (state) => {
+        soundDate: state => {
             if (state.app.playedSound) {
                 return moment(state.app.playedSound.timestamp).format(
                     'HH:mm:ss'
@@ -102,21 +102,21 @@ export default {
             }
             return moment().format('HH:mm:ss')
         },
-        playedBy: (state) => {
+        playedBy: state => {
             return state.app.playedSound
                 ? state.app.boardUsers.filter(
-                      (u) => u.id === state.app.playedSound.playedBy
+                      u => u.id === state.app.playedSound.playedBy
                   )[0]
                 : '*chirp*'
         },
-        playedSound: (state) => state.app.playedSound,
-        playingColor: function (state) {
+        playedSound: state => state.app.playedSound,
+        playingColor: function(state) {
             if (!this.playing) {
                 return 'grey'
             }
             return state.app.playedSound.random ? 'purple' : 'primary'
         },
-        playingIcon: (state) =>
+        playingIcon: state =>
             state.app.playedSound && state.app.playedSound.random
                 ? 'casino'
                 : 'graphic_eq',

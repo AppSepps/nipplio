@@ -13,6 +13,15 @@ exports.addUserByInvite = functions.https.onCall(async (data, context) => {
   let inviteCodeForBoard = await inviteTokenRef.once("value");
   if (inviteCodeForBoard.val() != null) {
     console.log("invite code valid");
+    // Check if user is already member of board
+    const user = await admin
+      .database()
+      .ref("/boards/" + boardId + "/users/" + uid)
+      .once("value");
+    if (user.exists()) {
+      throw new Error("user-exists", "user already member of board");
+    }
+
     // Add user to board
     await admin
       .database()
