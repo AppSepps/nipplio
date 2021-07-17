@@ -1,6 +1,6 @@
 <template>
     <q-toolbar class="bg-dark row footer q-py-md">
-        <div class="col-4 row">
+        <div class="col-auto row">
             <q-avatar
                 :color="playingColor"
                 text-color="white"
@@ -15,7 +15,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-4 row">
+        <div class="col row flex-center">
             <div class="text-caption">{{ audioLengthCurrentFormatted }}</div>
             <q-linear-progress
                 :value="progress"
@@ -27,7 +27,6 @@
             />
             <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
-        <q-space />
         <q-item-section avatar>
             <q-btn
                 unelevated
@@ -84,45 +83,45 @@ export default {
         }
     },
     computed: mapState({
-            muted: (state) => state.app.selfMute,
-            soundName: (state) => {
-                if (state.app.playedSound) {
-                    const sound = state.app.sounds.filter(
-                        (sound) => sound.id === state.app.playedSound.soundId
-                    )[0]
-                    if (sound) {
-                        return sound.name
-                    }
+        muted: (state) => state.app.selfMute,
+        soundName: (state) => {
+            if (state.app.playedSound) {
+                const sound = state.app.sounds.filter(
+                    (sound) => sound.id === state.app.playedSound.soundId
+                )[0]
+                if (sound) {
+                    return sound.name
                 }
-                return 'Crickets are zirping.mp3'
-            },
-            soundDate: (state) => {
-                if (state.app.playedSound) {
-                    return moment(state.app.playedSound.timestamp).format(
-                        'HH:mm:ss'
-                    )
-                }
-                return moment().format('HH:mm:ss')
-            },
-            playedBy: (state) => {
-                return state.app.playedSound
-                    ? state.app.boardUsers.filter(
-                          (u) => u.id === state.app.playedSound.playedBy
-                      )[0]
-                    : '*chirp*'
-            },
-            playedSound: (state) => state.app.playedSound,
-            playingColor: function (state) {
-                if (!this.playing) {
-                    return 'grey'
-                }
-                return state.app.playedSound.random ? 'purple' : 'primary'
-            },
-            playingIcon: (state) =>
-                state.app.playedSound && state.app.playedSound.random
-                    ? 'casino'
-                    : 'graphic_eq',
-        }),
+            }
+            return 'Crickets are zirping.mp3'
+        },
+        soundDate: (state) => {
+            if (state.app.playedSound) {
+                return moment(state.app.playedSound.timestamp).format(
+                    'HH:mm:ss'
+                )
+            }
+            return moment().format('HH:mm:ss')
+        },
+        playedBy: (state) => {
+            return state.app.playedSound
+                ? state.app.boardUsers.filter(
+                      (u) => u.id === state.app.playedSound.playedBy
+                  )[0]
+                : '*chirp*'
+        },
+        playedSound: (state) => state.app.playedSound,
+        playingColor: function (state) {
+            if (!this.playing) {
+                return 'grey'
+            }
+            return state.app.playedSound.random ? 'purple' : 'primary'
+        },
+        playingIcon: (state) =>
+            state.app.playedSound && state.app.playedSound.random
+                ? 'casino'
+                : 'graphic_eq',
+    }),
     watch: {
         playedSound(val) {
             if (this.$store.state.app.selfMute) {
