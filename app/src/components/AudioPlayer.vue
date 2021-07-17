@@ -168,6 +168,7 @@ export default {
                 this.audio.stop()
                 this.audio.unload()
                 this.audio = undefined
+                this.updateProgress()
             }
         },
         updateProgress() {
@@ -182,6 +183,9 @@ export default {
                 this.audioLengthSecondsFormatted = this.formatSecondsToString(
                     this.audio.duration()
                 )
+            } else {
+                this.audioLengthSecondsFormatted = '--:--'
+                this.audioLengthCurrentFormatted = '--:--'
             }
         },
         onPlayRandomSoundClicked() {
