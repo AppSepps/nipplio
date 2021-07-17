@@ -124,19 +124,16 @@ const actions = {
         const activeBoard = boards.filter(board => board.id === id)[0]
         if (activeBoard) {
             // TODO: Mark previous board as disconnected
-            await firebase
-                .database()
-                .ref(
-                    `/boardUsers/${activeBoard.id}/${
-                        firebase.auth().currentUser.uid
-                    }`
-                )
-                .set({
+            const boardUserRef = firebase.database().ref(`/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid}`)
+            await boardUserRef.set({
                     displayName: firebase.auth().currentUser.displayName,
                     photoURL: firebase.auth().currentUser.photoURL,
                     connected: true,
                     muted: selfMute,
                 })
+            await boardUserRef.onDisconnect().update({
+                connected: false
+            })
 
             commit('selectBoard', activeBoard)
             dispatch('getBoardUsers')
