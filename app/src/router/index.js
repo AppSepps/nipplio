@@ -3,10 +3,12 @@ import firebase from 'firebase'
 
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import SignInDesktop from '../views/SignInDesktop.vue'
 
 const routes = [
     { path: '/', component: Home, meta: { auth: true } },
     { path: '/login', component: Login },
+    { path: '/desktop-sign-in', component: SignInDesktop }
 ]
 
 const router = createRouter({
