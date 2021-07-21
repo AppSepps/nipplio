@@ -1,5 +1,8 @@
 <template>
     <div>
+        <div v-if="showCloseButton">
+            <p>You can now close this window</p>
+        </div>
         <section id="firebaseui-auth-container"></section>
     </div>
 </template>
@@ -11,8 +14,14 @@ import 'firebaseui/dist/firebaseui.css'
 
 export default {
     name: 'SignInDesktop',
+    data() {
+        return {
+            showCloseButton: false,
+        }
+    },
     components: {},
     mounted() {
+        var that = this
         this.ui =
             firebaseui.auth.AuthUI.getInstance() ||
             new firebaseui.auth.AuthUI(firebase.auth())
@@ -29,7 +38,7 @@ export default {
                 },
             ],
             callbacks: {
-                signInSuccessWithAuthResult: async function (
+                signInSuccessWithAuthResult: function (
                     authResult,
                     redirectUrl
                 ) {
@@ -37,36 +46,43 @@ export default {
                     // window.location.href.
                     // ...
                     console.log('Grabbed the user', authResult.user)
+                    console.log(authResult)
+                    console.log(redirectUrl)
 
                     if (!authResult.user) {
                         return true
                     }
-
-                    const params = new URLSearchParams(window.location.search)
-
-                    const token = await authResult.user.getIdToken()
-                    console.log('token', token)
-                    const code = params.get('ot-auth-code')
-                    console.log('code', code)
-
-                    var addUserByInvite = firebase
-                        .functions()
-                        .httpsCallable('createAuthToken')
-                    const result = await addUserByInvite({
-                        'ot-auth-code': code,
-                        'id-token': token,
-                    })
-                    console.log('result', result)
-
-                    console.log(authResult)
-                    console.log(redirectUrl)
-                    window.close()
+                    that.callCreateAuthToken(authResult)
 
                     return false
                 },
             },
         }
         this.ui.start('#firebaseui-auth-container', uiConfig)
+    },
+    methods: {
+        closeWindow: () => {
+            window.close()
+        },
+        callCreateAuthToken: async function (authResult) {
+            const params = new URLSearchParams(window.location.search)
+
+            const token = await authResult.user.getIdToken()
+            console.log('token', token)
+            const code = params.get('ot-auth-code')
+            console.log('code', code)
+
+            var addUserByInvite = firebase
+                .functions()
+                .httpsCallable('createAuthToken')
+            const result = await addUserByInvite({
+                'ot-auth-code': code,
+                'id-token': token,
+            })
+            console.log('result', result)
+            this.showCloseButton = true
+            window.close()
+        },
     },
 }
 </script>

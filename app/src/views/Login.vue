@@ -26,7 +26,7 @@ export default {
                 console.log('authToken', authToken)
                 if (authToken) {
                     await firebase.auth().signInWithCustomToken(authToken)
-                    //await oneTimeCodeRef.remove()
+                    await oneTimeCodeRef.remove()
                     router.push('/')
                 }
             })
