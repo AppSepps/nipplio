@@ -30,17 +30,13 @@ export default {
                     router.push('/')
                 }
             })
-            const googleLink = `/desktop-sign-in?ot-auth-code=${id}`
+            const googleLink = `${window.location.origin}/desktop-sign-in?ot-auth-code=${id}`
             console.log(googleLink)
             try {
-                //require('electron').shell.openExternal(googleLink)
-                require('electron').ipcRenderer.send(
-                    'openExternalBrowser',
-                    googleLink
-                )
+                window.ipcRenderer.send('openExternalBrowser', googleLink)
             } catch (error) {
-                console.log(error)
                 window.open(googleLink, '_blank')
+                console.log(error)
             }
         },
     },

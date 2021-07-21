@@ -101,6 +101,7 @@ async function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js')
         },
     })
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
@@ -156,9 +157,8 @@ app.on('ready', async () => {
     ipcMain.on('fromWebToElectron', () => {
         console.log('fromWebToElectron')
     })
-    ipcMain.on('openExternalBrowser', (data) => {
-        console.log(data)
-        shell.openExternal(googleLink)
+    ipcMain.on('openExternalBrowser', (event, data) => {
+        shell.openExternal(data)
     })
     ipcMain.on('setIconToMute', () => {
         console.log('setIconToMute')

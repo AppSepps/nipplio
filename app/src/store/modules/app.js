@@ -47,7 +47,7 @@ const actions = {
         commit('toggleSelfMute', { selfMute: !selfMute })
 
         try {
-            require('electron').ipcRenderer.send(
+            window.ipcRenderer.send(
                 !selfMute ? 'setIconToMute' : 'setIconToUnmute'
             )
         } catch (error) {

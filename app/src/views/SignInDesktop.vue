@@ -62,7 +62,7 @@ export default {
                     console.log(redirectUrl)
                     window.close()
 
-                    return true
+                    return false
                 },
             },
         }

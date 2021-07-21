@@ -31,9 +31,8 @@ firebase.auth().onAuthStateChanged(() => {
 })
 
 try {
-    require('electron').ipcRenderer.on('mute', async () => {
+    window.ipcRenderer.on('mute', async () => {
         await store.dispatch('app/toggleSelfMute')
-        //electron.ipcRenderer.send('fromWebToElectron')
     })
 } catch (error) {
     console.log(error)
