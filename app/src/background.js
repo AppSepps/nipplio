@@ -155,6 +155,10 @@ app.on('ready', async () => {
     ipcMain.on('fromWebToElectron', () => {
         console.log('fromWebToElectron')
     })
+    ipcMain.on('openExternalBrowser', (data) => {
+        console.log(data)
+        win.open(data, "_blank")
+    })
     ipcMain.on('setIconToMute', () => {
         console.log('setIconToMute')
         const trayImage = nativeImage.createFromPath(

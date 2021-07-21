@@ -36,8 +36,7 @@ const actions = {
             await firebase
                 .database()
                 .ref(
-                    `/boardUsers/${activeBoard.id}/${
-                        firebase.auth().currentUser.uid
+                    `/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid
                     }`
                 )
                 .update({
@@ -118,16 +117,16 @@ const actions = {
             })
         })
     },
-    async updateConnectionStatus({state}) {
+    async updateConnectionStatus({ state }) {
         const { activeBoard, selfMute } = state
         if (activeBoard) {
             const boardUserRef = firebase.database().ref(`/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid}`)
             await boardUserRef.set({
-                    displayName: firebase.auth().currentUser.displayName,
-                    photoURL: firebase.auth().currentUser.photoURL,
-                    connected: true,
-                    muted: selfMute,
-                })
+                displayName: firebase.auth().currentUser.displayName,
+                photoURL: firebase.auth().currentUser.photoURL,
+                connected: true,
+                muted: selfMute,
+            })
             await boardUserRef.onDisconnect().update({
                 connected: false
             })

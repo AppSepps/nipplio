@@ -33,7 +33,11 @@ export default {
             const googleLink = `/desktop-sign-in?ot-auth-code=${id}`
             console.log(googleLink)
             try {
-                require('electron').shell.openExternal(googleLink)
+                //require('electron').shell.openExternal(googleLink)
+                require('electron').ipcRenderer.send(
+                    'openExternalBrowser',
+                    googleLink
+                )
             } catch (error) {
                 console.log(error)
                 window.open(googleLink, '_blank')
