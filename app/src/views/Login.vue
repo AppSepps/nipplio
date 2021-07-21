@@ -6,6 +6,7 @@
 
 <script>
 import firebase from 'firebase'
+import router from '../router'
 import { v4 as uuidv4 } from 'uuid'
 import 'firebaseui/dist/firebaseui.css'
 
@@ -22,12 +23,17 @@ export default {
 
             oneTimeCodeRef.on('value', async (snapshot) => {
                 const authToken = snapshot.val()
-                console.log('authToken', authToken)
-                // Rest of implementation
+                if (authToken) {
+                    console.log('authToken', authToken)
+                    await firebase.auth().signInWithCustomToken(authToken)
+                    await oneTimeCodeRef.remove()
+                    router.push('/')
+                }
             })
             const googleLink = `/desktop-sign-in?ot-auth-code=${id}`
-            require('electron').shell.openExternal(googleLink)
-            //window.open(googleLink, '_blank')
+            console.log(googleLink)
+            //require('electron').shell.openExternal(googleLink)
+            window.open(googleLink, '_blank')
         },
     },
     mounted() {},

@@ -12,5 +12,6 @@ admin.initializeApp();
 //   response.send("Hello from Firebase!");
 // });
 exports.onUserCreated = onauth.createUserInDatabase;
+exports.createAuthToken = onauth.createAuthToken;
 exports.createBoard = board.createBoard;
 exports.addUserByInvite = invite.addUserByInvite;

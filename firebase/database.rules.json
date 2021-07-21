@@ -2,6 +2,10 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "ot-auth-codes": {
+      ".read": true,
+      ".write": true
+    },
     "boards": {
       "$boardId": {
         ".read": "data.child('users').child(auth.uid).val() !== null"
