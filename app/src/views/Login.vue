@@ -32,8 +32,12 @@ export default {
             })
             const googleLink = `/desktop-sign-in?ot-auth-code=${id}`
             console.log(googleLink)
-            //require('electron').shell.openExternal(googleLink)
-            window.open(googleLink, '_blank')
+            try {
+                require('electron').shell.openExternal(googleLink)
+            } catch (error) {
+                console.log(error)
+                window.open(googleLink, '_blank')
+            }
         },
     },
     mounted() {},
