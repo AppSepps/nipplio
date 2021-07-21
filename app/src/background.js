@@ -10,6 +10,7 @@ import {
     globalShortcut,
     screen,
     ipcMain,
+    shell
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
@@ -157,7 +158,7 @@ app.on('ready', async () => {
     })
     ipcMain.on('openExternalBrowser', (data) => {
         console.log(data)
-        win.open(data, "_blank")
+        shell.openExternal(googleLink)
     })
     ipcMain.on('setIconToMute', () => {
         console.log('setIconToMute')
