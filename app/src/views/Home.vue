@@ -53,11 +53,10 @@
                         board with the button above or join a new board.
                     </div>
                     <div class="col-8 q-pr-md" v-if="activeBoard">
-                        <div class="text-h6 q-pb-sm">Sounds</div>
+                        <q-item-label header>SOUNDS</q-item-label>
                         <q-list
-                            bordered
-                            separator
                             dark
+                            separator
                             v-if="sounds && sounds.length > 0"
                         >
                             <sound
@@ -71,10 +70,11 @@
                         class="col-4"
                         v-if="boardUsers && boardUsers.length > 0"
                     >
-                        <div class="text-h6 q-pb-sm">
-                            Online – {{ connectedBoardUsers.length }}
-                        </div>
-                        <q-list bordered separator dark>
+                        <q-list dark>
+                            <q-item-label header
+                                >ONLINE –
+                                {{ connectedBoardUsers.length }}</q-item-label
+                            >
                             <user
                                 v-for="boardUser in connectedBoardUsers"
                                 :key="boardUser.id"
@@ -83,10 +83,13 @@
                                 :muted="mutedUsers.includes(boardUser.id)"
                             />
                         </q-list>
-                        <div class="text-h6 q-pb-sm">
-                            Offline – {{ disconnectedBoardUsers.length }}
-                        </div>
-                        <q-list bordered separator dark>
+                        <q-list dark>
+                            <q-item-label header
+                                >OFFLINE –
+                                {{
+                                    disconnectedBoardUsers.length
+                                }}</q-item-label
+                            >
                             <user
                                 v-for="boardUser in disconnectedBoardUsers"
                                 :key="boardUser.id"
