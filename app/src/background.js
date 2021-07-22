@@ -136,7 +136,10 @@ async function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-    app.dock.hide() // Maybe find solution for short jump on mac os bar
+    try {
+        app.dock.hide() // Maybe find solution for short jump on mac os bar
+    } catch (error) {
+    }
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
