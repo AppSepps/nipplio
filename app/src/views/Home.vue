@@ -71,10 +71,24 @@
                         class="col-4"
                         v-if="boardUsers && boardUsers.length > 0"
                     >
-                        <div class="text-h6 q-pb-sm">Users</div>
+                        <div class="text-h6 q-pb-sm">
+                            Online – {{ connectedBoardUsers.length }}
+                        </div>
                         <q-list bordered separator dark>
                             <user
-                                v-for="boardUser in boardUsers"
+                                v-for="boardUser in connectedBoardUsers"
+                                :key="boardUser.id"
+                                :user="boardUser"
+                                :isCurrentUser="user.uid === boardUser.id"
+                                :muted="mutedUsers.includes(boardUser.id)"
+                            />
+                        </q-list>
+                        <div class="text-h6 q-pb-sm">
+                            Offline – {{ disconnectedBoardUsers.length }}
+                        </div>
+                        <q-list bordered separator dark>
+                            <user
+                                v-for="boardUser in disconnectedBoardUsers"
                                 :key="boardUser.id"
                                 :user="boardUser"
                                 :isCurrentUser="user.uid === boardUser.id"
@@ -132,15 +146,23 @@ export default {
             showBoardInviteDialog: false,
         }
     },
-    computed: mapState({
-        selfMute: state => state.app.selfMute,
-        user: state => state.app.user,
-        activeBoard: state => state.app.activeBoard,
-        boardUsers: state => state.app.boardUsers,
-        mutedUsers: state => state.app.mutedUsers,
-        boards: state => state.app.boards,
-        sounds: state => state.app.sounds,
-    }),
+    computed: {
+        connectedBoardUsers() {
+            return this.boardUsers.filter((boardUser) => boardUser.connected)
+        },
+        disconnectedBoardUsers() {
+            return this.boardUsers.filter((boardUser) => !boardUser.connected)
+        },
+        ...mapState({
+            selfMute: (state) => state.app.selfMute,
+            user: (state) => state.app.user,
+            activeBoard: (state) => state.app.activeBoard,
+            boardUsers: (state) => state.app.boardUsers,
+            mutedUsers: (state) => state.app.mutedUsers,
+            boards: (state) => state.app.boards,
+            sounds: (state) => state.app.sounds,
+        }),
+    },
     async mounted() {
         await this.$store.dispatch('app/checkForInviteLinkInUrl')
         await this.$store.dispatch('app/getUser')

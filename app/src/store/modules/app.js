@@ -66,7 +66,7 @@ const actions = {
             .database()
             .ref('/boardInvites/' + activeBoard.id)
             .push(true)
-        const url = `${window.location.origin}${window.location.pathname}#/?boardId=${activeBoard.id}&token=${snapshot.key}`
+        const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
         cb(url)
     },
     async getUser({ commit }) {
@@ -342,5 +342,5 @@ export default {
     state: initialState,
     getters,
     actions,
-    mutations,
+    mutations
 }
