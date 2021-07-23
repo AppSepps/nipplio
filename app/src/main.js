@@ -35,5 +35,5 @@ try {
         await store.dispatch('app/toggleSelfMute')
     })
 } catch (error) {
-    console.log(error)
+    // Is Web instance
 }

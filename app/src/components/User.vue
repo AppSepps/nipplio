@@ -14,9 +14,6 @@
         </q-item-section>
         <q-item-section :class="{ 'user-disabled': !user.connected }">
             <q-item-label>{{ user.displayName }}</q-item-label>
-            <q-item-label caption>{{
-                user.connected ? 'Connected' : 'Disconnected'
-            }}</q-item-label>
         </q-item-section>
         <q-item-section
             avatar

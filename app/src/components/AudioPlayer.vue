@@ -28,14 +28,7 @@
             <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
         <q-item-section avatar>
-            <q-btn
-                unelevated
-                no-caps
-                dense
-                flat
-                icon-right="history"
-                label="Recently played"
-            >
+            <q-btn round unelevated flat icon="history">
                 <q-menu>
                     <q-list style="min-width: 100px">
                         <q-item clickable v-close-popup>
@@ -55,7 +48,7 @@
             </q-btn>
         </q-item-section>
         <q-btn
-            dense
+            round
             unelevated
             color="purple"
             icon="casino"

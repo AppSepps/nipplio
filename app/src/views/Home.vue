@@ -8,11 +8,11 @@
                     v-on:openDialog="showAddBoardDialog = true"
                 />
                 <board-invite
-                    v-if="activeBoard"
-                    class="q-mx-sm"
+                    v-if="activeBoard && activeBoard.owner === user.uid"
+                    class="q-ml-sm"
                     v-on:openDialog="showBoardInviteDialog = true"
                 />
-                <sound-upload v-if="activeBoard" />
+                <sound-upload class="q-ml-sm" v-if="activeBoard" />
                 <q-space />
                 <q-input
                     v-if="activeBoard"
@@ -53,16 +53,19 @@
                         board with the button above or join a new board.
                     </div>
                     <div class="col-8 q-pr-md" v-if="activeBoard">
-                        <q-item-label header>SOUNDS</q-item-label>
-                        <q-list
-                            dark
-                            separator
-                            v-if="sounds && sounds.length > 0"
-                        >
+                        <q-list dark v-if="sounds && sounds.length > 0">
+                            <q-item-label header class="text-uppercase"
+                                >Sounds</q-item-label
+                            >
                             <sound
-                                v-for="sound in sounds"
+                                v-for="sound in sortedSounds"
                                 :key="sound.id"
                                 :sound="sound"
+                                :user="
+                                    boardUsers.filter(
+                                        (u) => u.id === sound.createdBy
+                                    )[0]
+                                "
                             />
                         </q-list>
                     </div>
@@ -71,12 +74,12 @@
                         v-if="boardUsers && boardUsers.length > 0"
                     >
                         <q-list dark>
-                            <q-item-label header
-                                >ONLINE –
-                                {{ connectedBoardUsers.length }}</q-item-label
+                            <q-item-label header class="text-uppercase"
+                                >Online –
+                                {{ connectedUsers.length }}</q-item-label
                             >
                             <user
-                                v-for="boardUser in connectedBoardUsers"
+                                v-for="boardUser in connectedUsers"
                                 :key="boardUser.id"
                                 :user="boardUser"
                                 :isCurrentUser="user.uid === boardUser.id"
@@ -84,14 +87,12 @@
                             />
                         </q-list>
                         <q-list dark>
-                            <q-item-label header
-                                >OFFLINE –
-                                {{
-                                    disconnectedBoardUsers.length
-                                }}</q-item-label
+                            <q-item-label header class="text-uppercase"
+                                >Offline –
+                                {{ disconnectedUsers.length }}</q-item-label
                             >
                             <user
-                                v-for="boardUser in disconnectedBoardUsers"
+                                v-for="boardUser in disconnectedUsers"
                                 :key="boardUser.id"
                                 :user="boardUser"
                                 :isCurrentUser="user.uid === boardUser.id"
@@ -115,7 +116,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
@@ -150,12 +151,11 @@ export default {
         }
     },
     computed: {
-        connectedBoardUsers() {
-            return this.boardUsers.filter((boardUser) => boardUser.connected)
-        },
-        disconnectedBoardUsers() {
-            return this.boardUsers.filter((boardUser) => !boardUser.connected)
-        },
+        ...mapGetters('app', [
+            'sortedSounds',
+            'connectedUsers',
+            'disconnectedUsers',
+        ]),
         ...mapState({
             selfMute: (state) => state.app.selfMute,
             user: (state) => state.app.user,
