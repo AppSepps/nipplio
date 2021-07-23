@@ -25,8 +25,8 @@ export default {
                 const authToken = snapshot.val()
                 console.log('authToken', authToken)
                 if (authToken) {
-                    await firebase.auth().signInWithCustomToken(authToken)
-                    await oneTimeCodeRef.remove()
+                    //await firebase.auth().signInWithCustomToken(authToken)
+                    //await oneTimeCodeRef.remove()
                     router.push('/')
                 }
             })

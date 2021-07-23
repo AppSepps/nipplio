@@ -19,7 +19,7 @@ export default {
     },
     created() {
         this.$q.dark.set(true)
-        this.unsubscribeAuth = firebase.auth().onAuthStateChanged((user) => {
+        this.unsubscribeAuth = firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // This needs to be commented, because otherwise the invite link does not work
                 //this.$router.push('/')

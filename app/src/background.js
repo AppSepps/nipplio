@@ -16,6 +16,7 @@ import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import bonjour from 'bonjour'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -25,6 +26,9 @@ const WINDOW_HEIGHT = 960
 let willQuitApp = false
 let tray = null
 let win = null
+
+const bonjourInstance = new bonjour()
+
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -106,6 +110,13 @@ async function createWindow() {
     })
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
+    win.once('ready-to-show', () => {
+        // browse for all http services
+        bonjourInstance.find({ type: 'nipplio' }, function (service) {
+            console.log('Found an Nipplio server:', service)
+            win.webContents.send('discoveredNipplioDevice', service)
+        })
+    })
     win.on('close', e => {
         if (willQuitApp) {
             /* the user tried to quit the app */

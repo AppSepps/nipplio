@@ -9,12 +9,12 @@ import App from './App.vue'
 import config from './config'
 
 firebase.initializeApp(config)
-if (location.hostname === 'localhost') {
+/*if (location.hostname === 'localhost') {
     firebase.auth().useEmulator('http://localhost:9099')
     firebase.database().useEmulator('localhost', 9000)
     firebase.storage().useEmulator('localhost', 9199)
     firebase.functions().useEmulator('localhost', 5001)
-}
+}*/
 
 let app
 firebase.auth().onAuthStateChanged(() => {
@@ -33,6 +33,11 @@ firebase.auth().onAuthStateChanged(() => {
 try {
     window.ipcRenderer.on('mute', async () => {
         await store.dispatch('app/toggleSelfMute')
+    })
+    window.ipcRenderer.on('discoveredNipplioDevice', async (event, service) => {
+        console.log("discoveredNipplioDevice event", event)
+        console.log("discoveredNipplioDevice service", service)
+        await store.dispatch('settings/discoveredNipplioDevice', service)
     })
 } catch (error) {
     // Is Web instance
