@@ -36,7 +36,8 @@ const actions = {
             await firebase
                 .database()
                 .ref(
-                    `/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid
+                    `/boardUsers/${activeBoard.id}/${
+                        firebase.auth().currentUser.uid
                     }`
                 )
                 .update({
@@ -120,7 +121,13 @@ const actions = {
     async updateConnectionStatus({ state }) {
         const { activeBoard, selfMute } = state
         if (activeBoard) {
-            const boardUserRef = firebase.database().ref(`/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid}`)
+            const boardUserRef = firebase
+                .database()
+                .ref(
+                    `/boardUsers/${activeBoard.id}/${
+                        firebase.auth().currentUser.uid
+                    }`
+                )
             await boardUserRef.set({
                 displayName: firebase.auth().currentUser.displayName,
                 photoURL: firebase.auth().currentUser.photoURL,
@@ -128,7 +135,13 @@ const actions = {
                 muted: selfMute,
             })
             await boardUserRef.onDisconnect().update({
-                connected: false
+                connected: false,
+            })
+            // Keeps the user as connected when another tab gets closed
+            boardUserRef.child('connected').on('value', snap => {
+                if (snap.val() == false) {
+                    boardUserRef.child('connected').set(true)
+                }
             })
         }
     },
@@ -342,5 +355,5 @@ export default {
     state: initialState,
     getters,
     actions,
-    mutations
+    mutations,
 }
