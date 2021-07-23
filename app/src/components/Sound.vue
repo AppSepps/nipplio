@@ -11,7 +11,9 @@
         </q-item-section>
         <q-item-section>
             <q-item-label>{{ sound.name }}</q-item-label>
-            <q-item-label caption>{{ user.displayName }}</q-item-label>
+            <q-item-label v-if="user" caption>{{
+                user.displayName
+            }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
             <q-btn

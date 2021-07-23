@@ -243,7 +243,7 @@ const actions = {
         dispatch('triggerPlaySound', { id: randomSound.id, random: true }) // TODO: Maybe we should extract business logic to utils class and only handle vuex behaviour here
     },
     async triggerPlaySound({ state }, params) {
-        const { activeBoard, user } = state
+        const { activeBoard, user, mutedUsers } = state
         const { id, random = false } = params
         await firebase
             .database()
@@ -252,7 +252,7 @@ const actions = {
                 uuid: uuidv4(),
                 soundId: id,
                 playedBy: user.uid,
-                mutedUsers: {},
+                mutedUsers,
                 random,
             })
     },
@@ -304,11 +304,6 @@ const mutations = {
     },
     addBoardUser(state, user) {
         state.boardUsers = [...state.boardUsers, user]
-        const ids = state.boardUsers.map((u) => u.id)
-        const filtered = state.boardUsers.filter(
-            ({ id }, index) => !ids.includes(id, index + 1)
-        )
-        state.boardUsers = filtered
     },
     changeBoardUser(state, user) {
         state.boardUsers = state.boardUsers.map((u) => {
@@ -317,19 +312,9 @@ const mutations = {
     },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
-        const ids = state.boards.map((b) => b.id)
-        const filtered = state.boards.filter(
-            ({ id }, index) => !ids.includes(id, index + 1)
-        )
-        state.boards = filtered
     },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
-        const ids = state.sounds.map((s) => s.id)
-        const filtered = state.sounds.filter(
-            ({ id }, index) => !ids.includes(id, index + 1)
-        )
-        state.sounds = filtered
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard

@@ -117,9 +117,12 @@ export default {
     }),
     watch: {
         playedSound(val) {
-            if (this.$store.state.app.selfMute) {
-                return
-            }
+            const skipPlaying =
+                this.$store.state.app.selfMute ||
+                (val.mutedUsers &&
+                    val.mutedUsers.includes(this.$store.state.app.user.uid))
+            if (skipPlaying) return
+
             this.stopAudioPlaying()
             this.audio = new Howl({
                 src: [val.soundUrl],
