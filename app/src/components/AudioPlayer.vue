@@ -28,17 +28,33 @@
             <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
         <q-item-section avatar>
-            <q-btn round unelevated flat icon="history">
+            <q-btn
+                round
+                unelevated
+                flat
+                icon="history"
+                v-if="recentlyPlayed.length > 0"
+            >
                 <q-menu>
                     <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup>
-                            <q-item-section>Sound 1</q-item-section>
+                        <q-item
+                            v-for="played in recentlyPlayed"
+                            :key="played.soundId"
+                            clickable
+                            v-close-popup
+                            @click="onRecentlyPlayedClicked(played.soundId)"
+                        >
                             <q-item-section avatar>
-                                <q-icon name="play_arrow" />
+                                <q-item-label>
+                                    [{{ getTimestamp(played.timestamp) }}]
+                                </q-item-label>
                             </q-item-section>
-                        </q-item>
-                        <q-item clickable v-close-popup>
-                            <q-item-section>Sound 2</q-item-section>
+                            <q-item-section>
+                                <q-item-label>{{ played.name }}</q-item-label>
+                                <q-item-label caption>{{
+                                    played.user.displayName
+                                }}</q-item-label>
+                            </q-item-section>
                             <q-item-section avatar>
                                 <q-icon name="play_arrow" />
                             </q-item-section>
@@ -76,6 +92,7 @@ export default {
         }
     },
     computed: mapState({
+        recentlyPlayed: (state) => state.app.recentlyPlayed,
         muted: (state) => state.app.selfMute,
         soundName: (state) => {
             if (state.app.playedSound) {
@@ -117,11 +134,7 @@ export default {
     }),
     watch: {
         playedSound(val) {
-            const skipPlaying =
-                this.$store.state.app.selfMute ||
-                (val.mutedUsers &&
-                    val.mutedUsers.includes(this.$store.state.app.user.uid))
-            if (skipPlaying) return
+            if (this.$store.state.app.selfMute || val.skip) return
 
             this.stopAudioPlaying()
             this.audio = new Howl({
@@ -186,6 +199,12 @@ export default {
         },
         onPlayRandomSoundClicked() {
             this.$store.dispatch('app/playRandomSound')
+        },
+        onRecentlyPlayedClicked(soundId) {
+            this.$store.dispatch('app/triggerPlaySound', { id: soundId })
+        },
+        getTimestamp(timestamp) {
+            return moment(timestamp).format('HH:mm:ss')
         },
     },
 }

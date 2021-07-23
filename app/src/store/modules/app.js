@@ -13,6 +13,7 @@ function initialState() {
         sounds: [],
         playedSound: undefined,
         searchText: '',
+        recentlyPlayed: [],
     }
 }
 
@@ -218,7 +219,7 @@ const actions = {
     async subscribeToPlay({ state, commit }, params) {
         let skipInitial =
             params && params.skipInitial ? params.skipInitial : true
-        const { activeBoard } = state
+        const { activeBoard, user } = state
         if (activeBoard) {
             const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
@@ -232,8 +233,19 @@ const actions = {
                     .storage()
                     .ref(`boards/${activeBoard.id}/${play.soundId}`)
                     .getDownloadURL()
-                const playedSound = { ...play, soundUrl, timestamp: new Date() }
+                const skip =
+                    play.mutedUsers && play.mutedUsers.includes(user.uid)
+                const playedSound = {
+                    ...play,
+                    skip,
+                    soundUrl,
+                    timestamp: new Date(),
+                }
                 commit('updatePlayedSound', { playedSound })
+                commit('addRecentlyPlayed', {
+                    soundId: play.soundId,
+                    playedBy: play.playedBy,
+                })
             })
         }
     },
@@ -341,6 +353,20 @@ const mutations = {
     },
     changeSearch(state, { text }) {
         state.searchText = text
+    },
+    addRecentlyPlayed(state, { soundId, playedBy }) {
+        const sound = state.sounds.filter((sound) => sound.id === soundId)[0]
+        const user = state.boardUsers.filter((user) => user.id === playedBy)[0]
+        const recentlyPlayedSound = {
+            soundId,
+            name: sound.name,
+            user: user,
+            timestamp: new Date(),
+        }
+        state.recentlyPlayed = [...state.recentlyPlayed, recentlyPlayedSound]
+        if (state.recentlyPlayed.length > 5) {
+            state.recentlyPlayed.shift()
+        }
     },
     signOut(state) {
         const s = initialState()
