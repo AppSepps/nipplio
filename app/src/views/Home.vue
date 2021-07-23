@@ -47,6 +47,7 @@
                                         (u) => u.id === sound.createdBy
                                     )[0]
                                 "
+                                v-on:openDialog="showRemoveSoundDialog = true"
                             />
                             <q-item v-if="filteredSounds.length === 0">
                                 <q-item-label caption
@@ -98,6 +99,7 @@
             v-on:closeDialog="showAddBoardDialog = false"
         />
         <board-invite-dialog v-model="showBoardInviteDialog" />
+        <remove-sound-dialog v-model="showRemoveSoundDialog" />
     </q-layout>
 </template>
 
@@ -114,6 +116,7 @@ import AddBoardDialog from '../components/AddBoardDialog.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
 import BoardInviteDialog from '../components/BoardInviteDialog.vue'
 import SearchBar from '../components/SearchBar.vue'
+import RemoveSoundDialog from '../components/RemoveSoundDialog.vue'
 
 export default {
     name: 'Home',
@@ -128,6 +131,7 @@ export default {
         AddBoardDialog,
         AudioPlayer,
         BoardInviteDialog,
+        RemoveSoundDialog,
         SearchBar,
     },
     data() {
@@ -135,6 +139,7 @@ export default {
             showSettingsModal: false,
             showAddBoardDialog: false,
             showBoardInviteDialog: false,
+            showRemoveSoundDialog: false,
         }
     },
     computed: {

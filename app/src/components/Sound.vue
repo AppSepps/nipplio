@@ -52,7 +52,7 @@
                         <q-item
                             clickable
                             v-close-popup
-                            @click="onDeleteClick(sound.id)"
+                            @click="onRemoveClick(sound.id)"
                         >
                             <q-item-section avatar>
                                 <q-icon name="delete" color="red" />
@@ -86,8 +86,9 @@ export default {
         onInfoClick: async function (id) {
             console.log('Trying to get info from sound ' + id)
         },
-        onDeleteClick: async function (id) {
-            console.log('Trying to delete sound ' + id)
+        onRemoveClick: async function (id) {
+            this.$emit('openDialog')
+            this.bus.emit('onSoundRemoveClick', id)
         },
     },
 }

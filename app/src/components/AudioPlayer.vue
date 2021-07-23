@@ -38,8 +38,8 @@
                 <q-menu>
                     <q-list style="min-width: 100px">
                         <q-item
-                            v-for="played in recentlyPlayed"
-                            :key="played.soundId"
+                            v-for="(played, index) in recentlyPlayed"
+                            :key="index"
                             clickable
                             v-close-popup
                             @click="onRecentlyPlayedClicked(played.soundId)"
@@ -167,9 +167,9 @@ export default {
     },
     methods: {
         formatSecondsToString(seconds) {
-            var date = new Date(0)
+            const date = new Date(0)
             date.setSeconds(seconds) // specify value for SECONDS here
-            var timeString = date.toISOString().substr(14, 5)
+            const timeString = date.toISOString().substr(14, 5)
             return timeString
         },
         stopAudioPlaying() {

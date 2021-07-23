@@ -72,7 +72,7 @@ export default {
             const code = params.get('ot-auth-code')
             console.log('code', code)
 
-            var addUserByInvite = firebase
+            const addUserByInvite = firebase
                 .functions()
                 .httpsCallable('createAuthToken')
             const result = await addUserByInvite({

@@ -206,6 +206,25 @@ const actions = {
                 ...snapshot.val(),
             })
         })
+
+        soundsRef.on('child_removed', (snapshot) => {
+            commit('removeSound', {
+                id: snapshot.key,
+            })
+        })
+    },
+    async removeSound(context, params) {
+        const { activeBoard } = context.state
+        const { soundId } = params
+
+        const soundRef = firebase
+            .database()
+            .ref(`/sounds/${activeBoard.id}/${soundId}`)
+        await soundRef.remove()
+        await firebase
+            .storage()
+            .ref(`/boards/${activeBoard.id}/${soundId}`)
+            .delete()
     },
     async unsubscribeToPlay({ state }) {
         const { activeBoard } = state
@@ -327,6 +346,9 @@ const mutations = {
     },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
+    },
+    removeSound(state, { id }) {
+        state.sounds = state.sounds.filter((sound) => sound.id !== id)
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard
