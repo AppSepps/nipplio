@@ -5,6 +5,21 @@
   "users": {
     "userid1": {
       "displayName": "Max Mustermann",
+      "remoteDevices": {
+        "deviceId1": { // Unique Hardware-ID
+          "board": "boardid1", // Set through UI
+          "slots" : { // Set through Hardware
+            "randomid1": { // Set through Hardware
+              "name": "Button Oben" // Set through Hardware
+              "sound":"soundid1" // Set through UI
+            },
+            "randomid2": {
+              "name": "Button Unten"
+              "sound":"soundid2"
+            },
+          }
+        }
+      },
       "boards": {
         "boardid1": true
       }

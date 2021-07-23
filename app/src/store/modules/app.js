@@ -142,6 +142,12 @@ const actions = {
             await boardUserRef.onDisconnect().update({
                 connected: false,
             })
+            // Keeps the user as connected when another tab gets closed
+            boardUserRef.child('connected').on('value', (snap) => {
+                if (snap.val() == false) {
+                    boardUserRef.child('connected').set(true)
+                }
+            })
         }
     },
     async selectBoard({ commit, state, dispatch }, params) {
