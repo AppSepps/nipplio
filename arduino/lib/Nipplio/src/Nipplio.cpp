@@ -8,13 +8,12 @@
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <EEPROM.h>
+#include "FirebaseNetwork.h"
+#include <ESP8266mDNS.h>
 
 // Set these to run example.
 #define FIREBASE_HOST "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/"
 ESP8266WebServer server(80);
-
-String refreshToken;
-String idToken;
 
 Nipplio::Nipplio()
 {
@@ -31,56 +30,9 @@ void handleRoot()
 void loginWithCustomToken()
 {
 	String customToken = server.arg("customToken");
-	String host = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
-	HTTPClient http; //Declare object of class HTTPClient
-	WiFiClientSecure client;
-	client.setInsecure();
-
-	http.begin(client, host); //Specify request destination
-	http.addHeader("Content-Type", "application/json");
-	http.addHeader("Referer", "https://nipplio.web.app");
-	const int httpCode = http.POST("{\"returnSecureToken\":true,\"token\":\"" + customToken + "\"}");
-	String payload = http.getString(); //Get the response payload
-
-	Serial.println(httpCode); //Print HTTP return code
-	Serial.println(payload);  //Print request response payload
-
-	http.end(); //Close connection
-	DynamicJsonDocument doc(1024);
-	deserializeJson(doc, payload);
-	JsonObject obj = doc.as<JsonObject>();
-
-	String idT = obj["idToken"];
-	String refT = obj["refreshToken"];
-	String expiresIn = obj["expiresIn"];
-
-	idToken = idT;
-	refreshToken = refT;
-
-	writeString(10, idToken);
-	server.send(200, "text/plain", payload);
-}
-
-void refreshIdToken()
-{
-	String refreshToken = "";
-	String host = "https://securetoken.googleapis.com/v1/token?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
-	HTTPClient http; //Declare object of class HTTPClient
-	WiFiClientSecure client;
-	client.setInsecure();
-
-	http.begin(client, host); //Specify request destination
-	http.addHeader("Content-Type", "application/json");
-	http.addHeader("Referer", "https://nipplio.web.app");
-	const int httpCode = http.POST("{\"grant_type\":\"refresh_token\",\"refresh_token\":\"" + refreshToken + "\"}");
-	String payload = http.getString(); //Get the response payload
-
-	Serial.println(httpCode); //Print HTTP return code
-	Serial.println(payload);  //Print request response payload
-
-	http.end(); //Close connection
-	writeString(10, payload);
-	server.send(200, "text/plain", payload);
+	getAuthTokensFromCustomToken(customToken);
+	server.sendHeader("Access-Control-Allow-Origin", "*");
+	server.send(200, "application/json", "\"idToken\":\"" + idToken + "\",\"refreshToken\":\"" + refreshToken + "\"");
 }
 
 void writeString(char add, String data)
@@ -132,7 +84,7 @@ void Nipplio::setup()
 	Serial.println("read_String: " + recivedData);
 }
 
-void Nipplio::setBoardSlots(int numberOfAvailableSlots) 
+void Nipplio::setBoardSlots(int numberOfAvailableSlots)
 {
 }
 

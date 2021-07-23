@@ -1,3 +1,7 @@
 #include <Arduino.h>
 
-void loginWithCustomToken(String customToken);
+extern String uid;
+extern String idToken;
+extern String refreshToken;
+
+void getAuthTokensFromCustomToken(String customToken);

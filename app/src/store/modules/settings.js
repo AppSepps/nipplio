@@ -1,3 +1,6 @@
+import firebase from 'firebase'
+import axios from 'axios'
+
 function initialState() {
     return {
         windowToggleShortCut: 'CommandOrControl+P',
@@ -9,6 +12,17 @@ function initialState() {
 const getters = {}
 
 const actions = {
+    async loginOnDevice({ commit }, ipAddress) {
+        console.log(commit)
+        console.log(ipAddress)
+
+        const customToken = await firebase.auth().currentUser.getIdToken()
+
+        const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + customToken
+        console.log(url)
+        const response = await axios.get(url);
+        console.log(response.data)
+    },
     async resetDeviceList(action) {
         action.commit('resetDeviceList')
     },

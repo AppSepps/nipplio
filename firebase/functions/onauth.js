@@ -28,3 +28,19 @@ exports.createAuthToken = functions.https.onCall(async (data, request) => {
     token: authToken
   }
 })
+
+exports.createAndReturnAuthToken = functions.https.onCall(async (data, request) => {
+  const idToken = data["id-token"]
+
+  const decodedToken = await admin.auth().verifyIdToken(idToken)
+
+  const uid = decodedToken.uid
+
+  const authToken = await admin.auth().createCustomToken(uid)
+
+  console.log("Authentication token", authToken)
+
+  return {
+    token: authToken
+  }
+})

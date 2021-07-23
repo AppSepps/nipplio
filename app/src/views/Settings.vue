@@ -73,7 +73,9 @@
                                     round
                                     icon="add"
                                     color="primary"
-                                    @click="addDeviceToUser(user.id)"
+                                    @click="
+                                        onAddDeviceClicked(service.addresses[0])
+                                    "
                                 />
                             </q-item-section>
                         </q-item>
@@ -98,11 +100,15 @@ export default {
     components: {},
     computed: {
         ...mapState({
-            discoveredDevices: state => state.settings.discoveredDevices,
+            discoveredDevices: (state) => state.settings.discoveredDevices,
         }),
     },
     methods: {
-        signOut: function() {
+        onAddDeviceClicked: function (ipAddress) {
+            console.log(ipAddress)
+            this.$store.dispatch('settings/loginOnDevice', ipAddress)
+        },
+        signOut: function () {
             this.$store.dispatch('app/signOut')
             this.$router.push('/login')
         },
