@@ -12,14 +12,17 @@ function initialState() {
         mutedUsers: [],
         sounds: [],
         playedSound: undefined,
+        searchText: '',
     }
 }
 
 const getters = {
-    sortedSounds: (state) =>
-        state.sounds.sort((a, b) =>
-            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-        ),
+    filteredSounds: (state) =>
+        state.sounds
+            .sort((a, b) =>
+                a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            )
+            .filter((sound) => sound.name.includes(state.searchText)),
     connectedUsers: (state) =>
         state.boardUsers.filter((boardUser) => boardUser.connected),
     disconnectedUsers: (state) =>
@@ -61,7 +64,7 @@ const actions = {
                 !selfMute ? 'setIconToMute' : 'setIconToUnmute'
             )
         } catch (error) {
-            console.error(error)
+            // Is Web instance
         }
     },
     async createBoard(context, params) {
@@ -281,6 +284,10 @@ const actions = {
 
         cbSuccess()
     },
+    async onSearchChange({ commit }, params) {
+        const { text } = params
+        commit('changeSearch', { text })
+    },
     async signOut({ commit, dispatch }) {
         await firebase.auth().signOut()
         dispatch('unsubscribeToPlay')
@@ -346,6 +353,9 @@ const mutations = {
         state.mutedUsers = state.mutedUsers.includes(id)
             ? state.mutedUsers.filter((u) => u !== id)
             : [...state.mutedUsers, id]
+    },
+    changeSearch(state, { text }) {
+        state.searchText = text
     },
     signOut(state) {
         const s = initialState()

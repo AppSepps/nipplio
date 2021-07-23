@@ -8,32 +8,13 @@
                     v-on:openDialog="showAddBoardDialog = true"
                 />
                 <board-invite
-                    v-if="activeBoard && activeBoard.owner === user.uid"
+                    v-if="activeBoard && user && activeBoard.owner === user.uid"
                     class="q-ml-sm"
                     v-on:openDialog="showBoardInviteDialog = true"
                 />
                 <sound-upload class="q-ml-sm" v-if="activeBoard" />
                 <q-space />
-                <q-input
-                    v-if="activeBoard"
-                    dark
-                    dense
-                    standout
-                    v-model="searchText"
-                    class="q-mx-sm row"
-                    placeholder="Search..."
-                    style="width: 300px !important"
-                >
-                    <template v-slot:append>
-                        <q-icon v-if="searchText === ''" name="search" />
-                        <q-icon
-                            v-else
-                            name="clear"
-                            class="cursor-pointer"
-                            @click="searchText = ''"
-                        />
-                    </template>
-                </q-input>
+                <search-bar :activeBoard="activeBoard" />
                 <q-space />
                 <q-badge color="primary">Alpha</q-badge>
                 <self-mute-button :selfMute="selfMute" class="q-mx-sm" />
@@ -55,10 +36,10 @@
                     <div class="col-8 q-pr-md" v-if="activeBoard">
                         <q-list dark v-if="sounds && sounds.length > 0">
                             <q-item-label header class="text-uppercase"
-                                >Sounds</q-item-label
+                                >Sounds - {{ sounds.length }}</q-item-label
                             >
                             <sound
-                                v-for="sound in sortedSounds"
+                                v-for="sound in filteredSounds"
                                 :key="sound.id"
                                 :sound="sound"
                                 :user="
@@ -67,6 +48,11 @@
                                     )[0]
                                 "
                             />
+                            <q-item v-if="filteredSounds.length === 0">
+                                <q-item-label caption
+                                    >No sounds found.</q-item-label
+                                >
+                            </q-item>
                         </q-list>
                     </div>
                     <div
@@ -127,6 +113,7 @@ import BoardInvite from '../components/BoardInvite.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
 import BoardInviteDialog from '../components/BoardInviteDialog.vue'
+import SearchBar from '../components/SearchBar.vue'
 
 export default {
     name: 'Home',
@@ -141,10 +128,10 @@ export default {
         AddBoardDialog,
         AudioPlayer,
         BoardInviteDialog,
+        SearchBar,
     },
     data() {
         return {
-            searchText: '',
             showSettingsModal: false,
             showAddBoardDialog: false,
             showBoardInviteDialog: false,
@@ -152,7 +139,7 @@ export default {
     },
     computed: {
         ...mapGetters('app', [
-            'sortedSounds',
+            'filteredSounds',
             'connectedUsers',
             'disconnectedUsers',
         ]),
