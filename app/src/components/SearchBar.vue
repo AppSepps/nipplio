@@ -1,5 +1,6 @@
 <template>
     <q-input
+        tabindex="0"
         v-if="activeBoard"
         dark
         dense

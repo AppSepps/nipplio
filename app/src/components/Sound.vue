@@ -11,9 +11,6 @@
         </q-item-section>
         <q-item-section>
             <q-item-label>{{ sound.name }}</q-item-label>
-            <q-item-label v-if="user" caption>{{
-                user.displayName
-            }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
             <q-btn
@@ -32,7 +29,7 @@
                         <q-item
                             clickable
                             v-close-popup
-                            @click="onInfoClick(sound.id)"
+                            @click="onInfoClick(sound, user)"
                         >
                             <q-item-section avatar>
                                 <q-icon name="info" />
@@ -42,7 +39,7 @@
                         <q-item
                             clickable
                             v-close-popup
-                            @click="onEditClick(sound.id)"
+                            @click="onEditClick(sound)"
                         >
                             <q-item-section avatar>
                                 <q-icon name="edit" />
@@ -80,14 +77,16 @@ export default {
         onFavoriteToggle: async function (id) {
             await this.$store.dispatch('app/toggleFavoriteSound', { id })
         },
-        onEditClick: async function (id) {
-            console.log('Trying to edit sound ' + id)
+        onEditClick: async function (sound) {
+            this.$emit('openEditDialog')
+            this.bus.emit('onSoundEditClick', sound)
         },
-        onInfoClick: async function (id) {
-            console.log('Trying to get info from sound ' + id)
+        onInfoClick: async function (sound, user) {
+            this.$emit('openInfoDialog')
+            this.bus.emit('onSoundInfoClick', { sound, user })
         },
         onRemoveClick: async function (id) {
-            this.$emit('openDialog')
+            this.$emit('openRemoveDialog')
             this.bus.emit('onSoundRemoveClick', id)
         },
     },

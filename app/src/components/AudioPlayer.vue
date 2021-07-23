@@ -33,7 +33,7 @@
                 unelevated
                 flat
                 icon="history"
-                v-if="recentlyPlayed.length > 0"
+                :disabled="recentlyPlayed.length === 0"
             >
                 <q-menu>
                     <q-list style="min-width: 100px">
@@ -46,7 +46,9 @@
                         >
                             <q-item-section avatar>
                                 <q-item-label>
-                                    [{{ getTimestamp(played.timestamp) }}]
+                                    [{{
+                                        moment(played.timestamp).format('LTS')
+                                    }}]
                                 </q-item-label>
                             </q-item-section>
                             <q-item-section>
@@ -80,7 +82,6 @@ import moment from 'moment'
 
 export default {
     name: 'Player',
-    components: {},
     data() {
         return {
             audio: undefined,
@@ -90,6 +91,9 @@ export default {
             audioLengthSecondsFormatted: '--:--',
             progressInterval: undefined,
         }
+    },
+    created() {
+        this.moment = moment
     },
     computed: mapState({
         recentlyPlayed: (state) => state.app.recentlyPlayed,
@@ -107,11 +111,9 @@ export default {
         },
         soundDate: (state) => {
             if (state.app.playedSound) {
-                return moment(state.app.playedSound.timestamp).format(
-                    'HH:mm:ss'
-                )
+                return moment(state.app.playedSound.timestamp).format('LTS')
             }
-            return moment().format('HH:mm:ss')
+            return moment().format('LTS')
         },
         playedBy: (state) => {
             return state.app.playedSound
@@ -202,9 +204,6 @@ export default {
         },
         onRecentlyPlayedClicked(soundId) {
             this.$store.dispatch('app/triggerPlaySound', { id: soundId })
-        },
-        getTimestamp(timestamp) {
-            return moment(timestamp).format('HH:mm:ss')
         },
     },
 }

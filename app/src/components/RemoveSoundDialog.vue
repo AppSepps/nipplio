@@ -7,7 +7,6 @@
             <q-card-section class="row items-center">
                 Are you sure, you want to delete this sound from the board?
             </q-card-section>
-
             <q-card-actions align="right">
                 <q-btn
                     no-caps
