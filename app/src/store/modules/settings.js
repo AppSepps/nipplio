@@ -16,9 +16,15 @@ const actions = {
         console.log(commit)
         console.log(ipAddress)
 
-        const customToken = await firebase.auth().currentUser.getIdToken()
+        const idToken = await firebase.auth().currentUser.getIdToken()
+        const createAndReturnAuthToken = firebase
+            .functions()
+            .httpsCallable('createAndReturnAuthToken')
+        const result = await createAndReturnAuthToken({
+            'id-token': idToken,
+        })
 
-        const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + customToken
+        const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + result.data.token
         console.log(url)
         const response = await axios.get(url);
         console.log(response.data)

@@ -13,7 +13,8 @@
     },
     "users": {
       "$userId": {
-        ".read": "$userId === auth.uid"
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid"
       }
     },
     "boardInvites": {

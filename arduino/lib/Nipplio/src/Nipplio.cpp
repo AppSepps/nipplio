@@ -31,6 +31,8 @@ void loginWithCustomToken()
 {
 	String customToken = server.arg("customToken");
 	getAuthTokensFromCustomToken(customToken);
+	getUserData();
+	updateBoardInformation();
 	server.sendHeader("Access-Control-Allow-Origin", "*");
 	server.send(200, "application/json", "\"idToken\":\"" + idToken + "\",\"refreshToken\":\"" + refreshToken + "\"");
 }
@@ -85,6 +87,10 @@ void Nipplio::setup()
 }
 
 void Nipplio::setBoardSlots(int numberOfAvailableSlots)
+{
+}
+
+void Nipplio::triggerSlotWithNumber(int slot)
 {
 }
 

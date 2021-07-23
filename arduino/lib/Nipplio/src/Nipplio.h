@@ -9,6 +9,7 @@ public:
 	Nipplio();
 	void setup();
 	void setBoardSlots(int numberOfAvailableSlots);
+	void triggerSlotWithNumber(int slot);
 	void loop();
 };
 #endif
