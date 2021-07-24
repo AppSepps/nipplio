@@ -20,6 +20,15 @@ const actions = {
         console.log(response)
         await dispatch('getDeviceConfig', ipAddress)
     },
+    async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
+        console.log(rootState.app.sounds)
+        console.log(ipAddress)
+        const url = "http://" + ipAddress + "/setSlotSoundMapping"
+        const soundsIdsArray = rootState.app.sounds.map((sound) => sound.id);
+        const response = await axios.post(url, soundsIdsArray.slice(0, 5));
+        console.log(response)
+        await dispatch('getDeviceConfig', ipAddress)
+    },
     async loginOnDevice({ dispatch, commit }, ipAddress) {
         console.log(commit)
         console.log(ipAddress)

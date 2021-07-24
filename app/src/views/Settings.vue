@@ -75,7 +75,8 @@
                                     unelevated
                                     flat
                                     round
-                                    icon="add"
+                                    label="login"
+                                    icon="login"
                                     color="primary"
                                     @click="
                                         onAddDeviceClicked(service.addresses[0])
@@ -86,6 +87,7 @@
                                     unelevated
                                     flat
                                     round
+                                    label="add Board"
                                     icon="add_circle"
                                     color="primary"
                                     @click="
@@ -94,8 +96,36 @@
                                         )
                                     "
                                 />
+                                <q-btn
+                                    v-if="!service.loading"
+                                    unelevated
+                                    flat
+                                    round
+                                    label="add SoundMapping"
+                                    icon="add_circle"
+                                    color="primary"
+                                    @click="
+                                        addSoundMappingToDevice(
+                                            service.addresses[0]
+                                        )
+                                    "
+                                />
+
+                                <q-btn
+                                    v-if="!service.loading"
+                                    unelevated
+                                    flat
+                                    round
+                                    icon="refresh"
+                                    label="get Config"
+                                    color="primary"
+                                    @click="
+                                        getDeviceConfig(service.addresses[0])
+                                    "
+                                />
+
                                 <q-circular-progress
-                                    v-else
+                                    v-if="service.loading"
                                     indeterminate
                                     size="sm"
                                 />
@@ -133,6 +163,14 @@ export default {
         onAddDeviceToCurrentBoard: function (ipAddress) {
             console.log(ipAddress)
             this.$store.dispatch('settings/addDeviceToCurrentBoard', ipAddress)
+        },
+        getDeviceConfig: function (ipAddress) {
+            console.log(ipAddress)
+            this.$store.dispatch('settings/getDeviceConfig', ipAddress)
+        },
+        addSoundMappingToDevice: function (ipAddress) {
+            console.log(ipAddress)
+            this.$store.dispatch('settings/addSoundMappingToDevice', ipAddress)
         },
         signOut: function () {
             this.$store.dispatch('app/signOut')

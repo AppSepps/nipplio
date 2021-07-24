@@ -5,5 +5,5 @@ String displayName = "";
 String idToken = "";
 String refreshToken = "";
 String boardId = "";
-String slotNames[10];
-String slotSoundMapping[10];
+String slotNames[255];
+String slotSoundMapping[255];

@@ -75,6 +75,31 @@ void getConfigRoute()
 	server.send(200, "application/json", output);
 }
 
+void setSlotSoundMappingRoute()
+{
+	String body = server.arg("plain");
+
+	memset(slotSoundMapping, 0, sizeof(slotSoundMapping));
+	StaticJsonDocument<1024> doc;
+	deserializeJson(doc, body);
+
+	// extract the values
+	JsonArray array = doc.as<JsonArray>();
+	int i = 0;
+	for (JsonVariant v : array)
+	{
+		if (i < 255)
+		{
+			Serial.println(v.as<int>());
+			slotSoundMapping[i] = v.as<String>();
+			i++;
+		}
+	}
+	server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
+	server.sendHeader("Access-Control-Allow-Headers", "*");
+	getConfigRoute();
+}
+
 void writeString(char add, String data)
 {
 	int _size = data.length();
@@ -119,6 +144,7 @@ void Nipplio::setup()
 	server.on("/", handleRoot);
 	server.on("/loginWithCustomToken", loginWithCustomToken);
 	server.on("/setBoardId", setBoardIdRoute);
+	server.on("/setSlotSoundMapping", setSlotSoundMappingRoute);
 	server.on("/getConfig", getConfigRoute);
 	server.begin();
 	String recivedData;
@@ -136,6 +162,7 @@ void Nipplio::setSlotNames(String slotNamesArray[])
 
 void Nipplio::triggerSlotWithNumber(int slot)
 {
+	updatePlaySound(slotSoundMapping[slot]);
 }
 
 void Nipplio::loop()
