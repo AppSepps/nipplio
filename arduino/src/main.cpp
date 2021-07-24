@@ -7,6 +7,8 @@ void setup()
 {
   Serial.begin(115200);
   nipplio.setup();
+  String slotNames[] = {"A", "Button2", "Button3", "Button4"};
+  nipplio.setSlotNames(slotNames);
   Serial.println("connected...yeey :)");
 }
 

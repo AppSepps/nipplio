@@ -8,7 +8,7 @@ class Nipplio
 public:
 	Nipplio();
 	void setup();
-	void setBoardSlots(int numberOfAvailableSlots);
+	void setSlotNames(String slotNames[]);
 	void triggerSlotWithNumber(int slot);
 	void loop();
 };

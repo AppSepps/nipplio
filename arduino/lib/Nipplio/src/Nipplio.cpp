@@ -49,15 +49,26 @@ void setBoardIdRoute()
 void getConfigRoute()
 {
 	String output = "";
-	DynamicJsonDocument doc(1024);
+	DynamicJsonDocument doc(2048);
 	doc["boardID"] = boardId;
 	doc["uid"] = uid;
 
-	JsonArray slots = doc.createNestedArray("slots");
-	slots.add("Button1");
-	slots.add("Button2");
-	slots.add("Button3");
-
+	JsonArray slots = doc.createNestedArray("slotNames");
+	for (int i = 0; i < (sizeof(slotNames) / sizeof(slotNames[0])); i++)
+	{
+		if (slotNames[i] != "")
+		{
+			slots.add(slotNames[i]);
+		}
+	}
+	JsonArray soundsMapping = doc.createNestedArray("slotSoundMapping");
+	for (int i = 0; i < (sizeof(slotSoundMapping) / sizeof(slotSoundMapping[0])); i++)
+	{
+		if (slotSoundMapping[i] != "")
+		{
+			soundsMapping.add(slotSoundMapping[i]);
+		}
+	}
 	serializeJson(doc, output);
 
 	server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -115,8 +126,12 @@ void Nipplio::setup()
 	Serial.println("read_String: " + recivedData);
 }
 
-void Nipplio::setBoardSlots(int numberOfAvailableSlots)
+void Nipplio::setSlotNames(String slotNamesArray[])
 {
+	for (int i = 0; i < sizeof(slotNamesArray); i++)
+	{
+		slotNames[i] = slotNamesArray[i];
+	}
 }
 
 void Nipplio::triggerSlotWithNumber(int slot)

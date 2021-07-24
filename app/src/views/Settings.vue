@@ -63,11 +63,11 @@
                             <q-item-section>
                                 <q-item-label>{{ service.name }}</q-item-label>
                                 <q-item-label caption>{{
-                                    service.addresses
+                                    service.addresses[0]
                                 }}</q-item-label>
-                                <q-item-label caption
-                                    >Config: {{ service.config }}</q-item-label
-                                >
+                                <q-item-label caption>{{
+                                    service.config
+                                }}</q-item-label>
                             </q-item-section>
                             <q-item-section side>
                                 <q-btn
