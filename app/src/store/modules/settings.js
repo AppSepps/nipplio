@@ -12,10 +12,19 @@ function initialState() {
 const getters = {}
 
 const actions = {
-    async loginOnDevice({ commit }, ipAddress) {
+    async addDeviceToCurrentBoard({ dispatch, rootState }, ipAddress) {
+        console.log(rootState.app.activeBoard.id)
+        console.log(ipAddress)
+        const url = "http://" + ipAddress + "/setBoardId?boardId=" + rootState.app.activeBoard.id
+        const response = await axios.get(url);
+        console.log(response)
+        await dispatch('getDeviceConfig', ipAddress)
+    },
+    async loginOnDevice({ dispatch, commit }, ipAddress) {
         console.log(commit)
         console.log(ipAddress)
 
+        commit('setDeviceLoading', ipAddress)
         const idToken = await firebase.auth().currentUser.getIdToken()
         const createAndReturnAuthToken = firebase
             .functions()
@@ -24,21 +33,35 @@ const actions = {
             'id-token': idToken,
         })
 
+        // Login with the customToken
         const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + result.data.token
         console.log(url)
         const response = await axios.get(url);
         console.log(response.data)
+
+        await dispatch('getDeviceConfig', ipAddress)
+        commit('setDeviceFinishedLoading', ipAddress)
+    },
+    async getDeviceConfig({ commit }, ipAddress) {
+        // Get the config of the device
+        const configUrl = "http://" + ipAddress + "/getConfig"
+        console.log(configUrl)
+        const configResponse = await axios.get(configUrl);
+        console.log(configResponse.data)
+        commit('setDeviceConfig', { ipAddress, config: configResponse.data })
     },
     async resetDeviceList(action) {
         action.commit('resetDeviceList')
     },
-    async discoveredNipplioDevice({ commit, state }, service) {
+    async discoveredNipplioDevice({ dispatch, commit, state }, service) {
         if (service) {
             const foundItem = state.discoveredDevices.filter(
                 device => device.addresses[0] === service.addresses[0]
             )
             if (foundItem && foundItem.length === 0) {
                 commit('discoveredNipplioDevice', { service })
+            } else {
+                await dispatch('getDeviceConfig', service.addresses[0])
             }
         }
     },
@@ -53,6 +76,27 @@ const actions = {
 }
 
 const mutations = {
+    setDeviceConfig(state, { ipAddress, config }) {
+        state.discoveredDevices.forEach((device) => {
+            if (device.addresses.includes(ipAddress)) {
+                device.config = config
+            }
+        })
+    },
+    setDeviceLoading(state, ipAddress) {
+        state.discoveredDevices.forEach((device) => {
+            if (device.addresses.includes(ipAddress)) {
+                device.loading = true
+            }
+        })
+    },
+    setDeviceFinishedLoading(state, ipAddress) {
+        state.discoveredDevices.forEach((device) => {
+            if (device.addresses.includes(ipAddress)) {
+                device.loading = false
+            }
+        })
+    },
     resetDeviceList(state) {
         state.discoveredDevices = []
     },

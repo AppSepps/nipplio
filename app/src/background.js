@@ -28,6 +28,7 @@ let tray = null
 let win = null
 
 const bonjourInstance = new bonjour()
+var bonjourService;
 
 
 // Scheme must be registered before the app is ready
@@ -110,13 +111,7 @@ async function createWindow() {
     })
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
-    win.once('ready-to-show', () => {
-        // browse for all http services
-        bonjourInstance.find({ type: 'nipplio' }, function (service) {
-            console.log('Found an Nipplio server:', service)
-            win.webContents.send('discoveredNipplioDevice', service)
-        })
-    })
+
     win.on('close', e => {
         if (willQuitApp) {
             /* the user tried to quit the app */
@@ -187,6 +182,16 @@ app.on('ready', async () => {
             path.join(__static, 'assets', '/trayUnmuteTemplate.png')
         )
         tray.setImage(trayImage)
+    })
+    ipcMain.on('startScanForDevices', () => {
+        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function (service) {
+            console.log('Found an Nipplio server:', service)
+            win.webContents.send('discoveredNipplioDevice', service)
+        })
+    })
+    ipcMain.on('stopScanForDevices', () => {
+        console.log("stop bonjourService")
+        bonjourService.stop()
     })
 })
 

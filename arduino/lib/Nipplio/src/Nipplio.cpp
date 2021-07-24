@@ -9,6 +9,7 @@
 #include <ESP8266HTTPClient.h>
 #include <EEPROM.h>
 #include "FirebaseNetwork.h"
+#include "Storage.h"
 #include <ESP8266mDNS.h>
 
 // Set these to run example.
@@ -35,6 +36,32 @@ void loginWithCustomToken()
 	updateBoardInformation();
 	server.sendHeader("Access-Control-Allow-Origin", "*");
 	server.send(200, "application/json", "\"idToken\":\"" + idToken + "\",\"refreshToken\":\"" + refreshToken + "\"");
+}
+
+void setBoardIdRoute()
+{
+	String bId = server.arg("boardId");
+	boardId = bId;
+	server.sendHeader("Access-Control-Allow-Origin", "*");
+	server.send(200, "application/json", "{'statusCode':'OK'}");
+}
+
+void getConfigRoute()
+{
+	String output = "";
+	DynamicJsonDocument doc(1024);
+	doc["boardID"] = boardId;
+	doc["uid"] = uid;
+
+	JsonArray slots = doc.createNestedArray("slots");
+	slots.add("Button1");
+	slots.add("Button2");
+	slots.add("Button3");
+
+	serializeJson(doc, output);
+
+	server.sendHeader("Access-Control-Allow-Origin", "*");
+	server.send(200, "application/json", output);
 }
 
 void writeString(char add, String data)
@@ -80,6 +107,8 @@ void Nipplio::setup()
 
 	server.on("/", handleRoot);
 	server.on("/loginWithCustomToken", loginWithCustomToken);
+	server.on("/setBoardId", setBoardIdRoute);
+	server.on("/getConfig", getConfigRoute);
 	server.begin();
 	String recivedData;
 	recivedData = read_String(10);

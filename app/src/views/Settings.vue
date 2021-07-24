@@ -65,9 +65,13 @@
                                 <q-item-label caption>{{
                                     service.addresses
                                 }}</q-item-label>
+                                <q-item-label caption
+                                    >Config: {{ service.config }}</q-item-label
+                                >
                             </q-item-section>
                             <q-item-section side>
                                 <q-btn
+                                    v-if="!service.loading"
                                     unelevated
                                     flat
                                     round
@@ -76,6 +80,24 @@
                                     @click="
                                         onAddDeviceClicked(service.addresses[0])
                                     "
+                                />
+                                <q-btn
+                                    v-if="!service.loading"
+                                    unelevated
+                                    flat
+                                    round
+                                    icon="add_circle"
+                                    color="primary"
+                                    @click="
+                                        onAddDeviceToCurrentBoard(
+                                            service.addresses[0]
+                                        )
+                                    "
+                                />
+                                <q-circular-progress
+                                    v-else
+                                    indeterminate
+                                    size="sm"
                                 />
                             </q-item-section>
                         </q-item>
@@ -108,13 +130,29 @@ export default {
             console.log(ipAddress)
             this.$store.dispatch('settings/loginOnDevice', ipAddress)
         },
+        onAddDeviceToCurrentBoard: function (ipAddress) {
+            console.log(ipAddress)
+            this.$store.dispatch('settings/addDeviceToCurrentBoard', ipAddress)
+        },
         signOut: function () {
             this.$store.dispatch('app/signOut')
             this.$router.push('/login')
         },
     },
     mounted() {
+        try {
+            window.ipcRenderer.send('startScanForDevices')
+        } catch (error) {
+            console.log(error)
+        }
         //this.$store.dispatch('settings/resetDeviceList')
+    },
+    unmounted() {
+        try {
+            window.ipcRenderer.send('stopScanForDevices')
+        } catch (error) {
+            console.log(error)
+        }
     },
 }
 </script>

@@ -3,11 +3,7 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include "FirebaseNetwork.h"
-
-String uid;
-String displayName;
-String idToken;
-String refreshToken;
+#include "Storage.h"
 
 void updateBoardInformation()
 {
