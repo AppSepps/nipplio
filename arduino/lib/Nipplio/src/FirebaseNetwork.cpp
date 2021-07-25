@@ -1,14 +1,14 @@
 #include <Arduino.h>
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include "FirebaseNetwork.h"
 #include "Storage.h"
-#include <ESP8266TrueRandom.h>
+//#include <ESP8266TrueRandom.h>
 #include <Arduino_JSON.h>
-
 void updateBoardInformation()
 {
+	/*
 	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/users/" + uid + "/remoteDevices/" + ESP.getChipId() + ".json?auth=" + idToken;
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
@@ -26,10 +26,11 @@ void updateBoardInformation()
 	Serial.println(payload);  //Print request response payload
 
 	http.end();
+	*/
 }
-
 void updatePlaySound(String soundId)
 {
+	/*
 	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/play/" + boardId + ".json?auth=" + idToken;
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
@@ -54,10 +55,11 @@ void updatePlaySound(String soundId)
 	Serial.println(payload);  //Print request response payload
 
 	http.end();
+	*/
 }
-
 void getUserData()
 {
+	/*
 	String host = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
@@ -84,8 +86,8 @@ void getUserData()
 	String users_0_email = users_0["email"];
 	uid = users_0_localId;
 	displayName = users_0_email;
+*/
 }
-
 void getAuthTokensFromCustomToken(String customToken)
 {
 	String host = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
@@ -100,15 +102,23 @@ void getAuthTokensFromCustomToken(String customToken)
 	const int httpCode = http.POST("{\"returnSecureToken\":true,\"token\":\"" + customToken + "\"}");
 	String payload = http.getString(); //Get the response payload
 
-	Serial.println(httpCode); //Print HTTP return code
-	Serial.println(payload);  //Print request response payload
+	Serial.println(httpCode);		 //Print HTTP return code
+	Serial.println(payload);		 //Print request response payload
+	Serial.println(sizeof(payload)); //Print request response payload
 
-	http.end(); //Close connection
 	JSONVar myObject = JSON.parse(payload);
 	String idT((const char *)myObject["idToken"]);
 	String refT((const char *)myObject["refreshToken"]);
+
 	/*DynamicJsonDocument doc(2048);
-	deserializeJson(doc, payload);
+	DeserializationError error = deserializeJson(doc, payload);
+	if (error)
+	{
+		Serial.print(F("deserializeJson() failed: "));
+		Serial.println(error.f_str());
+		client.stop();
+		return;
+	}
 	Serial.println("capacity: " + doc.capacity());
 
 	String idT = doc["idToken"];
@@ -120,8 +130,11 @@ void getAuthTokensFromCustomToken(String customToken)
 	refreshToken = refT;
 	Serial.println(idToken);
 	Serial.println(refreshToken);
+
+	http.end(); //Close connection
 }
 
+/*
 void refreshIdToken()
 {
 	String host = "https://securetoken.googleapis.com/v1/token?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
@@ -150,4 +163,4 @@ void refreshIdToken()
 
 	idToken = idT;
 	refreshToken = refT;
-}
+}*/

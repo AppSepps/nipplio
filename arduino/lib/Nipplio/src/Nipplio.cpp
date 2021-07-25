@@ -5,7 +5,7 @@
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <EEPROM.h>
 #include "FirebaseNetwork.h"
@@ -48,6 +48,7 @@ void setBoardIdRoute()
 
 void getConfigRoute()
 {
+	/*
 	String output = "";
 	DynamicJsonDocument doc(2048);
 	doc["boardID"] = boardId;
@@ -73,10 +74,12 @@ void getConfigRoute()
 
 	server.sendHeader("Access-Control-Allow-Origin", "*");
 	server.send(200, "application/json", output);
+	*/
 }
 
 void setSlotSoundMappingRoute()
 {
+	/*
 	String body = server.arg("plain");
 
 	memset(slotSoundMapping, 0, sizeof(slotSoundMapping));
@@ -98,6 +101,7 @@ void setSlotSoundMappingRoute()
 	server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
 	server.sendHeader("Access-Control-Allow-Headers", "*");
 	getConfigRoute();
+	*/
 }
 
 void writeString(char add, String data)

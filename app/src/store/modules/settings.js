@@ -34,21 +34,26 @@ const actions = {
         console.log(ipAddress)
 
         commit('setDeviceLoading', ipAddress)
-        const idToken = await firebase.auth().currentUser.getIdToken()
-        const createAndReturnAuthToken = firebase
-            .functions()
-            .httpsCallable('createAndReturnAuthToken')
-        const result = await createAndReturnAuthToken({
-            'id-token': idToken,
-        })
+        try {
 
-        // Login with the customToken
-        const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + result.data.token
-        console.log(url)
-        const response = await axios.get(url);
-        console.log(response.data)
+            const idToken = await firebase.auth().currentUser.getIdToken()
+            const createAndReturnAuthToken = firebase
+                .functions()
+                .httpsCallable('createAndReturnAuthToken')
+            const result = await createAndReturnAuthToken({
+                'id-token': idToken,
+            })
 
-        await dispatch('getDeviceConfig', ipAddress)
+            // Login with the customToken
+            const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + result.data.token
+            console.log(url)
+            const response = await axios.get(url);
+            console.log(response.data)
+
+            await dispatch('getDeviceConfig', ipAddress)
+        } catch (error) {
+            commit('setDeviceFinishedLoading', ipAddress)
+        }
         commit('setDeviceFinishedLoading', ipAddress)
     },
     async getDeviceConfig({ commit }, ipAddress) {
