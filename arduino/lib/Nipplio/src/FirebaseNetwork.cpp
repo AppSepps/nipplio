@@ -1,15 +1,30 @@
 #include <Arduino.h>
 //#include <ArduinoJson.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266WiFi.h>
+#include <HTTPClient.h>
+#include <WiFi.h>
 #include "FirebaseNetwork.h"
 #include "Storage.h"
 //#include <ESP8266TrueRandom.h>
-#include <Arduino_JSON.h>
+#include <ArduinoJson.h>
+#include "uuid.h"
+
+unsigned long lastRefreshTokenUpdateTimeInMillis = 0;
+
+void refreshIdToken();
+
+void checkIfRefreshTokenStillValidAndIfNotRefreshTheToken()
+{
+	if (millis() > lastRefreshTokenUpdateTimeInMillis + 3600000 || lastRefreshTokenUpdateTimeInMillis == 0 || millis() < lastRefreshTokenUpdateTimeInMillis)
+	{
+		// RefreshTokenExpired
+		refreshIdToken();
+	}
+}
+
 void updateBoardInformation()
 {
-	/*
-	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/users/" + uid + "/remoteDevices/" + ESP.getChipId() + ".json?auth=" + idToken;
+	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
+	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/users/" + uid + "/remoteDevices/" + (uint16_t)(ESP.getEfuseMac() >> 32) + ".json?auth=" + idToken;
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
 	WiFiClientSecure client;
@@ -26,11 +41,10 @@ void updateBoardInformation()
 	Serial.println(payload);  //Print request response payload
 
 	http.end();
-	*/
 }
 void updatePlaySound(String soundId)
 {
-	/*
+	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
 	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/play/" + boardId + ".json?auth=" + idToken;
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
@@ -42,10 +56,7 @@ void updatePlaySound(String soundId)
 	http.addHeader("Referer", "https://nipplio.web.app");
 	// TODO: dynamic slot mappings
 
-	byte uuidNumber[16];
-	// Generate a new UUID
-	ESP8266TrueRandom.uuid(uuidNumber);
-	String uuidStr = ESP8266TrueRandom.uuidToString(uuidNumber);
+	String uuidStr = StringUUIDGen();
 	Serial.println("The UUID number is " + uuidStr);
 
 	const int httpCode = http.PATCH("{\"playedBy\":\"" + uid + "\", \"random\":false, \"soundId\":\"" + soundId + "\", \"uuid\":\"" + uuidStr + "\"}");
@@ -55,11 +66,10 @@ void updatePlaySound(String soundId)
 	Serial.println(payload);  //Print request response payload
 
 	http.end();
-	*/
 }
 void getUserData()
 {
-	/*
+	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
 	String host = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
@@ -86,7 +96,6 @@ void getUserData()
 	String users_0_email = users_0["email"];
 	uid = users_0_localId;
 	displayName = users_0_email;
-*/
 }
 void getAuthTokensFromCustomToken(String customToken)
 {
@@ -102,15 +111,11 @@ void getAuthTokensFromCustomToken(String customToken)
 	const int httpCode = http.POST("{\"returnSecureToken\":true,\"token\":\"" + customToken + "\"}");
 	String payload = http.getString(); //Get the response payload
 
-	Serial.println(httpCode);		 //Print HTTP return code
-	Serial.println(payload);		 //Print request response payload
+	Serial.println(httpCode);	 //Print HTTP return code
+	Serial.println(payload);	 //Print request response payload
 	Serial.println(sizeof(payload)); //Print request response payload
 
-	JSONVar myObject = JSON.parse(payload);
-	String idT((const char *)myObject["idToken"]);
-	String refT((const char *)myObject["refreshToken"]);
-
-	/*DynamicJsonDocument doc(2048);
+	DynamicJsonDocument doc(2048);
 	DeserializationError error = deserializeJson(doc, payload);
 	if (error)
 	{
@@ -124,7 +129,6 @@ void getAuthTokensFromCustomToken(String customToken)
 	String idT = doc["idToken"];
 	String refT = doc["refreshToken"];
 	String expiresIn = doc["expiresIn"];
-	*/
 
 	idToken = idT;
 	refreshToken = refT;
@@ -134,7 +138,6 @@ void getAuthTokensFromCustomToken(String customToken)
 	http.end(); //Close connection
 }
 
-/*
 void refreshIdToken()
 {
 	String host = "https://securetoken.googleapis.com/v1/token?key=AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM";
@@ -163,4 +166,4 @@ void refreshIdToken()
 
 	idToken = idT;
 	refreshToken = refT;
-}*/
+}

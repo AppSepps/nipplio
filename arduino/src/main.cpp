@@ -12,8 +12,8 @@ int lastButtonState2 = 1;
 void setup()
 {
   Serial.begin(115200);
-  pinMode(D1, INPUT_PULLUP);
-  pinMode(D2, INPUT_PULLUP);
+  pinMode(23, INPUT_PULLUP);
+  pinMode(24, INPUT_PULLUP);
 
   nipplio.setup();
   String slotNames[] = {"A", "Button2", "Button3", "Button4"};
@@ -25,7 +25,7 @@ void loop()
 {
   // put your main code here, to run repeatedly:
   nipplio.loop();
-  buttonState = digitalRead(D1);
+  buttonState = digitalRead(23);
 
   // compare the buttonState to its previous state
   if (buttonState != lastButtonState)
@@ -38,7 +38,7 @@ void loop()
   }
   lastButtonState = buttonState;
 
-  buttonState2 = digitalRead(D2);
+  buttonState2 = digitalRead(24);
 
   // compare the buttonState to its previous state
   if (buttonState2 != lastButtonState2)

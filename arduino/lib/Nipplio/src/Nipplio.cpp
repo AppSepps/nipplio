@@ -1,20 +1,20 @@
 #include <Arduino.h>
 #include "Nipplio.h"
 
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <DNSServer.h>
-#include <ESP8266WebServer.h>
+#include <WebServer.h>
 #include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
-//#include <ArduinoJson.h>
-#include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
+#include <HTTPClient.h>
 #include <EEPROM.h>
 #include "FirebaseNetwork.h"
 #include "Storage.h"
-#include <ESP8266mDNS.h>
+#include <ESPmDNS.h>
 
 // Set these to run example.
 #define FIREBASE_HOST "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/"
-ESP8266WebServer server(80);
+WebServer server(80);
 
 Nipplio::Nipplio()
 {
@@ -48,7 +48,6 @@ void setBoardIdRoute()
 
 void getConfigRoute()
 {
-	/*
 	String output = "";
 	DynamicJsonDocument doc(2048);
 	doc["boardID"] = boardId;
@@ -74,12 +73,10 @@ void getConfigRoute()
 
 	server.sendHeader("Access-Control-Allow-Origin", "*");
 	server.send(200, "application/json", output);
-	*/
 }
 
 void setSlotSoundMappingRoute()
 {
-	/*
 	String body = server.arg("plain");
 
 	memset(slotSoundMapping, 0, sizeof(slotSoundMapping));
@@ -101,7 +98,6 @@ void setSlotSoundMappingRoute()
 	server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
 	server.sendHeader("Access-Control-Allow-Headers", "*");
 	getConfigRoute();
-	*/
 }
 
 void writeString(char add, String data)
@@ -135,6 +131,8 @@ String read_String(char add)
 
 void Nipplio::setup()
 {
+	storageSetup();
+	readValuesFromSpiffs();
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
 	Serial.println(WiFi.localIP());
@@ -172,5 +170,5 @@ void Nipplio::triggerSlotWithNumber(int slot)
 void Nipplio::loop()
 {
 	server.handleClient();
-	MDNS.update();
+	//MDNS.update();
 }
