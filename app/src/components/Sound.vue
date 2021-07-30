@@ -72,10 +72,10 @@ export default {
     components: {},
     methods: {
         onSoundPlay: async function (id) {
-            await this.$store.dispatch('app/triggerPlaySound', { id })
+            await this.$store.dispatch('sound/triggerPlaySound', { id })
         },
         onFavoriteToggle: async function (id) {
-            await this.$store.dispatch('app/toggleFavoriteSound', { id })
+            await this.$store.dispatch('sound/toggleFavoriteSound', { id })
         },
         onEditClick: async function (sound) {
             this.$emit('openEditDialog')

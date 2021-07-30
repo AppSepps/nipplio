@@ -154,25 +154,25 @@ export default {
     },
     computed: {
         ...mapGetters('sound', ['filteredSounds']),
-        ...mapGetters('app', ['connectedUsers', 'disconnectedUsers']),
+        ...mapGetters('user', ['connectedUsers', 'disconnectedUsers']),
         ...mapState({
-            selfMute: (state) => state.sound.selfMute,
-            user: (state) => state.app.user,
             activeBoard: (state) => state.board.activeBoard,
-            boardUsers: (state) => state.app.boardUsers,
-            mutedUsers: (state) => state.app.mutedUsers,
+            boardUsers: (state) => state.user.boardUsers,
+            mutedUsers: (state) => state.user.mutedUsers,
+            selfMute: (state) => state.sound.selfMute,
             sounds: (state) => state.sound.sounds,
+            user: (state) => state.user.user,
         }),
     },
     async mounted() {
         await this.$store.dispatch('board/checkForInviteLinkInUrl')
         await this.$store.dispatch('board/getBoards')
-        await this.$store.dispatch('app/getUser')
+        await this.$store.dispatch('user/getUser')
+        await this.$store.dispatch('user/getBoardUsers')
+        await this.$store.dispatch('user/updateConnectionStatus')
         await this.$store.dispatch('sound/getSounds')
-        await this.$store.dispatch('app/getBoardUsers')
         await this.$store.dispatch('sound/unsubscribeToPlay')
         await this.$store.dispatch('sound/subscribeToPlay')
-        await this.$store.dispatch('app/updateConnectionStatus')
     },
 }
 </script>

@@ -118,7 +118,7 @@ export default {
         },
         playedBy: (state) => {
             return state.sound.playedSound
-                ? state.app.boardUsers.filter(
+                ? state.user.boardUsers.filter(
                       (u) => u.id === state.sound.playedSound.playedBy
                   )[0]
                 : '*chirp*'
@@ -207,10 +207,10 @@ export default {
             }
         },
         onPlayRandomSoundClicked() {
-            this.$store.dispatch('app/playRandomSound')
+            this.$store.dispatch('sound/playRandomSound')
         },
         onRecentlyPlayedClicked(soundId) {
-            this.$store.dispatch('app/triggerPlaySound', { id: soundId })
+            this.$store.dispatch('sound/triggerPlaySound', { id: soundId })
         },
     },
 }

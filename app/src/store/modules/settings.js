@@ -13,22 +13,21 @@ const getters = {}
 
 const actions = {
     async addDeviceToCurrentBoard({ dispatch, rootState }, ipAddress) {
-        console.log(rootState.app.activeBoard.id)
         console.log(ipAddress)
         const url =
             'http://' +
             ipAddress +
             '/setBoardId?boardId=' +
-            rootState.app.activeBoard.id
+            rootState.board.activeBoard.id
         const response = await axios.get(url)
         console.log(response)
         await dispatch('getDeviceConfig', ipAddress)
     },
     async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
-        console.log(rootState.app.sounds)
+        console.log(rootState.sound.sounds)
         console.log(ipAddress)
         const url = 'http://' + ipAddress + '/setSlotSoundMapping'
-        const soundsIdsArray = rootState.app.sounds.map((sound) => sound.id)
+        const soundsIdsArray = rootState.sound.sounds.map((sound) => sound.id)
         const response = await axios.post(url, soundsIdsArray.slice(0, 5))
         console.log(response)
         await dispatch('getDeviceConfig', ipAddress)

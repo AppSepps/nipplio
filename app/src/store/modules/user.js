@@ -2,9 +2,9 @@ import firebase from 'firebase'
 
 function initialState() {
     return {
-        user: undefined,
         boardUsers: [],
         mutedUsers: [],
+        user: undefined,
     }
 }
 
@@ -15,12 +15,7 @@ const getters = {
         state.boardUsers.filter((boardUser) => !boardUser.connected),
 }
 
-// TODO: Better modularization
 const actions = {
-    async getUser({ commit }) {
-        const user = firebase.auth().currentUser
-        commit('getUser', { user })
-    },
     async getBoardUsers({ rootState, commit }) {
         const { activeBoard } = rootState.board
 
@@ -44,7 +39,16 @@ const actions = {
             })
         })
     },
+    getUser({ commit }) {
+        const user = firebase.auth().currentUser
+        commit('getUser', { user })
+    },
+    async toggleUserMute(action, params) {
+        const { id } = params
+        action.commit('toggleUserMute', { id })
+    },
     async updateConnectionStatus({ rootState }) {
+        // TODO: Something here isnt working right
         const { selfMute } = rootState.sound
         const { activeBoard } = rootState.board
 
@@ -73,16 +77,9 @@ const actions = {
             }
         })
     },
-    async toggleUserMute(action, params) {
-        const { id } = params
-        action.commit('toggleUserMute', { id })
-    },
 }
 
 const mutations = {
-    getUser(state, { user }) {
-        state.user = user
-    },
     addBoardUser(state, user) {
         state.boardUsers = [...state.boardUsers, user]
     },
@@ -90,6 +87,9 @@ const mutations = {
         state.boardUsers = state.boardUsers.map((u) => {
             return u.id === user.id ? user : u
         })
+    },
+    getUser(state, { user }) {
+        state.user = user
     },
     toggleUserMute(state, { id }) {
         state.mutedUsers = state.mutedUsers.includes(id)

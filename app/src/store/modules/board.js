@@ -87,11 +87,15 @@ const actions = {
         if (!activeBoard) return
 
         commit('selectBoard', activeBoard)
-        dispatch('app/updateConnectionStatus', null, { root: true }) // TODO: Mark previous board as disconnected
-        dispatch('app/getBoardUsers', null, { root: true })
-        dispatch('app/getSounds', null, { root: true })
-        dispatch('app/unsubscribeToPlay', null, { root: true })
-        dispatch('app/subscribeToPlay', { skipInitial: false }, { root: true })
+        dispatch('user/updateConnectionStatus', null, { root: true }) // TODO: Mark previous board as disconnected
+        dispatch('user/getBoardUsers', null, { root: true })
+        dispatch('sound/getSounds', null, { root: true })
+        dispatch('sound/unsubscribeToPlay', null, { root: true })
+        dispatch(
+            'sound/subscribeToPlay',
+            { skipInitial: false },
+            { root: true }
+        )
     },
 }
 

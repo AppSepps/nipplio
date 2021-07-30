@@ -89,7 +89,7 @@ const actions = {
             .delete()
     },
     async subscribeToPlay({ state, rootState, commit }, params) {
-        const { user } = state
+        const { user, boardUsers } = rootState.user
         const { activeBoard } = rootState.board
         let skipInitial =
             params && params.skipInitial ? params.skipInitial : true
@@ -116,9 +116,16 @@ const actions = {
                 timestamp: new Date(),
             }
             commit('updatePlayedSound', { playedSound })
+
+            const sound = state.sounds.filter(
+                (sound) => sound.id === play.soundId
+            )[0]
+            const playedByUser = boardUsers.filter(
+                (user) => user.id === play.playedBy
+            )[0]
             commit('addRecentlyPlayed', {
-                soundId: play.soundId,
-                playedBy: play.playedBy,
+                sound: sound,
+                user: playedByUser,
             })
         })
     },
@@ -153,8 +160,8 @@ const actions = {
             // Is Web instance
         }
     },
-    async triggerPlaySound({ state, rootState }, params) {
-        const { user, mutedUsers } = state
+    async triggerPlaySound({ rootState }, params) {
+        const { user, mutedUsers } = rootState.user
         const { activeBoard } = rootState.board
         const { id, random = false } = params
         await firebase
@@ -183,7 +190,7 @@ const actions = {
         for (let file of files) {
             const soundSnap = await firebase
                 .database()
-                .ref('/sounds/' + rootState.activeBoard.id)
+                .ref('/sounds/' + rootState.board.activeBoard.id)
                 .push({
                     name: file.name,
                     type: file.type,
@@ -193,7 +200,10 @@ const actions = {
             await firebase
                 .storage()
                 .ref(
-                    '/boards/' + rootState.activeBoard.id + '/' + soundSnap.key
+                    '/boards/' +
+                        rootState.board.activeBoard.id +
+                        '/' +
+                        soundSnap.key
                 )
                 .put(file)
         }
@@ -203,13 +213,11 @@ const actions = {
 }
 
 const mutations = {
-    addRecentlyPlayed(state, { soundId, playedBy }) {
-        const sound = state.sounds.filter((sound) => sound.id === soundId)[0]
-        const user = state.boardUsers.filter((user) => user.id === playedBy)[0]
+    addRecentlyPlayed(state, { sound, user }) {
         const recentlyPlayedSound = {
-            soundId,
+            soundId: sound.id,
             name: sound.name,
-            user: user,
+            user,
             timestamp: new Date(),
         }
         state.recentlyPlayed = [...state.recentlyPlayed, recentlyPlayedSound]

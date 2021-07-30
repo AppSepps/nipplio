@@ -29,7 +29,7 @@ export default {
     },
     computed: mapState({
         icon: (state) => {
-            const volume = state.app.volume
+            const volume = state.sound.volume
             if (volume == 0) {
                 return 'volume_off'
             } else if (volume < 33) {

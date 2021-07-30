@@ -66,10 +66,10 @@ export default {
     },
     methods: {
         async onToggleUserMute(id) {
-            await this.$store.dispatch('app/toggleUserMute', { id })
+            await this.$store.dispatch('user/toggleUserMute', { id })
         },
         async onSelectSpeaker(id) {
-            await this.$store.dispatch('app/selectSpeaker', { id })
+            await this.$store.dispatch('user/selectSpeaker', { id })
         },
     },
 }

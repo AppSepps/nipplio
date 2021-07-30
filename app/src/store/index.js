@@ -1,28 +1,34 @@
 import { createStore, createLogger } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
-import app from './modules/app'
 import board from './modules/board'
 import settings from './modules/settings'
 import sound from './modules/sound'
+import user from './modules/user'
 
 const persistedAppState = createPersistedState({
-    paths: ['board.activeBoard', 'app.user', 'sound.selfMute', 'sound.volume'],
+    paths: [
+        'board.activeBoard',
+        'sound.selfMute',
+        'sound.volume',
+        'user.user',
+        'user.mutedUsers',
+    ],
 })
 
 const store = createStore({
     modules: {
-        app,
         board,
         settings,
         sound,
+        user,
     },
     actions: {
         clearAll({ commit }) {
-            commit('app/reset')
             commit('board/reset')
             commit('settings/reset')
             commit('sound/reset')
+            commit('user/reset')
         },
     },
     plugins: [createLogger(), persistedAppState],
