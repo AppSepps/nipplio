@@ -30,7 +30,6 @@
 <script>
 export default {
     name: 'RemoveSoundDialog',
-    components: {},
     data() {
         return {
             soundId: undefined,
@@ -43,7 +42,7 @@ export default {
     },
     methods: {
         onRemoveConfirm() {
-            this.$store.dispatch('app/removeSound', { soundId: this.soundId })
+            this.$store.dispatch('sound/removeSound', { soundId: this.soundId })
         },
     },
 }

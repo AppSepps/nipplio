@@ -47,7 +47,7 @@ export default {
     },
     methods: {
         onSubmit() {
-            this.$store.dispatch('app/onSoundEdit', {
+            this.$store.dispatch('sound/onSoundEdit', {
                 ...this.sound,
                 name: this.name,
             })

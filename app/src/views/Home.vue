@@ -10,7 +10,7 @@
                 />
                 <sound-upload class="q-ml-sm" v-if="activeBoard" />
                 <q-space />
-                <search-bar :activeBoard="activeBoard" />
+                <search-bar v-if="activeBoard" />
                 <q-space />
                 <volume-control />
                 <self-mute-button :selfMute="selfMute" class="q-mx-sm" />
@@ -153,28 +153,25 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('app', [
-            'filteredSounds',
-            'connectedUsers',
-            'disconnectedUsers',
-        ]),
+        ...mapGetters('sound', ['filteredSounds']),
+        ...mapGetters('app', ['connectedUsers', 'disconnectedUsers']),
         ...mapState({
-            selfMute: (state) => state.app.selfMute,
+            selfMute: (state) => state.sound.selfMute,
             user: (state) => state.app.user,
             activeBoard: (state) => state.board.activeBoard,
             boardUsers: (state) => state.app.boardUsers,
             mutedUsers: (state) => state.app.mutedUsers,
-            sounds: (state) => state.app.sounds,
+            sounds: (state) => state.sound.sounds,
         }),
     },
     async mounted() {
         await this.$store.dispatch('board/checkForInviteLinkInUrl')
         await this.$store.dispatch('board/getBoards')
         await this.$store.dispatch('app/getUser')
-        await this.$store.dispatch('app/getSounds')
+        await this.$store.dispatch('sound/getSounds')
         await this.$store.dispatch('app/getBoardUsers')
-        await this.$store.dispatch('app/unsubscribeToPlay')
-        await this.$store.dispatch('app/subscribeToPlay')
+        await this.$store.dispatch('sound/unsubscribeToPlay')
+        await this.$store.dispatch('sound/subscribeToPlay')
         await this.$store.dispatch('app/updateConnectionStatus')
     },
 }

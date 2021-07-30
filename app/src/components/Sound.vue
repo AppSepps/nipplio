@@ -1,5 +1,5 @@
 <template>
-    <q-item class="q-py-md">
+    <q-item clickable class="q-py-md">
         <q-item-section avatar>
             <q-btn
                 unelevated

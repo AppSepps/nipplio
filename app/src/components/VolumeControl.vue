@@ -24,7 +24,7 @@ export default {
     setup() {
         const store = useStore()
         return {
-            volume: ref(store.state.app.volume),
+            volume: ref(store.state.sound.volume),
         }
     },
     computed: mapState({
@@ -43,7 +43,7 @@ export default {
     }),
     watch: {
         volume(val) {
-            this.$store.dispatch('app/onVolumeChange', { volume: val })
+            this.$store.dispatch('sound/onVolumeChange', { volume: val })
         },
     },
 }

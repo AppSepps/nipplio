@@ -16,7 +16,7 @@ export default {
     components: {},
     methods: {
         onMuteToggle: async function () {
-            await this.$store.dispatch('app/toggleSelfMute')
+            await this.$store.dispatch('sound/toggleSelfMute')
         },
     },
 }

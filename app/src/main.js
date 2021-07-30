@@ -32,7 +32,7 @@ firebase.auth().onAuthStateChanged(() => {
 
 try {
     window.ipcRenderer.on('mute', async () => {
-        await store.dispatch('app/toggleSelfMute')
+        await store.dispatch('sound/toggleSelfMute')
     })
     window.ipcRenderer.on('discoveredNipplioDevice', async (event, service) => {
         console.log('discoveredNipplioDevice event', event)

@@ -26,7 +26,7 @@ export default {
     components: {},
     methods: {
         async onFileUpload(event) {
-            await this.$store.dispatch('app/uploadSoundFile', {
+            await this.$store.dispatch('sound/uploadSoundFile', {
                 files: event.target.files,
                 cbSuccess: () => {
                     console.log('Files successfully uploaded')

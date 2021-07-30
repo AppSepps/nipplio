@@ -2,7 +2,7 @@
     <q-btn-dropdown color="primary" label="Boards" no-caps>
         <q-list>
             <q-item
-                v-for="board in boards"
+                v-for="board in sortedBoards"
                 :key="board.id"
                 clickable
                 v-close-popup
@@ -37,14 +37,14 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
     name: 'BoardDropdown',
     computed: {
+        ...mapGetters('board', ['sortedBoards']),
         ...mapState({
             activeBoard: (state) => state.board.activeBoard,
-            boards: (state) => state.board.boards,
         }),
     },
     methods: {

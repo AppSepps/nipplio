@@ -8,7 +8,12 @@ function initialState() {
     }
 }
 
-const getters = {}
+const getters = {
+    sortedBoards: (state) =>
+        state.boards.sort(
+            (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()) // TODO: Write activeBoard to position 0
+        ),
+}
 
 const actions = {
     checkForInviteLinkInUrl({ dispatch }) {
@@ -18,38 +23,6 @@ const actions = {
             if (boardId && token) {
                 dispatch('joinBoard', { token, boardId })
             }
-        }
-    },
-    async inviteUser({ state }, params) {
-        const { activeBoard } = state
-        const { cb } = params
-        const snapshot = await firebase
-            .database()
-            .ref('/boardInvites/' + activeBoard.id)
-            .push(true)
-        const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
-        cb(url)
-    },
-    joinBoardWithUrl({ dispatch }, params) {
-        const { inviteUrl } = params
-        const url = new URL(inviteUrl)
-        const boardId = url.searchParams.get('boardId')
-        const token = url.searchParams.get('token')
-        dispatch('joinBoard', { boardId, token })
-    },
-    async joinBoard({ dispatch }, params) {
-        const { boardId, token } = params
-        const inviteUserByToken = firebase
-            .functions()
-            .httpsCallable('addUserByInvite')
-        try {
-            await inviteUserByToken({
-                boardId: boardId,
-                token: token,
-            }) // TODO: Check response result
-            dispatch('selectBoard', { boardId })
-        } catch (error) {
-            console.log(error)
         }
     },
     async createBoard(context, params) {
@@ -73,6 +46,38 @@ const actions = {
                     })
                 })
         })
+    },
+    async inviteUser({ state }, params) {
+        const { activeBoard } = state
+        const { cb } = params
+        const snapshot = await firebase
+            .database()
+            .ref('/boardInvites/' + activeBoard.id)
+            .push(true)
+        const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
+        cb(url)
+    },
+    async joinBoard({ dispatch }, params) {
+        const { boardId, token } = params
+        const inviteUserByToken = firebase
+            .functions()
+            .httpsCallable('addUserByInvite')
+        try {
+            await inviteUserByToken({
+                boardId: boardId,
+                token: token,
+            }) // TODO: Check response result
+            dispatch('selectBoard', { boardId })
+        } catch (error) {
+            console.log(error)
+        }
+    },
+    joinBoardWithUrl({ dispatch }, params) {
+        const { inviteUrl } = params
+        const url = new URL(inviteUrl)
+        const boardId = url.searchParams.get('boardId')
+        const token = url.searchParams.get('token')
+        dispatch('joinBoard', { boardId, token })
     },
     selectBoard({ commit, state, dispatch }, params) {
         const { boards } = state

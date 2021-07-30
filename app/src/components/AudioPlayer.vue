@@ -96,13 +96,13 @@ export default {
         this.moment = moment
     },
     computed: mapState({
-        volume: (state) => state.app.volume / 100,
-        recentlyPlayed: (state) => state.app.recentlyPlayed,
-        muted: (state) => state.app.selfMute,
+        volume: (state) => state.sound.volume / 100,
+        recentlyPlayed: (state) => state.sound.recentlyPlayed,
+        muted: (state) => state.sound.selfMute,
         soundName: (state) => {
-            if (state.app.playedSound) {
-                const sound = state.app.sounds.filter(
-                    (sound) => sound.id === state.app.playedSound.soundId
+            if (state.sound.playedSound) {
+                const sound = state.sound.sounds.filter(
+                    (sound) => sound.id === state.sound.playedSound.soundId
                 )[0]
                 if (sound) {
                     return sound.name
@@ -111,27 +111,27 @@ export default {
             return 'Crickets are zirping.mp3'
         },
         soundDate: (state) => {
-            if (state.app.playedSound) {
-                return moment(state.app.playedSound.timestamp).format('LTS')
+            if (state.sound.playedSound) {
+                return moment(state.sound.playedSound.timestamp).format('LTS')
             }
             return moment().format('LTS')
         },
         playedBy: (state) => {
-            return state.app.playedSound
+            return state.sound.playedSound
                 ? state.app.boardUsers.filter(
-                      (u) => u.id === state.app.playedSound.playedBy
+                      (u) => u.id === state.sound.playedSound.playedBy
                   )[0]
                 : '*chirp*'
         },
-        playedSound: (state) => state.app.playedSound,
+        playedSound: (state) => state.sound.playedSound,
         playingColor: function (state) {
             if (!this.playing) {
                 return 'grey'
             }
-            return state.app.playedSound.random ? 'purple' : 'primary'
+            return state.sound.playedSound.random ? 'purple' : 'primary'
         },
         playingIcon: (state) =>
-            state.app.playedSound && state.app.playedSound.random
+            state.sound.playedSound && state.sound.playedSound.random
                 ? 'casino'
                 : 'graphic_eq',
     }),
@@ -142,7 +142,7 @@ export default {
             }
         },
         playedSound(val) {
-            if (this.$store.state.app.selfMute || val.skip) return
+            if (this.$store.state.sound.selfMute || val.skip) return
 
             this.stopAudioPlaying()
             this.audio = new Howl({

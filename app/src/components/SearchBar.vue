@@ -1,7 +1,6 @@
 <template>
     <q-input
         tabindex="0"
-        v-if="activeBoard"
         dark
         dense
         standout
@@ -25,8 +24,6 @@
 <script>
 export default {
     name: 'SearchBar',
-    props: ['activeBoard'],
-    components: {},
     data() {
         return {
             searchText: '',
@@ -34,7 +31,7 @@ export default {
     },
     watch: {
         searchText(val) {
-            this.$store.dispatch('app/onSearchChange', { text: val })
+            this.$store.dispatch('sound/onSearchChange', { text: val })
         },
     },
 }
