@@ -54,24 +54,25 @@ async function start() {
     );
     await firebase.auth().updateCurrentUser(user);
   } else {
-    var loginOnHeadlessWithIdToken = firebase
-      .functions()
-      .httpsCallable("loginOnHeadlessWithIdToken");
-    let customToken;
-    const response = await loginOnHeadlessWithIdToken({
-      boardId,
-      ownerIdToken,
-      displayName,
-    });
-    customToken = response.data.token;
-    console.log("custom auth token", customToken);
-
     try {
+      var loginOnHeadlessWithIdToken = firebase
+        .functions()
+        .httpsCallable("loginOnHeadlessWithIdToken");
+      let customToken;
+      const response = await loginOnHeadlessWithIdToken({
+        boardId,
+        ownerIdToken,
+        displayName,
+      });
+      customToken = response.data.token;
+      console.log("custom auth token", customToken);
+
+      console.log("before signInWithCustomToken");
       const userCredential = await firebase
         .auth()
         .signInWithCustomToken(customToken);
-      var user = userCredential.user;
       console.log("userid:");
+      var user = userCredential.user;
       console.log(user.uid);
       const userJson = JSON.stringify(firebase.auth().currentUser.toJSON());
       fs.writeFileSync("user.json", userJson);
