@@ -16,7 +16,7 @@
                 <q-space />
                 <search-bar :activeBoard="activeBoard" />
                 <q-space />
-                <q-badge color="primary">Alpha</q-badge>
+                <volume-control />
                 <self-mute-button :selfMute="selfMute" class="q-mx-sm" />
                 <q-btn
                     unelevated
@@ -125,6 +125,7 @@ import SearchBar from '../components/SearchBar.vue'
 import RemoveSoundDialog from '../components/RemoveSoundDialog.vue'
 import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
+import VolumeControl from '../components/VolumeControl.vue'
 
 export default {
     name: 'Home',
@@ -143,6 +144,7 @@ export default {
         SearchBar,
         EditSoundDialog,
         SoundInfoDialog,
+        VolumeControl,
     },
     data() {
         return {

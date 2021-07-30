@@ -96,6 +96,7 @@ export default {
         this.moment = moment
     },
     computed: mapState({
+        volume: (state) => state.app.volume / 100,
         recentlyPlayed: (state) => state.app.recentlyPlayed,
         muted: (state) => state.app.selfMute,
         soundName: (state) => {
@@ -135,6 +136,11 @@ export default {
                 : 'graphic_eq',
     }),
     watch: {
+        volume(val) {
+            if (this.audio) {
+                this.audio.volume(val)
+            }
+        },
         playedSound(val) {
             if (this.$store.state.app.selfMute || val.skip) return
 
@@ -142,6 +148,7 @@ export default {
             this.audio = new Howl({
                 src: [val.soundUrl],
                 format: ['mp3'],
+                volume: this.volume,
                 onplay: () => {
                     this.playing = true
                     this.progressInterval = setInterval(() => {

@@ -14,6 +14,7 @@ function initialState() {
         playedSound: undefined,
         searchText: '',
         recentlyPlayed: [],
+        volume: 50,
     }
 }
 
@@ -319,6 +320,10 @@ const actions = {
         const { text } = params
         commit('changeSearch', { text })
     },
+    onVolumeChange({ commit }, params) {
+        const { volume } = params
+        commit('changeVolume', { volume })
+    },
     async signOut({ commit, dispatch }) {
         await firebase.auth().signOut()
         dispatch('unsubscribeToPlay')
@@ -375,6 +380,9 @@ const mutations = {
     },
     changeSearch(state, { text }) {
         state.searchText = text
+    },
+    changeVolume(state, { volume }) {
+        state.volume = volume
     },
     addRecentlyPlayed(state, { soundId, playedBy }) {
         const sound = state.sounds.filter((sound) => sound.id === soundId)[0]

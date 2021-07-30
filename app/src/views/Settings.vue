@@ -181,7 +181,7 @@ export default {
         try {
             window.ipcRenderer.send('startScanForDevices')
         } catch (error) {
-            console.log(error)
+            // Is Web Instance
         }
         //this.$store.dispatch('settings/resetDeviceList')
     },
@@ -189,7 +189,7 @@ export default {
         try {
             window.ipcRenderer.send('stopScanForDevices')
         } catch (error) {
-            console.log(error)
+            // Is Web Instance
         }
     },
 }

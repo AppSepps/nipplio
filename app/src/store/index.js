@@ -4,7 +4,13 @@ import app from './modules/app'
 import settings from './modules/settings'
 
 const persistedAppState = createPersistedState({
-    paths: ['app.activeBoard', 'app.user', 'app.selfMute', 'settings'],
+    paths: [
+        'app.activeBoard',
+        'app.user',
+        'app.selfMute',
+        'app.volume',
+        'settings',
+    ],
 })
 
 const store = createStore({
