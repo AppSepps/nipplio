@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="lHh lpr lFf" container style="height: 100vh">
+    <q-layout view="hHh LpR fff" container style="height: 100vh">
         <q-header>
             <q-toolbar class="bg-dark text-white">
                 <board-dropdown v-on:openDialog="showAddBoardDialog = true" />
@@ -21,44 +21,16 @@
                 />
             </q-toolbar>
         </q-header>
-        <q-page-container>
-            <q-page padding>
-                <div class="row">
-                    <div v-if="!activeBoard">
-                        You are currently not connected with any board. Select a
-                        board with the button above or join a new board.
-                    </div>
-                    <div class="col-8 q-pr-md" v-if="activeBoard">
-                        <q-list dark v-if="sounds && sounds.length > 0">
-                            <q-item-label header class="text-uppercase"
-                                >Sounds - {{ sounds.length }}</q-item-label
-                            >
-                            <sound
-                                v-for="sound in filteredSounds"
-                                :key="sound.id"
-                                :sound="sound"
-                                :user="
-                                    boardUsers.filter(
-                                        (u) => u.id === sound.createdBy
-                                    )[0]
-                                "
-                                v-on:openRemoveDialog="
-                                    showRemoveSoundDialog = true
-                                "
-                                v-on:openEditDialog="showEditSoundDialog = true"
-                                v-on:openInfoDialog="showSoundInfoDialog = true"
-                            />
-                            <q-item v-if="filteredSounds.length === 0">
-                                <q-item-label caption
-                                    >No sounds found.</q-item-label
-                                >
-                            </q-item>
-                        </q-list>
-                    </div>
-                    <div
-                        class="col-4"
-                        v-if="boardUsers && boardUsers.length > 0"
-                    >
+        <q-drawer
+            side="right"
+            show-if-above
+            :width="300"
+            :breakpoint="300"
+            v-if="activeBoard"
+        >
+            <q-scroll-area class="fit">
+                <div class="q-pa-sm">
+                    <div v-if="boardUsers && boardUsers.length > 0">
                         <q-list dark>
                             <q-item-label header class="text-uppercase"
                                 >Online –
@@ -86,6 +58,43 @@
                                 :muted="mutedUsers.includes(boardUser.id)"
                                 :speaker="boardUser.id === speaker"
                             />
+                        </q-list>
+                    </div>
+                </div>
+            </q-scroll-area>
+        </q-drawer>
+        <q-page-container>
+            <q-page padding>
+                <div v-if="!activeBoard">
+                    You are currently not connected with any board. Select a
+                    board with the button above or join a new board.
+                </div>
+                <div v-else>
+                    <div class="q-pr-md">
+                        <q-list dark v-if="sounds && sounds.length > 0">
+                            <q-item-label header class="text-uppercase"
+                                >Sounds - {{ sounds.length }}</q-item-label
+                            >
+                            <sound
+                                v-for="sound in filteredSounds"
+                                :key="sound.id"
+                                :sound="sound"
+                                :user="
+                                    boardUsers.filter(
+                                        (u) => u.id === sound.createdBy
+                                    )[0]
+                                "
+                                v-on:openRemoveDialog="
+                                    showRemoveSoundDialog = true
+                                "
+                                v-on:openEditDialog="showEditSoundDialog = true"
+                                v-on:openInfoDialog="showSoundInfoDialog = true"
+                            />
+                            <q-item v-if="filteredSounds.length === 0">
+                                <q-item-label caption
+                                    >No sounds found.</q-item-label
+                                >
+                            </q-item>
                         </q-list>
                     </div>
                 </div>

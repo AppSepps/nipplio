@@ -5,7 +5,7 @@
             class="absolute"
             size="18px"
             style="bottom: -5px; right: -5px"
-            ><q-badge :color="muted ? 'red' : 'primary'" rounded
+            ><q-badge :color="muted ? 'red' : 'positive'" rounded
         /></q-avatar>
     </div>
 </template>
