@@ -44,6 +44,11 @@ const boardId = options.boardId;
 const ownerIdToken = options.ownerIdToken;
 const displayName = options.displayName;
 
+function saveUserInFile() {
+  const userJson = JSON.stringify(firebase.auth().currentUser.toJSON());
+  fs.writeFileSync("user.json", userJson);
+}
+
 async function start() {
   if (fs.existsSync("user.json")) {
     const userData = JSON.parse(fs.readFileSync("user.json"));
@@ -67,18 +72,18 @@ async function start() {
     console.log("custom auth token", customToken);
 
     try {
-      const userCredential = await firebase
-        .auth()
-        .signInWithCustomToken(customToken);
-      var user = userCredential.user;
-      console.log("userid:");
-      console.log(user.uid);
-      const userJson = JSON.stringify(firebase.auth().currentUser.toJSON());
-      fs.writeFileSync("user.json", userJson);
+      await firebase.auth().signInWithCustomToken(customToken);
+      saveUserInFile();
     } catch (error) {
       console.log(error);
     }
   }
+
+  firebase.auth().onIdTokenChanged(function (user) {
+    if (user) {
+      saveUserInFile();
+    }
+  });
 
   await firebase
     .database()
