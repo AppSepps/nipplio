@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
-exports.addUserToBoardInDB = async function (uid, boardId) {
+async function addUserToBoardInDB(uid, boardId) {
   // Check if user is already member of board
   const user = await admin
     .database()
@@ -52,3 +52,5 @@ exports.addUserByInvite = functions.https.onCall(async (data, context) => {
     );
   }
 });
+
+exports.addUserToBoardInDB = addUserToBoardInDB
