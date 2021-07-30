@@ -21,7 +21,7 @@ const actions = {
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
         dispatch('playRemoteSound', { id: randomSound.id, random: true })
     },
-    subscribeToPlayer({ rootState, commit }, params) {
+    subscribeToPlayer({ rootState, rootGetters, commit }, params) {
         const { user, boardUsers } = rootState.user
         const { activeBoard } = rootState.board
         let skipInitial =
@@ -41,7 +41,11 @@ const actions = {
                 .storage()
                 .ref(`boards/${activeBoard.id}/${play.soundId}`)
                 .getDownloadURL()
-            const skip = play.mutedUsers && play.mutedUsers.includes(user.uid)
+
+            const skipByRemote =
+                play.mutedUsers && play.mutedUsers.includes(user.uid)
+            const skip = skipByRemote || rootGetters['user/selfMute']
+
             const playedSound = {
                 ...play,
                 skip,

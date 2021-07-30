@@ -9,6 +9,7 @@ function initialState() {
 }
 
 const getters = {
+    selfMute: (state) => state.mutedUsers.includes(state.user.uid),
     connectedUsers: (state) =>
         state.boardUsers.filter((boardUser) => boardUser.connected),
     disconnectedUsers: (state) =>
@@ -43,13 +44,36 @@ const actions = {
         const user = firebase.auth().currentUser
         commit('getUser', { user })
     },
-    async toggleUserMute(action, params) {
-        const { id } = params
-        action.commit('toggleUserMute', { id })
+    async onSelfMuteToggle({ state, rootState }, params) {
+        const { selfMute } = params
+        const { activeBoard } = rootState.board
+
+        if (!activeBoard) return
+
+        await firebase
+            .database()
+            .ref(`/boardUsers/${activeBoard.id}/${state.user.uid}`)
+            .update({
+                muted: selfMute,
+            })
+
+        try {
+            window.ipcRenderer.send(
+                selfMute ? 'setIconToMute' : 'setIconToUnmute'
+            )
+        } catch (error) {
+            // Is Web instance
+        }
     },
-    async updateConnectionStatus({ rootState }) {
+    toggleUserMute({ commit, state }, params) {
+        let { id, selfMute = false } = params
+        if (selfMute) {
+            id = state.user.uid
+        }
+        commit('toggleUserMute', { id })
+    },
+    async updateConnectionStatus({ rootState, rootGetters }) {
         // TODO: Something here isnt working right
-        const { selfMute } = rootState.sound
         const { activeBoard } = rootState.board
 
         if (!activeBoard) return
@@ -65,7 +89,7 @@ const actions = {
             displayName: firebase.auth().currentUser.displayName,
             photoURL: firebase.auth().currentUser.photoURL,
             connected: true,
-            muted: selfMute,
+            muted: rootGetters['user/selfMute'],
         })
         await boardUserRef.onDisconnect().update({
             connected: false,

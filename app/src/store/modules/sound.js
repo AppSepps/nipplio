@@ -2,7 +2,6 @@ import firebase from 'firebase'
 
 function initialState() {
     return {
-        selfMute: false,
         searchText: '',
         sounds: [],
     }
@@ -78,33 +77,6 @@ const actions = {
         const { id } = params
         action.commit('toggleFavoriteSound', { id })
     },
-    async toggleSelfMute({ commit, state, rootState }) {
-        const { selfMute } = state
-        const { activeBoard } = rootState.board
-
-        if (activeBoard) {
-            await firebase
-                .database()
-                .ref(
-                    `/boardUsers/${activeBoard.id}/${
-                        firebase.auth().currentUser.uid
-                    }`
-                )
-                .update({
-                    muted: !selfMute,
-                })
-        }
-
-        commit('toggleSelfMute', { selfMute: !selfMute })
-
-        try {
-            window.ipcRenderer.send(
-                !selfMute ? 'setIconToMute' : 'setIconToUnmute'
-            )
-        } catch (error) {
-            // Is Web instance
-        }
-    },
     async uploadSoundFile({ rootState }, params) {
         const { files, cbSuccess } = params
         for (let file of files) {
@@ -158,9 +130,6 @@ const mutations = {
             }
             return sound
         })
-    },
-    toggleSelfMute(state, { selfMute }) {
-        state.selfMute = selfMute
     },
     reset(state) {
         const s = initialState()

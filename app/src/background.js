@@ -10,7 +10,7 @@ import {
     globalShortcut,
     screen,
     ipcMain,
-    shell
+    shell,
 } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
@@ -28,8 +28,7 @@ let tray = null
 let win = null
 
 const bonjourInstance = new bonjour()
-var bonjourService;
-
+var bonjourService
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -106,13 +105,13 @@ async function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
         },
     })
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
 
-    win.on('close', e => {
+    win.on('close', (e) => {
         if (willQuitApp) {
             /* the user tried to quit the app */
             win = null
@@ -144,8 +143,7 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) {
-    }
+    } catch (error) {}
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
@@ -170,27 +168,28 @@ app.on('ready', async () => {
         shell.openExternal(data)
     })
     ipcMain.on('setIconToMute', () => {
-        console.log('setIconToMute')
         const trayImage = nativeImage.createFromPath(
             path.join(__static, 'assets', '/trayMuteTemplate.png')
         )
         tray.setImage(trayImage)
     })
     ipcMain.on('setIconToUnmute', () => {
-        console.log('setIconToUnmute')
         const trayImage = nativeImage.createFromPath(
             path.join(__static, 'assets', '/trayUnmuteTemplate.png')
         )
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function (service) {
-            console.log('Found an Nipplio server:', service)
-            win.webContents.send('discoveredNipplioDevice', service)
-        })
+        bonjourService = bonjourInstance.find(
+            { type: 'nipplio' },
+            function (service) {
+                console.log('Found an Nipplio server:', service)
+                win.webContents.send('discoveredNipplioDevice', service)
+            }
+        )
     })
     ipcMain.on('stopScanForDevices', () => {
-        console.log("stop bonjourService")
+        console.log('stop bonjourService')
         bonjourService.stop()
     })
 })
@@ -206,7 +205,7 @@ app.on('before-quit', () => (willQuitApp = true))
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
-        process.on('message', data => {
+        process.on('message', (data) => {
             if (data === 'graceful-exit') {
                 app.quit()
             }

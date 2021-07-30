@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { Howl } from 'howler'
 import moment from 'moment'
 import RecentlyPlayed from './RecentlyPlayed.vue'
@@ -59,53 +59,63 @@ export default {
             progressInterval: undefined,
         }
     },
-    computed: mapState({
-        volume: (state) => state.player.volume / 100,
-        muted: (state) => state.sound.selfMute,
-        soundName: (state) => {
-            if (state.player.playedSound) {
-                const sound = state.sound.sounds.filter(
-                    (sound) => sound.id === state.player.playedSound.soundId
-                )[0]
-                if (sound) {
-                    return sound.name
+    computed: {
+        ...mapGetters('user', ['selfMute']),
+        ...mapState({
+            volume: (state) => state.player.volume / 100,
+            soundName: (state) => {
+                if (state.player.playedSound) {
+                    const sound = state.sound.sounds.filter(
+                        (sound) => sound.id === state.player.playedSound.soundId
+                    )[0]
+                    if (sound) {
+                        return sound.name
+                    }
                 }
-            }
-            return 'Crickets are zirping.mp3'
-        },
-        soundDate: (state) => {
-            if (state.player.playedSound) {
-                return moment(state.player.playedSound.timestamp).format('LTS')
-            }
-            return moment().format('LTS')
-        },
-        playedBy: (state) => {
-            return state.player.playedSound
-                ? state.user.boardUsers.filter(
-                      (u) => u.id === state.player.playedSound.playedBy
-                  )[0]
-                : '*chirp*'
-        },
-        playedSound: (state) => state.player.playedSound,
-        playingColor: function (state) {
-            if (!this.playing) {
-                return 'grey'
-            }
-            return state.player.playedSound.random ? 'purple' : 'primary'
-        },
-        playingIcon: (state) =>
-            state.player.playedSound && state.player.playedSound.random
-                ? 'casino'
-                : 'graphic_eq',
-    }),
+                return 'Crickets are zirping.mp3'
+            },
+            soundDate: (state) => {
+                if (state.player.playedSound) {
+                    return moment(state.player.playedSound.timestamp).format(
+                        'LTS'
+                    )
+                }
+                return moment().format('LTS')
+            },
+            playedBy: (state) => {
+                return state.player.playedSound
+                    ? state.user.boardUsers.filter(
+                          (u) => u.id === state.player.playedSound.playedBy
+                      )[0]
+                    : '*chirp*'
+            },
+            playedSound: (state) => state.player.playedSound,
+            playingColor: function (state) {
+                if (!this.playing) {
+                    return 'grey'
+                }
+                return state.player.playedSound.random ? 'purple' : 'primary'
+            },
+            playingIcon: (state) =>
+                state.player.playedSound && state.player.playedSound.random
+                    ? 'casino'
+                    : 'graphic_eq',
+        }),
+    },
     watch: {
         volume(val) {
             if (this.audio) {
                 this.audio.volume(val)
             }
         },
+        selfMute(val) {
+            this.$store.dispatch('user/onSelfMuteToggle', { selfMute: val })
+            if (val) {
+                this.stopAudioPlaying()
+            }
+        },
         playedSound(val) {
-            if (this.$store.state.sound.selfMute || val.skip) return
+            if (val.skip) return
 
             this.stopAudioPlaying()
             this.audio = new Howl({
@@ -130,11 +140,6 @@ export default {
                 },
             })
             this.audio.play()
-        },
-        muted(muted) {
-            if (muted) {
-                this.stopAudioPlaying()
-            }
         },
     },
     methods: {

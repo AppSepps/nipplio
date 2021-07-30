@@ -43,7 +43,6 @@
                 unelevated
                 flat
                 round
-                :disable="isCurrentUser"
                 :icon="muted ? 'volume_off' : 'volume_up'"
                 :color="muted ? 'red' : 'white'"
                 @click="onToggleUserMute(user.id)"

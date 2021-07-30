@@ -13,7 +13,6 @@
                 <search-bar v-if="activeBoard" />
                 <q-space />
                 <volume-control />
-                <self-mute-button :selfMute="selfMute" class="q-mx-sm" />
                 <q-btn
                     unelevated
                     icon="settings"
@@ -111,7 +110,6 @@ import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
 import User from '../components/User.vue'
-import SelfMuteButton from '../components/SelfMuteButton.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
@@ -130,7 +128,6 @@ export default {
         Sound,
         User,
         BoardDropdown,
-        SelfMuteButton,
         SoundUpload,
         BoardInvite,
         AddBoardDialog,
@@ -159,7 +156,6 @@ export default {
             activeBoard: (state) => state.board.activeBoard,
             boardUsers: (state) => state.user.boardUsers,
             mutedUsers: (state) => state.user.mutedUsers,
-            selfMute: (state) => state.sound.selfMute,
             sounds: (state) => state.sound.sounds,
             user: (state) => state.user.user,
         }),
