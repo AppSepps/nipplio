@@ -9,6 +9,15 @@
 #include "uuid.h"
 
 unsigned long lastRefreshTokenUpdateTimeInMillis = 0;
+uint32_t chipId;
+
+void setupFirebaseNetwork()
+{
+	for (int i = 0; i < 17; i = i + 8)
+	{
+		chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+	}
+}
 
 void refreshIdToken();
 
@@ -96,6 +105,8 @@ void getUserData()
 	String users_0_email = users_0["email"];
 	uid = users_0_localId;
 	displayName = users_0_email;
+
+	saveValuesToSpiffs();
 }
 void getAuthTokensFromCustomToken(String customToken)
 {
@@ -135,6 +146,8 @@ void getAuthTokensFromCustomToken(String customToken)
 	Serial.println(idToken);
 	Serial.println(refreshToken);
 
+	lastRefreshTokenUpdateTimeInMillis = millis();
+	saveValuesToSpiffs();
 	http.end(); //Close connection
 }
 
@@ -155,15 +168,27 @@ void refreshIdToken()
 	Serial.println(httpCode); //Print HTTP return code
 	Serial.println(payload);  //Print request response payload
 
-	http.end(); //Close connection
-	DynamicJsonDocument doc(1024);
-	deserializeJson(doc, payload);
-	JsonObject obj = doc.as<JsonObject>();
+	DynamicJsonDocument doc(3072);
+	DeserializationError error = deserializeJson(doc, payload);
+	if (error)
+	{
+		Serial.print(F("deserializeJson() failed: "));
+		Serial.println(error.f_str());
+		client.stop();
+		return;
+	}
+	Serial.println("capacity: " + doc.capacity());
 
-	String idT = obj["idToken"];
-	String refT = obj["refreshToken"];
-	String expiresIn = obj["expiresIn"];
+	String idT = doc["id_token"];
+	String refT = doc["refresh_token"];
+	String expiresIn = doc["expires_in"];
 
 	idToken = idT;
 	refreshToken = refT;
+	Serial.println(idToken);
+	Serial.println(refreshToken);
+
+	lastRefreshTokenUpdateTimeInMillis = millis();
+	saveValuesToSpiffs();
+	http.end(); //Close connection
 }

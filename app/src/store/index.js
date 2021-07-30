@@ -9,7 +9,6 @@ const persistedAppState = createPersistedState({
         'app.user',
         'app.selfMute',
         'app.volume',
-        'settings',
     ],
 })
 
