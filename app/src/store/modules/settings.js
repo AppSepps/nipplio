@@ -27,7 +27,7 @@ const actions = {
         console.log(rootState.sound.sounds)
         console.log(ipAddress)
         const url = 'http://' + ipAddress + '/setSlotSoundMapping'
-        const soundsIdsArray = rootState.sound.sounds.map((sound) => sound.id)
+        const soundsIdsArray = rootState.sound.sounds.map(sound => sound.id)
         const response = await axios.post(url, soundsIdsArray.slice(0, 5))
         console.log(response)
         await dispatch('getDeviceConfig', ipAddress)
@@ -76,7 +76,7 @@ const actions = {
     async discoveredNipplioDevice({ dispatch, commit, state }, service) {
         if (service) {
             const foundItem = state.discoveredDevices.filter(
-                (device) => device.addresses[0] === service.addresses[0]
+                device => device.addresses[0] === service.addresses[0]
             )
             if (foundItem && foundItem.length === 0) {
                 commit('discoveredNipplioDevice', { service })
@@ -97,21 +97,21 @@ const actions = {
 
 const mutations = {
     setDeviceConfig(state, { ipAddress, config }) {
-        state.discoveredDevices.forEach((device) => {
+        state.discoveredDevices.forEach(device => {
             if (device.addresses.includes(ipAddress)) {
                 device.config = config
             }
         })
     },
     setDeviceLoading(state, ipAddress) {
-        state.discoveredDevices.forEach((device) => {
+        state.discoveredDevices.forEach(device => {
             if (device.addresses.includes(ipAddress)) {
                 device.loading = true
             }
         })
     },
     setDeviceFinishedLoading(state, ipAddress) {
-        state.discoveredDevices.forEach((device) => {
+        state.discoveredDevices.forEach(device => {
             if (device.addresses.includes(ipAddress)) {
                 device.loading = false
             }
@@ -131,7 +131,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

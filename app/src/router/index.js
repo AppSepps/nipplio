@@ -8,7 +8,7 @@ import SignInDesktop from '../views/SignInDesktop.vue'
 const routes = [
     { path: '/', component: Home, meta: { auth: true } },
     { path: '/login', component: Login },
-    { path: '/desktop-sign-in', component: SignInDesktop }
+    { path: '/desktop-sign-in', component: SignInDesktop },
 ]
 
 const router = createRouter({
