@@ -15,10 +15,9 @@
 <script>
 export default {
     name: 'BoardInvite',
-    components: {},
     methods: {
         onInviteClicked: async function () {
-            await this.$store.dispatch('app/inviteUser', {
+            await this.$store.dispatch('board/inviteUser', {
                 cb: (url) => {
                     this.$emit('openDialog')
                     this.bus.emit('onInviteUrlGenerate', url)

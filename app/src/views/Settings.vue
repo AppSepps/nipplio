@@ -146,7 +146,9 @@
 </template>
 
 <script>
+import firebase from 'firebase'
 import { mapState } from 'vuex'
+
 export default {
     name: 'Settings',
     components: {},
@@ -172,8 +174,10 @@ export default {
             console.log(ipAddress)
             this.$store.dispatch('settings/addSoundMappingToDevice', ipAddress)
         },
-        signOut: function () {
-            this.$store.dispatch('app/signOut')
+        signOut: async function () {
+            await firebase.auth().signOut()
+            this.$store.dispatch('app/unsubscribeToPlay')
+            this.$store.dispatch('clearAll')
             this.$router.push('/login')
         },
     },

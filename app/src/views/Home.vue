@@ -2,11 +2,7 @@
     <q-layout view="lHh lpr lFf" container style="height: 100vh">
         <q-header>
             <q-toolbar class="bg-dark text-white">
-                <board-dropdown
-                    :boards="boards"
-                    :activeBoard="activeBoard"
-                    v-on:openDialog="showAddBoardDialog = true"
-                />
+                <board-dropdown v-on:openDialog="showAddBoardDialog = true" />
                 <board-invite
                     v-if="activeBoard && user && activeBoard.owner === user.uid"
                     class="q-ml-sm"
@@ -165,24 +161,22 @@ export default {
         ...mapState({
             selfMute: (state) => state.app.selfMute,
             user: (state) => state.app.user,
-            activeBoard: (state) => state.app.activeBoard,
+            activeBoard: (state) => state.board.activeBoard,
             boardUsers: (state) => state.app.boardUsers,
             mutedUsers: (state) => state.app.mutedUsers,
-            boards: (state) => state.app.boards,
             sounds: (state) => state.app.sounds,
         }),
     },
     async mounted() {
-        await this.$store.dispatch('app/checkForInviteLinkInUrl')
+        await this.$store.dispatch('board/checkForInviteLinkInUrl')
+        await this.$store.dispatch('board/getBoards')
         await this.$store.dispatch('app/getUser')
-        await this.$store.dispatch('app/getBoards')
         await this.$store.dispatch('app/getSounds')
         await this.$store.dispatch('app/getBoardUsers')
         await this.$store.dispatch('app/unsubscribeToPlay')
         await this.$store.dispatch('app/subscribeToPlay')
         await this.$store.dispatch('app/updateConnectionStatus')
     },
-    methods: {},
 }
 </script>
 

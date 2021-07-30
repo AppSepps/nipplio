@@ -52,7 +52,7 @@
                         label="Invite Link"
                         placeholder="Paste in your invite link..."
                         :rules="[
-                            val =>
+                            (val) =>
                                 (val && val.length > 0) ||
                                 'Please type something',
                         ]"
@@ -78,7 +78,6 @@
 <script>
 export default {
     name: 'AddBoardDialog',
-    components: {},
     data() {
         return {
             inviteUrlText: '',
@@ -87,24 +86,24 @@ export default {
         }
     },
     methods: {
-        onHide: function() {
+        onHide: function () {
             this.showJoinBoardInput = false
             this.inviteUrlText = ''
         },
-        onAddBoardClick: async function() {
-            await this.$store.dispatch('app/createBoard', {
+        onAddBoardClick: async function () {
+            await this.$store.dispatch('board/createBoard', {
                 boardName: 'NewBoardName' + (Math.random() * 1000).toFixed(0),
             })
             this.$emit('closeDialog')
         },
-        onJoinBoardClick: function() {
+        onJoinBoardClick: function () {
             this.showJoinBoardInput = true
         },
-        onInviteUrlSend: async function() {
+        onInviteUrlSend: async function () {
             if (this.inviteUrlText.trim().length == 0) {
                 return
             }
-            await this.$store.dispatch('app/joinBoardWithUrl', {
+            await this.$store.dispatch('board/joinBoardWithUrl', {
                 inviteUrl: this.inviteUrlText,
             })
             this.$emit('closeDialog')

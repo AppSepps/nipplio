@@ -37,13 +37,19 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
     name: 'BoardDropdown',
-    props: ['boards', 'activeBoard'],
-    components: {},
+    computed: {
+        ...mapState({
+            activeBoard: (state) => state.board.activeBoard,
+            boards: (state) => state.board.boards,
+        }),
+    },
     methods: {
         onBoardClick: async function (id) {
-            await this.$store.dispatch('app/selectBoard', { id })
+            this.$store.dispatch('board/selectBoard', { id })
         },
         openAddBoardDialog: function () {
             this.$emit('openDialog')

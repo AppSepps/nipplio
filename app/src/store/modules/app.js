@@ -1,13 +1,10 @@
 import firebase from 'firebase'
 import { v4 as uuidv4 } from 'uuid'
-import { useRoute } from 'vue-router'
 
 function initialState() {
     return {
         selfMute: false,
-        activeBoard: undefined,
         user: undefined,
-        boards: [],
         boardUsers: [],
         mutedUsers: [],
         sounds: [],
@@ -37,18 +34,9 @@ const getters = {
 
 // TODO: Better modularization
 const actions = {
-    async checkForInviteLinkInUrl({ dispatch }) {
-        const params = useRoute().query
-        if (params) {
-            const boardId = params.boardId
-            const token = params.token
-            if (boardId && token) {
-                dispatch('joinBoard', { token, boardId })
-            }
-        }
-    },
-    async toggleSelfMute({ commit, state }) {
-        const { selfMute, activeBoard } = state
+    async toggleSelfMute({ commit, state, rootState }) {
+        const { selfMute } = state
+        const { activeBoard } = rootState.board
 
         if (activeBoard) {
             await firebase
@@ -73,47 +61,15 @@ const actions = {
             // Is Web instance
         }
     },
-    async createBoard(context, params) {
-        const { boardName } = params
-        const createBoard = firebase.functions().httpsCallable('createBoard')
-        await createBoard({ boardName })
-    },
-    async inviteUser({ state }, params) {
-        const { activeBoard } = state
-        const { cb } = params
-        const snapshot = await firebase
-            .database()
-            .ref('/boardInvites/' + activeBoard.id)
-            .push(true)
-        const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
-        cb(url)
-    },
     async getUser({ commit }) {
         const user = firebase.auth().currentUser
         commit('getUser', { user })
     },
-    async getBoards({ commit }) {
-        const boardsRef = firebase
-            .database()
-            .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
+    async getBoardUsers({ rootState, commit }) {
+        const { activeBoard } = rootState.board
 
-        boardsRef.on('child_added', (snapshot) => {
-            firebase
-                .database()
-                .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
-                    commit('addBoard', {
-                        id: snapshot.key,
-                        ...snapshot.val(),
-                    })
-                })
-        })
-    },
-    async getBoardUsers({ state, commit }) {
-        const { activeBoard } = state
-        if (!activeBoard) {
-            return
-        }
+        if (!activeBoard) return
+
         const boardUsersRef = firebase
             .database()
             .ref(`/boardUsers/${activeBoard.id}`)
@@ -132,77 +88,40 @@ const actions = {
             })
         })
     },
-    async updateConnectionStatus({ state }) {
-        const { activeBoard, selfMute } = state
-        if (activeBoard) {
-            const boardUserRef = firebase
-                .database()
-                .ref(
-                    `/boardUsers/${activeBoard.id}/${
-                        firebase.auth().currentUser.uid
-                    }`
-                )
-            await boardUserRef.set({
-                displayName: firebase.auth().currentUser.displayName,
-                photoURL: firebase.auth().currentUser.photoURL,
-                connected: true,
-                muted: selfMute,
-            })
-            await boardUserRef.onDisconnect().update({
-                connected: false,
-            })
-            // Keeps the user as connected when another tab gets closed
-            boardUserRef.child('connected').on('value', (snap) => {
-                if (snap.val() == false) {
-                    boardUserRef.child('connected').set(true)
-                }
-            })
-        }
-    },
-    async selectBoard({ commit, state, dispatch }, params) {
-        const { boards } = state
-        const { id } = params
-        const activeBoard = boards.filter((board) => board.id === id)[0]
-        if (activeBoard) {
-            // TODO: Mark previous board as disconnected
+    async updateConnectionStatus({ state, rootState }) {
+        const { selfMute } = state
+        const { activeBoard } = rootState.board
 
-            commit('selectBoard', activeBoard)
-            dispatch('updateConnectionStatus')
-            dispatch('getBoardUsers')
-            dispatch('getSounds')
-            dispatch('unsubscribeToPlay')
-            dispatch('subscribeToPlay', { skipInitial: false })
-        }
+        if (!activeBoard) return
+
+        const boardUserRef = firebase
+            .database()
+            .ref(
+                `/boardUsers/${activeBoard.id}/${
+                    firebase.auth().currentUser.uid
+                }`
+            )
+        await boardUserRef.set({
+            displayName: firebase.auth().currentUser.displayName,
+            photoURL: firebase.auth().currentUser.photoURL,
+            connected: true,
+            muted: selfMute,
+        })
+        await boardUserRef.onDisconnect().update({
+            connected: false,
+        })
+        // Keeps the user as connected when another tab gets closed
+        boardUserRef.child('connected').on('value', (snap) => {
+            if (snap.val() == false) {
+                boardUserRef.child('connected').set(true)
+            }
+        })
     },
-    async joinBoardWithUrl({ dispatch }, params) {
-        const { inviteUrl } = params
-        console.log(`Trying to join Board with url ${inviteUrl}`)
-        const url = new URL(inviteUrl)
-        const boardId = url.searchParams.get('boardId')
-        const token = url.searchParams.get('token')
-        dispatch('joinBoard', { boardId, token })
-    },
-    async joinBoard({ dispatch }, params) {
-        const { boardId, token } = params
-        const inviteUserByToken = firebase
-            .functions()
-            .httpsCallable('addUserByInvite')
-        try {
-            let response = await inviteUserByToken({
-                boardId: boardId,
-                token: token,
-            })
-            console.log(response) // TODO: Check response result
-            dispatch('selectBoard', { boardId })
-        } catch (error) {
-            console.log(error)
-        }
-    },
-    async getSounds({ commit, state }) {
-        const { activeBoard } = state
-        if (!activeBoard) {
-            return
-        }
+    async getSounds({ commit, rootState }) {
+        const { activeBoard } = rootState.board
+
+        if (!activeBoard) return
+
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
         soundsRef.on('child_added', (snapshot) => {
@@ -226,7 +145,7 @@ const actions = {
         })
     },
     async removeSound(context, params) {
-        const { activeBoard } = context.state
+        const { activeBoard } = context.rootState.board
         const { soundId } = params
 
         const soundRef = firebase
@@ -238,55 +157,58 @@ const actions = {
             .ref(`/boards/${activeBoard.id}/${soundId}`)
             .delete()
     },
-    async unsubscribeToPlay({ state }) {
-        const { activeBoard } = state
-        if (activeBoard) {
-            firebase
-                .database()
-                .ref('/play/' + activeBoard.id)
-                .off()
-        }
+    async unsubscribeToPlay({ rootState }) {
+        const { activeBoard } = rootState.board
+
+        if (!activeBoard) return
+
+        firebase
+            .database()
+            .ref('/play/' + activeBoard.id)
+            .off()
     },
-    async subscribeToPlay({ state, commit }, params) {
+    async subscribeToPlay({ state, rootState, commit }, params) {
+        const { user } = state
+        const { activeBoard } = rootState.board
         let skipInitial =
             params && params.skipInitial ? params.skipInitial : true
-        const { activeBoard, user } = state
-        if (activeBoard) {
-            const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
-            playRef.on('value', async (snapshot) => {
-                if (skipInitial) {
-                    skipInitial = false
-                    return
-                }
-                const play = snapshot.val()
-                const soundUrl = await firebase
-                    .storage()
-                    .ref(`boards/${activeBoard.id}/${play.soundId}`)
-                    .getDownloadURL()
-                const skip =
-                    play.mutedUsers && play.mutedUsers.includes(user.uid)
-                const playedSound = {
-                    ...play,
-                    skip,
-                    soundUrl,
-                    timestamp: new Date(),
-                }
-                commit('updatePlayedSound', { playedSound })
-                commit('addRecentlyPlayed', {
-                    soundId: play.soundId,
-                    playedBy: play.playedBy,
-                })
+        if (!activeBoard) return
+
+        const playRef = firebase.database().ref('/play/' + activeBoard.id)
+
+        playRef.on('value', async (snapshot) => {
+            if (skipInitial) {
+                skipInitial = false
+                return
+            }
+            const play = snapshot.val()
+            const soundUrl = await firebase
+                .storage()
+                .ref(`boards/${activeBoard.id}/${play.soundId}`)
+                .getDownloadURL()
+            const skip = play.mutedUsers && play.mutedUsers.includes(user.uid)
+            const playedSound = {
+                ...play,
+                skip,
+                soundUrl,
+                timestamp: new Date(),
+            }
+            commit('updatePlayedSound', { playedSound })
+            commit('addRecentlyPlayed', {
+                soundId: play.soundId,
+                playedBy: play.playedBy,
             })
-        }
+        })
     },
     async playRandomSound({ state, dispatch }) {
         const { sounds } = state
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
         dispatch('triggerPlaySound', { id: randomSound.id, random: true }) // TODO: Maybe we should extract business logic to utils class and only handle vuex behaviour here
     },
-    async triggerPlaySound({ state }, params) {
-        const { activeBoard, user, mutedUsers } = state
+    async triggerPlaySound({ state, rootState }, params) {
+        const { user, mutedUsers } = state
+        const { activeBoard } = rootState.board
         const { id, random = false } = params
         await firebase
             .database()
@@ -307,12 +229,12 @@ const actions = {
         const { id } = params
         action.commit('toggleUserMute', { id })
     },
-    async uploadSoundFile({ state }, params) {
+    async uploadSoundFile({ rootState }, params) {
         const { files, cbSuccess } = params
         for (let file of files) {
             const soundSnap = await firebase
                 .database()
-                .ref('/sounds/' + state.activeBoard.id)
+                .ref('/sounds/' + rootState.activeBoard.id)
                 .push({
                     name: file.name,
                     type: file.type,
@@ -321,7 +243,9 @@ const actions = {
                 })
             await firebase
                 .storage()
-                .ref('/boards/' + state.activeBoard.id + '/' + soundSnap.key)
+                .ref(
+                    '/boards/' + rootState.activeBoard.id + '/' + soundSnap.key
+                )
                 .put(file)
         }
 
@@ -331,10 +255,10 @@ const actions = {
         const { text } = params
         commit('changeSearch', { text })
     },
-    async onSoundEdit({ state }, sound) {
+    async onSoundEdit({ rootState }, sound) {
         await firebase
             .database()
-            .ref(`/sounds/${state.activeBoard.id}/${sound.id}`)
+            .ref(`/sounds/${rootState.activeBoard.id}/${sound.id}`)
             .update({
                 name: sound.name,
             })
@@ -342,11 +266,6 @@ const actions = {
     onVolumeChange({ commit }, params) {
         const { volume } = params
         commit('changeVolume', { volume })
-    },
-    async signOut({ commit, dispatch }) {
-        await firebase.auth().signOut()
-        dispatch('unsubscribeToPlay')
-        commit('signOut')
     },
 }
 
@@ -365,9 +284,6 @@ const mutations = {
             return u.id === user.id ? user : u
         })
     },
-    addBoard(state, board) {
-        state.boards = [...state.boards, board]
-    },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
     },
@@ -378,9 +294,6 @@ const mutations = {
     },
     removeSound(state, { id }) {
         state.sounds = state.sounds.filter((sound) => sound.id !== id)
-    },
-    selectBoard(state, activeBoard) {
-        state.activeBoard = activeBoard
     },
     updatePlayedSound(state, { playedSound }) {
         state.playedSound = playedSound
@@ -422,7 +335,7 @@ const mutations = {
             state.recentlyPlayed.shift()
         }
     },
-    signOut(state) {
+    reset(state) {
         const s = initialState()
         Object.keys(s).forEach((key) => {
             state[key] = s[key]

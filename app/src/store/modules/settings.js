@@ -15,17 +15,21 @@ const actions = {
     async addDeviceToCurrentBoard({ dispatch, rootState }, ipAddress) {
         console.log(rootState.app.activeBoard.id)
         console.log(ipAddress)
-        const url = "http://" + ipAddress + "/setBoardId?boardId=" + rootState.app.activeBoard.id
-        const response = await axios.get(url);
+        const url =
+            'http://' +
+            ipAddress +
+            '/setBoardId?boardId=' +
+            rootState.app.activeBoard.id
+        const response = await axios.get(url)
         console.log(response)
         await dispatch('getDeviceConfig', ipAddress)
     },
     async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
         console.log(rootState.app.sounds)
         console.log(ipAddress)
-        const url = "http://" + ipAddress + "/setSlotSoundMapping"
-        const soundsIdsArray = rootState.app.sounds.map((sound) => sound.id);
-        const response = await axios.post(url, soundsIdsArray.slice(0, 5));
+        const url = 'http://' + ipAddress + '/setSlotSoundMapping'
+        const soundsIdsArray = rootState.app.sounds.map((sound) => sound.id)
+        const response = await axios.post(url, soundsIdsArray.slice(0, 5))
         console.log(response)
         await dispatch('getDeviceConfig', ipAddress)
     },
@@ -35,7 +39,6 @@ const actions = {
 
         commit('setDeviceLoading', ipAddress)
         try {
-
             const idToken = await firebase.auth().currentUser.getIdToken()
             const createAndReturnAuthToken = firebase
                 .functions()
@@ -45,9 +48,13 @@ const actions = {
             })
 
             // Login with the customToken
-            const url = "http://" + ipAddress + "/loginWithCustomToken?customToken=" + result.data.token
+            const url =
+                'http://' +
+                ipAddress +
+                '/loginWithCustomToken?customToken=' +
+                result.data.token
             console.log(url)
-            const response = await axios.get(url);
+            const response = await axios.get(url)
             console.log(response.data)
 
             await dispatch('getDeviceConfig', ipAddress)
@@ -58,9 +65,9 @@ const actions = {
     },
     async getDeviceConfig({ commit }, ipAddress) {
         // Get the config of the device
-        const configUrl = "http://" + ipAddress + "/getConfig"
+        const configUrl = 'http://' + ipAddress + '/getConfig'
         console.log(configUrl)
-        const configResponse = await axios.get(configUrl);
+        const configResponse = await axios.get(configUrl)
         console.log(configResponse.data)
         commit('setDeviceConfig', { ipAddress, config: configResponse.data })
     },
@@ -70,7 +77,7 @@ const actions = {
     async discoveredNipplioDevice({ dispatch, commit, state }, service) {
         if (service) {
             const foundItem = state.discoveredDevices.filter(
-                device => device.addresses[0] === service.addresses[0]
+                (device) => device.addresses[0] === service.addresses[0]
             )
             if (foundItem && foundItem.length === 0) {
                 commit('discoveredNipplioDevice', { service })
@@ -122,6 +129,12 @@ const mutations = {
     },
     discoveredNipplioDevice(state, { service }) {
         state.discoveredDevices.push(service)
+    },
+    reset(state) {
+        const s = initialState()
+        Object.keys(s).forEach((key) => {
+            state[key] = s[key]
+        })
     },
 }
 
