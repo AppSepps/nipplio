@@ -1,4 +1,5 @@
 import firebase from 'firebase'
+import { sendToIPCRenderer } from '../../helpers/electron.helper'
 
 function initialState() {
     return {
@@ -57,13 +58,7 @@ const actions = {
                 muted: selfMute,
             })
 
-        try {
-            window.ipcRenderer.send(
-                selfMute ? 'setIconToMute' : 'setIconToUnmute'
-            )
-        } catch (error) {
-            // Is Web instance
-        }
+        sendToIPCRenderer(selfMute ? 'setIconToMute' : 'setIconToUnmute')
     },
     toggleUserMute({ commit, state }, params) {
         let { id, selfMute = false } = params

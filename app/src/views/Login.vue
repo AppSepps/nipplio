@@ -7,6 +7,7 @@
 <script>
 import firebase from 'firebase'
 import router from '../router'
+import { sendToIPCRenderer } from '../helpers/electron.helper'
 import { v4 as uuidv4 } from 'uuid'
 import 'firebaseui/dist/firebaseui.css'
 
@@ -32,12 +33,11 @@ export default {
             })
             const googleLink = `${window.location.origin}/desktop-sign-in?ot-auth-code=${id}`
             console.log(googleLink)
-            try {
-                window.ipcRenderer.send('openExternalBrowser', googleLink)
-            } catch (error) {
+
+            sendToIPCRenderer('openExternalBrowser', googleLink, (error) => {
                 window.open(googleLink, '_blank')
                 console.log(error)
-            }
+            })
         },
     },
     mounted() {},

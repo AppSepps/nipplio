@@ -146,6 +146,7 @@
 </template>
 
 <script>
+import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
 import { mapState } from 'vuex'
 
@@ -182,19 +183,10 @@ export default {
         },
     },
     mounted() {
-        try {
-            window.ipcRenderer.send('startScanForDevices')
-        } catch (error) {
-            // Is Web Instance
-        }
-        //this.$store.dispatch('settings/resetDeviceList')
+        sendToIPCRenderer('startScanForDevices')
     },
     unmounted() {
-        try {
-            window.ipcRenderer.send('stopScanForDevices')
-        } catch (error) {
-            // Is Web Instance
-        }
+        sendToIPCRenderer('stopScanForDevices')
     },
 }
 </script>
