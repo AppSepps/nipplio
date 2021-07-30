@@ -24,7 +24,11 @@ const getters = {
             .sort((a, b) =>
                 a.name.toLowerCase().localeCompare(b.name.toLowerCase())
             )
-            .filter((sound) => sound.name.includes(state.searchText)),
+            .filter((sound) =>
+                sound.name
+                    .toLowerCase()
+                    .includes(state.searchText.toLowerCase())
+            ),
     connectedUsers: (state) =>
         state.boardUsers.filter((boardUser) => boardUser.connected),
     disconnectedUsers: (state) =>
@@ -208,6 +212,13 @@ const actions = {
             })
         })
 
+        soundsRef.on('child_changed', (snapshot) => {
+            commit('changeSound', {
+                id: snapshot.key,
+                ...snapshot.val(),
+            })
+        })
+
         soundsRef.on('child_removed', (snapshot) => {
             commit('removeSound', {
                 id: snapshot.key,
@@ -320,6 +331,14 @@ const actions = {
         const { text } = params
         commit('changeSearch', { text })
     },
+    async onSoundEdit({ state }, sound) {
+        await firebase
+            .database()
+            .ref(`/sounds/${state.activeBoard.id}/${sound.id}`)
+            .update({
+                name: sound.name,
+            })
+    },
     onVolumeChange({ commit }, params) {
         const { volume } = params
         commit('changeVolume', { volume })
@@ -351,6 +370,11 @@ const mutations = {
     },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
+    },
+    changeSound(state, sound) {
+        state.sounds = state.sounds.map((s) => {
+            return s.id === sound.id ? sound : s
+        })
     },
     removeSound(state, { id }) {
         state.sounds = state.sounds.filter((sound) => sound.id !== id)
