@@ -1,7 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const invite = require("./invite");
-const { v4: uuidv4 } = require("uuid");
 
 async function addUserToUsersDB(uid, displayName) {
   await admin
@@ -59,7 +58,6 @@ exports.loginOnHeadlessWithIdToken = functions.https.onCall(
     const ownerIdToken = data["ownerIdToken"];
     const displayName = data["displayName"];
     if (boardId == null || ownerIdToken == null || displayName == null) {
-      res.send(400);
       return;
     }
 
@@ -73,11 +71,13 @@ exports.loginOnHeadlessWithIdToken = functions.https.onCall(
       .once("value");
     const boardOwnerId = boardOwnerSnap.val();
     if (boardOwnerId !== uid) {
-      res.send(403);
       return;
     }
 
-    const newUseruid = uuidv4();
+    const newUseruid =
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15);
     const authToken = await admin.auth().createCustomToken(newUseruid);
     addUserToUsersDB(newUseruid, displayName);
     invite.addUserToBoardInDB(newUseruid, boardId);
