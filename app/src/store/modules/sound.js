@@ -21,7 +21,6 @@ const getters = {
             ),
 }
 
-// Maybe extract extra 'player' module
 const actions = {
     getSounds({ commit, rootState }) {
         const { activeBoard } = rootState.board
@@ -57,7 +56,7 @@ const actions = {
     async onSoundEdit({ rootState }, sound) {
         await firebase
             .database()
-            .ref(`/sounds/${rootState.activeBoard.id}/${sound.id}`)
+            .ref(`/sounds/${rootState.board.activeBoard.id}/${sound.id}`)
             .update({
                 name: sound.name,
             })
