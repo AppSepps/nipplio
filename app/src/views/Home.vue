@@ -70,6 +70,7 @@
                                 :user="boardUser"
                                 :isCurrentUser="user.uid === boardUser.id"
                                 :muted="mutedUsers.includes(boardUser.id)"
+                                :speaker="boardUser.id === speaker"
                             />
                         </q-list>
                         <q-list dark>
@@ -83,6 +84,7 @@
                                 :user="boardUser"
                                 :isCurrentUser="user.uid === boardUser.id"
                                 :muted="mutedUsers.includes(boardUser.id)"
+                                :speaker="boardUser.id === speaker"
                             />
                         </q-list>
                     </div>
@@ -157,6 +159,7 @@ export default {
             boardUsers: (state) => state.user.boardUsers,
             mutedUsers: (state) => state.user.mutedUsers,
             sounds: (state) => state.sound.sounds,
+            speaker: (state) => state.user.speaker,
             user: (state) => state.user.user,
         }),
     },

@@ -28,17 +28,17 @@
         <q-item-section>
             <q-item-label>{{ user.displayName }}</q-item-label>
         </q-item-section>
-        <q-item-section avatar v-if="hover && user.connected">
+        <q-item-section avatar v-if="hover || speaker">
             <q-btn
                 unelevated
                 flat
                 round
                 icon="speaker"
-                :color="'primary'"
+                :color="speaker ? 'primary' : 'white'"
                 @click="onSelectSpeaker(user.id)"
             />
         </q-item-section>
-        <q-item-section avatar v-if="user.connected">
+        <q-item-section avatar>
             <q-btn
                 unelevated
                 flat
@@ -56,7 +56,7 @@ import UserMuteIndicator from './UserMuteIndicator.vue'
 
 export default {
     name: 'User',
-    props: ['user', 'muted', 'isCurrentUser'],
+    props: ['user', 'muted', 'speaker', 'isCurrentUser'],
     components: { UserMuteIndicator },
     data() {
         return {

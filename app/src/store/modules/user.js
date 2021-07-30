@@ -6,11 +6,13 @@ function initialState() {
         boardUsers: [],
         mutedUsers: [],
         user: undefined,
+        speaker: undefined,
     }
 }
 
 const getters = {
-    selfMute: (state) => state.mutedUsers.includes(state.user.uid),
+    selfMute: (state) =>
+        state.user && state.mutedUsers.includes(state.user.uid),
     connectedUsers: (state) =>
         state.boardUsers.filter((boardUser) => boardUser.connected),
     disconnectedUsers: (state) =>
@@ -59,6 +61,10 @@ const actions = {
             })
 
         sendToIPCRenderer(selfMute ? 'setIconToMute' : 'setIconToUnmute')
+    },
+    selectSpeaker({ commit }, params) {
+        const { id } = params
+        commit('selectSpeaker', { id })
     },
     toggleUserMute({ commit, state }, params) {
         let { id, selfMute = false } = params
@@ -110,10 +116,28 @@ const mutations = {
     getUser(state, { user }) {
         state.user = user
     },
+    selectSpeaker(state, { id }) {
+        if (state.speaker === id) {
+            state.speaker = undefined
+            state.mutedUsers = []
+        } else {
+            state.speaker = id
+            state.mutedUsers = state.boardUsers
+                .filter((user) => user.id !== id)
+                .map((user) => user.id)
+        }
+    },
     toggleUserMute(state, { id }) {
+        state.speaker = undefined
         state.mutedUsers = state.mutedUsers.includes(id)
             ? state.mutedUsers.filter((u) => u !== id)
             : [...state.mutedUsers, id]
+        if (state.boardUsers.length - 1 === state.mutedUsers.length) {
+            const singleUser = state.boardUsers.filter(
+                (user) => state.mutedUsers.indexOf(user.id) === -1
+            )[0]
+            state.speaker = singleUser.id
+        }
     },
     reset(state) {
         const s = initialState()

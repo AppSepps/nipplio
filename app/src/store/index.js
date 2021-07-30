@@ -12,8 +12,9 @@ const persistedAppState = createPersistedState({
         'board.activeBoard',
         'player.volume',
         'sound.selfMute',
-        'user.user',
         'user.mutedUsers',
+        'user.speaker',
+        'user.user',
     ],
 })
 
