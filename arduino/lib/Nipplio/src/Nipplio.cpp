@@ -49,9 +49,11 @@ void setBoardIdRoute()
 void getConfigRoute()
 {
 	String output = "";
-	DynamicJsonDocument doc(2048);
+	DynamicJsonDocument doc(4096);
 	doc["boardID"] = boardId;
 	doc["uid"] = uid;
+	doc["idToken"] = idToken;
+	doc["refreshToken"] = refreshToken;
 
 	JsonArray slots = doc.createNestedArray("slotNames");
 	for (int i = 0; i < (sizeof(slotNames) / sizeof(slotNames[0])); i++)
@@ -131,12 +133,33 @@ String read_String(char add)
 
 void Nipplio::setup()
 {
+	setupFirebaseNetwork();
+	for (int i = 0; i < 17; i = i + 8)
+	{
+		chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+	}
+
+	Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
+	Serial.printf("This chip has %d cores\n", ESP.getChipCores());
+	Serial.print("Chip ID: ");
+	Serial.println(chipId);
+	Serial.print("efuse ID: ");
+	Serial.println(ESP.getEfuseMac());
 	storageSetup();
 	readValuesFromSpiffs();
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
 	Serial.println(WiFi.localIP());
-	if (!MDNS.begin("esp8266"))
+	String str = String(chipId);
+	// Length (with one extra character for the null terminator)
+	int str_len = str.length() + 1;
+
+	// Prepare the character array (the buffer)
+	char char_array[str_len];
+
+	// Copy it over
+	str.toCharArray(char_array, str_len);
+	if (!MDNS.begin(char_array))
 	{ // Start the mDNS responder for esp8266.local
 		Serial.println("Error setting up MDNS responder!");
 	}

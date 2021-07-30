@@ -2,11 +2,11 @@
 #include "SPIFFS.h"
 #include <ArduinoJson.h>
 
-String uid = "";
-String displayName = "";
-String idToken = "";
-String refreshToken = "";
-String boardId = "";
+String uid;
+String displayName;
+String idToken;
+String refreshToken;
+String boardId;
 String slotNames[255];
 String slotSoundMapping[255];
 
@@ -21,8 +21,13 @@ void storageSetup()
 
 void saveValuesToSpiffs()
 {
-	String output = "";
+	String output;
 	File file = SPIFFS.open("/config.json", FILE_WRITE);
+	if (!file)
+	{
+		Serial.println("There was an error opening the file for writing");
+		return;
+	}
 	DynamicJsonDocument doc(2048);
 
 	doc["uid"] = uid;
@@ -41,14 +46,29 @@ void saveValuesToSpiffs()
 	}
 
 	serializeJson(doc, output);
-	file.print(output);
+	if (file.print(output))
+	{
+		Serial.println("File was written");
+	}
+	else
+	{
+		Serial.println("File write failed");
+	}
+
 	file.close();
 }
 
 void readValuesFromSpiffs()
 {
-	File file = SPIFFS.open("/config.json", FILE_WRITE);
+	File file = SPIFFS.open("/config.json");
+	if (!file)
+	{
+		Serial.println("There was an error opening the file for writing");
+		return;
+	}
+	Serial.print("input from config.json: ");
 	String input = file.readString();
+	Serial.println(input);
 
 	DynamicJsonDocument doc(2048);
 
