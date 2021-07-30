@@ -1,9 +1,11 @@
 <template>
     <div>
-        <div v-if="showCloseButton">
-            <p>You can now close this window</p>
-        </div>
-        <section id="firebaseui-auth-container"></section>
+        <q-page class="flex flex-center">
+            <div v-if="showCloseButton">
+                <p>You can now close this window</p>
+            </div>
+            <section id="firebaseui-auth-container"></section>
+        </q-page>
     </div>
 </template>
 
