@@ -38,10 +38,16 @@ var https = options.debug ? require("http") : require("https");
 if (options.debug) {
   firebase.auth().useEmulator("http://localhost:9099");
   firebase.database().useEmulator("localhost", 9000);
+  firebase.functions().useEmulator("localhost", 5001);
 }
 const boardId = options.boardId;
 const ownerIdToken = options.ownerIdToken;
 const displayName = options.displayName;
+
+function saveUserInFile() {
+  const userJson = JSON.stringify(firebase.auth().currentUser.toJSON());
+  fs.writeFileSync("user.json", userJson);
+}
 
 async function start() {
   if (fs.existsSync("user.json")) {
@@ -56,59 +62,62 @@ async function start() {
     var loginOnHeadlessWithIdToken = firebase
       .functions()
       .httpsCallable("loginOnHeadlessWithIdToken");
+    let customToken;
     const response = await loginOnHeadlessWithIdToken({
       boardId,
       ownerIdToken,
       displayName,
     });
-    const customToken = response.data.token;
+    customToken = response.data.token;
     console.log("custom auth token", customToken);
-    const userCredential = await firebase
-      .auth()
-      .signInWithCustomToken(customToken);
-    var user = userCredential.user;
-    console.log(user.uid);
-    const userJson = JSON.stringify(firebase.auth().currentUser.toJSON());
-    fs.writeFileSync("user.json", userJson);
+
+    try {
+      await firebase.auth().signInWithCustomToken(customToken);
+      saveUserInFile();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  try {
-    await firebase
-      .database()
-      .ref(`/boardUsers/${boardId}/${firebase.auth().currentUser.uid}`)
-      .update({
-        connected: true,
-        displayName: displayName,
-        muted: false,
-      });
-    firebase
-      .database()
-      .ref(`/play/${boardId}`)
-      .on(
-        "value",
-        (snap) => {
-          console.log("play sound changed: ", snap.val());
-          var file = fs.createWriteStream("file.mp3");
-          const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${
-            snap.val().soundId
-          }?alt=media`;
-          console.log(url);
-          var request = https.get(url, function (response) {
-            response.pipe(file);
-            player.play("file.mp3", function (err) {
-              if (err) {
-                console.log(err);
-              }
-            });
+  firebase.auth().onIdTokenChanged(function (user) {
+    if (user) {
+      saveUserInFile();
+    }
+  });
+
+  await firebase
+    .database()
+    .ref(`/boardUsers/${boardId}/${firebase.auth().currentUser.uid}`)
+    .update({
+      connected: true,
+      displayName: displayName,
+      muted: false,
+    });
+  firebase
+    .database()
+    .ref(`/play/${boardId}`)
+    .on(
+      "value",
+      (snap) => {
+        console.log("play sound changed: ", snap.val());
+        var file = fs.createWriteStream("file.mp3");
+        const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${
+          snap.val().soundId
+        }?alt=media`;
+        console.log(url);
+        var request = https.get(url, function (response) {
+          response.pipe(file);
+          player.play("file.mp3", function (err) {
+            if (err) {
+              console.log(err);
+            }
           });
-        },
-        (errorObject) => {
-          console.log("The read failed: ", errorObject);
-        }
-      );
-  } catch (error) {
-    console.log(error);
-  }
+        });
+      },
+      (errorObject) => {
+        console.log("The read failed: ", errorObject);
+      }
+    );
 }
 
 start();
