@@ -1,6 +1,5 @@
 const commandLineArgs = require("command-line-args");
 const fs = require("fs");
-var https = require("http");
 var player = require("play-sound")((opts = {}));
 const Speaker = require("speaker");
 
@@ -21,20 +20,25 @@ firebase.initializeApp({
   appId: "1:352715885889:web:2d41e46b5ed338c687e5c0",
 });
 
-firebase.auth().useEmulator("http://localhost:9099");
-firebase.database().useEmulator("localhost", 9000);
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
-
 const axios = require("axios").default;
 axios.defaults.headers.post["Referer"] = "localhost";
 
 const optionDefinitions = [
   { name: "boardId", alias: "b", type: String },
+  { name: "debug", type: Boolean, defaultOption: false },
   { name: "displayName", alias: "d", type: String },
   { name: "ownerIdToken", type: String },
 ];
 const options = commandLineArgs(optionDefinitions);
 
+const storageHost = options.debug
+  ? "http://127.0.0.1:9199"
+  : "https://firebasestorage.googleapis.com";
+var https = options.debug ? require("http") : require("https");
+if (options.debug) {
+  firebase.auth().useEmulator("http://localhost:9099");
+  firebase.database().useEmulator("localhost", 9000);
+}
 const boardId = options.boardId;
 const ownerIdToken = options.ownerIdToken;
 const displayName = options.displayName;
@@ -49,14 +53,14 @@ async function start() {
     );
     await firebase.auth().updateCurrentUser(user);
   } else {
-    const response = await axios.post(
-      "http://localhost:5001/nipplio/us-central1/loginOnHeadlessWithIdToken",
-      {
-        boardId,
-        ownerIdToken,
-        displayName,
-      }
-    );
+    var loginOnHeadlessWithIdToken = firebase
+      .functions()
+      .httpsCallable("loginOnHeadlessWithIdToken");
+    const response = await loginOnHeadlessWithIdToken({
+      boardId,
+      ownerIdToken,
+      displayName,
+    });
     const customToken = response.data.token;
     console.log("custom auth token", customToken);
     const userCredential = await firebase
@@ -85,7 +89,7 @@ async function start() {
         (snap) => {
           console.log("play sound changed: ", snap.val());
           var file = fs.createWriteStream("file.mp3");
-          const url = `http://127.0.0.1:9199/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${
+          const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${
             snap.val().soundId
           }?alt=media`;
           console.log(url);

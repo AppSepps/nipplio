@@ -53,11 +53,11 @@ exports.createAndReturnAuthToken = functions.https.onCall(
   }
 );
 
-exports.loginOnHeadlessWithIdToken = functions.https.onRequest(
-  async (req, res) => {
-    const boardId = req.body["boardId"];
-    const ownerIdToken = req.body["ownerIdToken"];
-    const displayName = req.body["displayName"];
+exports.loginOnHeadlessWithIdToken = functions.https.onCall(
+  async (data, request) => {
+    const boardId = data["boardId"];
+    const ownerIdToken = data["ownerIdToken"];
+    const displayName = data["displayName"];
     if (boardId == null || ownerIdToken == null || displayName == null) {
       res.send(400);
       return;
@@ -83,8 +83,8 @@ exports.loginOnHeadlessWithIdToken = functions.https.onRequest(
     invite.addUserToBoardInDB(newUseruid, boardId);
     console.log("Authentication token", authToken);
 
-    res.send({
+    return {
       token: authToken,
-    });
+    };
   }
 );
