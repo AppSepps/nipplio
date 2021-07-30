@@ -27,44 +27,7 @@
             />
             <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
-        <q-item-section avatar>
-            <q-btn
-                round
-                unelevated
-                flat
-                icon="history"
-                :disabled="recentlyPlayed.length === 0"
-            >
-                <q-menu>
-                    <q-list style="min-width: 100px">
-                        <q-item
-                            v-for="(played, index) in recentlyPlayed"
-                            :key="index"
-                            clickable
-                            v-close-popup
-                            @click="onRecentlyPlayedClicked(played.soundId)"
-                        >
-                            <q-item-section avatar>
-                                <q-item-label>
-                                    [{{
-                                        moment(played.timestamp).format('LTS')
-                                    }}]
-                                </q-item-label>
-                            </q-item-section>
-                            <q-item-section>
-                                <q-item-label>{{ played.name }}</q-item-label>
-                                <q-item-label caption>{{
-                                    played.user.displayName
-                                }}</q-item-label>
-                            </q-item-section>
-                            <q-item-section avatar>
-                                <q-icon name="play_arrow" />
-                            </q-item-section>
-                        </q-item>
-                    </q-list>
-                </q-menu>
-            </q-btn>
-        </q-item-section>
+        <recently-played />
         <q-btn
             round
             unelevated
@@ -79,9 +42,13 @@
 import { mapState } from 'vuex'
 import { Howl } from 'howler'
 import moment from 'moment'
+import RecentlyPlayed from './RecentlyPlayed.vue'
 
 export default {
     name: 'Player',
+    components: {
+        RecentlyPlayed,
+    },
     data() {
         return {
             audio: undefined,
@@ -92,17 +59,13 @@ export default {
             progressInterval: undefined,
         }
     },
-    created() {
-        this.moment = moment
-    },
     computed: mapState({
-        volume: (state) => state.sound.volume / 100,
-        recentlyPlayed: (state) => state.sound.recentlyPlayed,
+        volume: (state) => state.player.volume / 100,
         muted: (state) => state.sound.selfMute,
         soundName: (state) => {
-            if (state.sound.playedSound) {
+            if (state.player.playedSound) {
                 const sound = state.sound.sounds.filter(
-                    (sound) => sound.id === state.sound.playedSound.soundId
+                    (sound) => sound.id === state.player.playedSound.soundId
                 )[0]
                 if (sound) {
                     return sound.name
@@ -111,27 +74,27 @@ export default {
             return 'Crickets are zirping.mp3'
         },
         soundDate: (state) => {
-            if (state.sound.playedSound) {
-                return moment(state.sound.playedSound.timestamp).format('LTS')
+            if (state.player.playedSound) {
+                return moment(state.player.playedSound.timestamp).format('LTS')
             }
             return moment().format('LTS')
         },
         playedBy: (state) => {
-            return state.sound.playedSound
+            return state.player.playedSound
                 ? state.user.boardUsers.filter(
-                      (u) => u.id === state.sound.playedSound.playedBy
+                      (u) => u.id === state.player.playedSound.playedBy
                   )[0]
                 : '*chirp*'
         },
-        playedSound: (state) => state.sound.playedSound,
+        playedSound: (state) => state.player.playedSound,
         playingColor: function (state) {
             if (!this.playing) {
                 return 'grey'
             }
-            return state.sound.playedSound.random ? 'purple' : 'primary'
+            return state.player.playedSound.random ? 'purple' : 'primary'
         },
         playingIcon: (state) =>
-            state.sound.playedSound && state.sound.playedSound.random
+            state.player.playedSound && state.player.playedSound.random
                 ? 'casino'
                 : 'graphic_eq',
     }),
@@ -207,10 +170,7 @@ export default {
             }
         },
         onPlayRandomSoundClicked() {
-            this.$store.dispatch('sound/playRandomSound')
-        },
-        onRecentlyPlayedClicked(soundId) {
-            this.$store.dispatch('sound/triggerPlaySound', { id: soundId })
+            this.$store.dispatch('player/playRandomSound')
         },
     },
 }

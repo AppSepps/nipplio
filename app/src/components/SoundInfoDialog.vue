@@ -100,7 +100,7 @@ export default {
     },
     methods: {
         onSoundPlay: async function (id) {
-            await this.$store.dispatch('sound/triggerPlaySound', { id })
+            await this.$store.dispatch('player/playRemoteSound', { id })
         },
     },
 }

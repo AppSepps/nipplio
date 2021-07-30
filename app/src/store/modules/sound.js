@@ -1,14 +1,10 @@
 import firebase from 'firebase'
-import { v4 as uuidv4 } from 'uuid'
 
 function initialState() {
     return {
-        playedSound: undefined,
-        recentlyPlayed: [],
         selfMute: false,
         searchText: '',
         sounds: [],
-        volume: 50,
     }
 }
 
@@ -66,15 +62,6 @@ const actions = {
                 name: sound.name,
             })
     },
-    onVolumeChange({ commit }, params) {
-        const { volume } = params
-        commit('changeVolume', { volume })
-    },
-    async playRandomSound({ state, dispatch }) {
-        const { sounds } = state
-        const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
-        dispatch('triggerPlaySound', { id: randomSound.id, random: true }) // TODO: Maybe we should extract business logic to utils class and only handle vuex behaviour here
-    },
     async removeSound(context, params) {
         const { activeBoard } = context.rootState.board
         const { soundId } = params
@@ -87,47 +74,6 @@ const actions = {
             .storage()
             .ref(`/boards/${activeBoard.id}/${soundId}`)
             .delete()
-    },
-    async subscribeToPlay({ state, rootState, commit }, params) {
-        const { user, boardUsers } = rootState.user
-        const { activeBoard } = rootState.board
-        let skipInitial =
-            params && params.skipInitial ? params.skipInitial : true
-
-        if (!activeBoard) return
-
-        const playRef = firebase.database().ref('/play/' + activeBoard.id)
-
-        playRef.on('value', async (snapshot) => {
-            if (skipInitial) {
-                skipInitial = false
-                return
-            }
-            const play = snapshot.val()
-            const soundUrl = await firebase
-                .storage()
-                .ref(`boards/${activeBoard.id}/${play.soundId}`)
-                .getDownloadURL()
-            const skip = play.mutedUsers && play.mutedUsers.includes(user.uid)
-            const playedSound = {
-                ...play,
-                skip,
-                soundUrl,
-                timestamp: new Date(),
-            }
-            commit('updatePlayedSound', { playedSound })
-
-            const sound = state.sounds.filter(
-                (sound) => sound.id === play.soundId
-            )[0]
-            const playedByUser = boardUsers.filter(
-                (user) => user.id === play.playedBy
-            )[0]
-            commit('addRecentlyPlayed', {
-                sound: sound,
-                user: playedByUser,
-            })
-        })
     },
     async toggleFavoriteSound(action, params) {
         const { id } = params
@@ -160,31 +106,6 @@ const actions = {
             // Is Web instance
         }
     },
-    async triggerPlaySound({ rootState }, params) {
-        const { user, mutedUsers } = rootState.user
-        const { activeBoard } = rootState.board
-        const { id, random = false } = params
-        await firebase
-            .database()
-            .ref('/play/' + activeBoard.id)
-            .set({
-                uuid: uuidv4(),
-                soundId: id,
-                playedBy: user.uid,
-                mutedUsers,
-                random,
-            })
-    },
-    unsubscribeToPlay({ rootState }) {
-        const { activeBoard } = rootState.board
-
-        if (!activeBoard) return
-
-        firebase
-            .database()
-            .ref('/play/' + activeBoard.id)
-            .off()
-    },
     async uploadSoundFile({ rootState }, params) {
         const { files, cbSuccess } = params
         for (let file of files) {
@@ -213,18 +134,6 @@ const actions = {
 }
 
 const mutations = {
-    addRecentlyPlayed(state, { sound, user }) {
-        const recentlyPlayedSound = {
-            soundId: sound.id,
-            name: sound.name,
-            user,
-            timestamp: new Date(),
-        }
-        state.recentlyPlayed = [...state.recentlyPlayed, recentlyPlayedSound]
-        if (state.recentlyPlayed.length > 5) {
-            state.recentlyPlayed.shift()
-        }
-    },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
     },
@@ -235,9 +144,6 @@ const mutations = {
         state.sounds = state.sounds.map((s) => {
             return s.id === sound.id ? sound : s
         })
-    },
-    changeVolume(state, { volume }) {
-        state.volume = volume
     },
     removeSound(state, { id }) {
         state.sounds = state.sounds.filter((sound) => sound.id !== id)
@@ -256,9 +162,6 @@ const mutations = {
     },
     toggleSelfMute(state, { selfMute }) {
         state.selfMute = selfMute
-    },
-    updatePlayedSound(state, { playedSound }) {
-        state.playedSound = playedSound
     },
     reset(state) {
         const s = initialState()

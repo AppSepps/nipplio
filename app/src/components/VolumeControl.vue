@@ -24,12 +24,12 @@ export default {
     setup() {
         const store = useStore()
         return {
-            volume: ref(store.state.sound.volume),
+            volume: ref(store.state.player.volume),
         }
     },
     computed: mapState({
         icon: (state) => {
-            const volume = state.sound.volume
+            const volume = state.player.volume
             if (volume == 0) {
                 return 'volume_off'
             } else if (volume < 33) {
@@ -43,7 +43,7 @@ export default {
     }),
     watch: {
         volume(val) {
-            this.$store.dispatch('sound/onVolumeChange', { volume: val })
+            this.$store.dispatch('player/onVolumeChange', { volume: val })
         },
     },
 }

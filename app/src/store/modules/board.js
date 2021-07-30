@@ -90,9 +90,9 @@ const actions = {
         dispatch('user/updateConnectionStatus', null, { root: true }) // TODO: Mark previous board as disconnected
         dispatch('user/getBoardUsers', null, { root: true })
         dispatch('sound/getSounds', null, { root: true })
-        dispatch('sound/unsubscribeToPlay', null, { root: true })
+        dispatch('player/unsubscribeToPlayer', null, { root: true })
         dispatch(
-            'sound/subscribeToPlay',
+            'player/subscribeToPlayer',
             { skipInitial: false },
             { root: true }
         )

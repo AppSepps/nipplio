@@ -176,7 +176,7 @@ export default {
         },
         signOut: async function () {
             await firebase.auth().signOut()
-            this.$store.dispatch('sound/unsubscribeToPlay')
+            this.$store.dispatch('player/unsubscribeToPlayer')
             this.$store.dispatch('clearAll')
             this.$router.push('/login')
         },

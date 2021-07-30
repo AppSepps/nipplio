@@ -171,8 +171,8 @@ export default {
         await this.$store.dispatch('user/getBoardUsers')
         await this.$store.dispatch('user/updateConnectionStatus')
         await this.$store.dispatch('sound/getSounds')
-        await this.$store.dispatch('sound/unsubscribeToPlay')
-        await this.$store.dispatch('sound/subscribeToPlay')
+        await this.$store.dispatch('player/unsubscribeToPlayer')
+        await this.$store.dispatch('player/subscribeToPlayer')
     },
 }
 </script>
