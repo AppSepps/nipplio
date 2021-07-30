@@ -13,6 +13,7 @@ admin.initializeApp();
 // });
 exports.onUserCreated = onauth.createUserInDatabase;
 exports.createAuthToken = onauth.createAuthToken;
+exports.loginOnHeadlessWithIdToken = onauth.loginOnHeadlessWithIdToken;
 exports.createAndReturnAuthToken = onauth.createAndReturnAuthToken;
 exports.createBoard = board.createBoard;
 exports.addUserByInvite = invite.addUserByInvite;
