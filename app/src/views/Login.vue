@@ -1,5 +1,23 @@
 <template>
     <div>
+        <q-page class="flex flex-center">
+            <div class="">
+                <img class="center" src="assets/icon.png" />
+                <p class="text-body1">
+                    Welcome to Nipplio. The best Software ever written!
+                </p>
+                <q-btn
+                    @click="onSignInClicked"
+                    color="primary"
+                    class="full-width"
+                    label="Login"
+                    icon="login"
+                    push
+                >
+                </q-btn>
+            </div>
+        </q-page>
+
         <button @click="onSignInClicked">Sign in externally</button>
     </div>
 </template>

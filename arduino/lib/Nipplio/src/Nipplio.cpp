@@ -193,5 +193,6 @@ void Nipplio::triggerSlotWithNumber(int slot)
 void Nipplio::loop()
 {
 	server.handleClient();
+	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
 	//MDNS.update();
 }

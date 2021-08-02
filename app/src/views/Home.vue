@@ -24,7 +24,7 @@
         <q-drawer
             side="right"
             show-if-above
-            :width="550"
+            :width="350"
             :breakpoint="300"
             v-if="activeBoard"
         >

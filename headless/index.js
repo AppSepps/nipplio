@@ -57,7 +57,11 @@ async function start() {
       userData.stsTokenManager,
       userData
     );
-    await firebase.auth().updateCurrentUser(user);
+    try {
+      await firebase.auth().updateCurrentUser(user);
+    } catch (error) {
+      console.log(error);
+    }
   } else {
     var loginOnHeadlessWithIdToken = firebase
       .functions()
@@ -85,27 +89,37 @@ async function start() {
     }
   });
 
-  await firebase
+  var userRef = firebase
     .database()
-    .ref(`/boardUsers/${boardId}/${firebase.auth().currentUser.uid}`)
-    .update({
-      connected: true,
-      displayName: displayName,
-      muted: false,
-    });
+    .ref(`/boardUsers/${boardId}/${firebase.auth().currentUser.uid}`);
+  await userRef.update({
+    connected: true,
+    displayName: displayName,
+    muted: false,
+  });
+  userRef.onDisconnect().update({
+    connected: false,
+  });
   firebase
     .database()
     .ref(`/play/${boardId}`)
     .on(
       "value",
       (snap) => {
-        console.log("play sound changed: ", snap.val());
-        var file = fs.createWriteStream("file.mp3");
-        const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${
-          snap.val().soundId
-        }?alt=media`;
+        const value = snap.val();
+        console.log("play sound changed: ", value);
+        console.log("my uid: ", firebase.auth().currentUser.uid);
+        if (
+          value.mutedUsers &&
+          value.mutedUsers.includes(firebase.auth().currentUser.uid)
+        ) {
+          return;
+        }
+
+        let file = fs.createWriteStream("file.mp3");
+        const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${value.soundId}?alt=media`;
         console.log(url);
-        var request = https.get(url, function (response) {
+        https.get(url, function (response) {
           response.pipe(file);
           player.play("file.mp3", function (err) {
             if (err) {
