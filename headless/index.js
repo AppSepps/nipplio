@@ -57,7 +57,11 @@ async function start() {
       userData.stsTokenManager,
       userData
     );
-    await firebase.auth().updateCurrentUser(user);
+    try {
+      await firebase.auth().updateCurrentUser(user);
+    } catch (error) {
+      console.log(error);
+    }
   } else {
     var loginOnHeadlessWithIdToken = firebase
       .functions()
