@@ -143,7 +143,7 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) {}
+    } catch (error) { }
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
@@ -192,6 +192,12 @@ app.on('ready', async () => {
         console.log('stop bonjourService')
         bonjourService.stop()
     })
+
+    if (!isDevelopment) {
+        app.setLoginItemSettings({
+            openAtLogin: true
+        })
+    }
 })
 
 app.on('will-quit', () => {
@@ -201,6 +207,7 @@ app.on('will-quit', () => {
 /* 'before-quit' is emitted when Electron receives
  * the signal to exit and wants to start closing windows */
 app.on('before-quit', () => (willQuitApp = true))
+
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
