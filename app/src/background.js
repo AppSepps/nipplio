@@ -54,6 +54,12 @@ const createTray = () => {
             },
         },
         {
+            label: 'Check for Updates',
+            click: () => {
+                autoUpdater.checkForUpdatesAndNotify()
+            }
+        },
+        {
             label: 'Quit',
             click: () => {
                 app.quit()
@@ -102,6 +108,7 @@ async function createWindow() {
         hasShadow: false,
         icon: __dirname + '/icon.png',
         nativeWindowOpen: true,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
