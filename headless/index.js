@@ -17,6 +17,7 @@ const axios = require("axios").default;
 axios.defaults.headers.post["Referer"] = "localhost";
 
 let firstSoundStart = true;
+let audio = null;
 const optionDefinitions = [
   { name: "boardId", alias: "b", type: String },
   { name: "debug", type: Boolean, defaultOption: false },
@@ -49,7 +50,8 @@ function playSoundWithId(soundId) {
     firstSoundStart = false;
     return;
   }
-  player.play(`sounds/${soundId}`, function (err) {
+  if (audio) audio.kill()
+  audio = player.play(`sounds/${soundId}`, function (err) {
     if (err) {
       console.log(err);
     }
@@ -75,7 +77,14 @@ function downloadSoundWithId(soundId) {
   });
 }
 
+function createSoundsFolderIfNotExists() {
+  if (!fs.existsSync("sounds")) {
+    fs.mkdirSync("sounds");
+  }
+}
+
 async function start() {
+  createSoundsFolderIfNotExists();
   if (fs.existsSync("user.json")) {
     const userData = JSON.parse(fs.readFileSync("user.json"));
     const user = new firebase.User(
@@ -110,16 +119,17 @@ async function start() {
   }
 
   if (options.forceSoundsDownload) {
-    console.log("in force Sounds download");
     const sounds = await firebase
       .database()
       .ref(`sounds/${boardId}`)
       .once("value");
     const array = [];
-    sounds.forEach((child) => array.push(child));
-    for (const child of array) {
-      var childKey = child.key;
-      console.log("downloadSoundWithID: ", childKey);
+    sounds.forEach((child) => {
+      array.push(child.key)
+      return false;
+    });
+    for (const [index, childKey] of array.entries()) {
+      console.log(`Downloaded: ${index + 1}/${array.length}`)
       await downloadSoundWithId(childKey);
     }
   }

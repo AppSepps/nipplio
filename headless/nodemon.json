@@ -1,0 +1,7 @@
+{
+    "verbose": true,
+    "ignore": [
+        "user.json",
+        "sounds/*"
+    ]
+}
