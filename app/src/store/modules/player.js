@@ -17,7 +17,7 @@ const actions = {
         commit('changeVolume', { volume })
     },
     playRandomSound({ rootState, dispatch }) {
-        const { sounds } = rootState.sounds
+        const { sounds } = rootState.sound
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
         dispatch('playRemoteSound', { id: randomSound.id, random: true })
     },
