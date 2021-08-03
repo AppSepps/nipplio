@@ -91,24 +91,25 @@ const actions = {
     async uploadSoundFile({ rootState }, params) {
         const { files, cbSuccess } = params
         for (let file of files) {
-            const soundSnap = await firebase
+            const newSoundKey = await firebase
                 .database()
-                .ref('/sounds/' + rootState.board.activeBoard.id)
-                .push({
+                .ref(`/sounds/${rootState.board.activeBoard.id}`)
+                .push()
+
+            await firebase
+                .storage()
+                .ref(`/boards/${rootState.board.activeBoard.id}/${newSoundKey.key}`)
+                .put(file)
+
+            await firebase
+                .database()
+                .ref(`/sounds/${rootState.board.activeBoard.id}/${newSoundKey.key}`)
+                .set({
                     name: file.name,
                     type: file.type,
                     createdAt: firebase.database.ServerValue.TIMESTAMP,
                     createdBy: firebase.auth().currentUser.uid,
                 })
-            await firebase
-                .storage()
-                .ref(
-                    '/boards/' +
-                    rootState.board.activeBoard.id +
-                    '/' +
-                    soundSnap.key
-                )
-                .put(file)
         }
 
         cbSuccess()

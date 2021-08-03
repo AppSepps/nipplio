@@ -4,7 +4,7 @@
             type="file"
             ref="file"
             style="display: none"
-            accept="audio/mpeg3,.mp4"
+            accept="audio/*, video/*"
             multiple="multiple"
             @change="onFileUpload"
         />
