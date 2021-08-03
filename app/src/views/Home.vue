@@ -12,7 +12,6 @@
                 <q-space />
                 <search-bar v-if="activeBoard" />
                 <q-space />
-                <volume-control />
                 <q-btn
                     unelevated
                     icon="settings"
@@ -130,7 +129,6 @@ import SearchBar from '../components/SearchBar.vue'
 import RemoveSoundDialog from '../components/RemoveSoundDialog.vue'
 import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
-import VolumeControl from '../components/VolumeControl.vue'
 
 export default {
     name: 'Home',
@@ -148,7 +146,6 @@ export default {
         SearchBar,
         EditSoundDialog,
         SoundInfoDialog,
-        VolumeControl,
     },
     data() {
         return {

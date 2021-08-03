@@ -31,10 +31,12 @@
         <q-btn
             round
             unelevated
+            flat
             color="purple"
             icon="casino"
             @click="onPlayRandomSoundClicked"
         />
+        <volume-control />
     </q-toolbar>
 </template>
 
@@ -43,11 +45,13 @@ import { mapGetters, mapState } from 'vuex'
 import { Howl } from 'howler'
 import moment from 'moment'
 import RecentlyPlayed from './RecentlyPlayed.vue'
+import VolumeControl from '../components/VolumeControl.vue'
 
 export default {
     name: 'Player',
     components: {
         RecentlyPlayed,
+        VolumeControl,
     },
     data() {
         return {

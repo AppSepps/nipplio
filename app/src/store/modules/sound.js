@@ -26,6 +26,7 @@ const actions = {
 
         if (!activeBoard) return
 
+        commit('clearSounds')
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
         soundsRef.on('child_added', async (snapshot) => {
@@ -115,6 +116,9 @@ const actions = {
 }
 
 const mutations = {
+    clearSounds(state) {
+        state.sounds = []
+    },
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
     },

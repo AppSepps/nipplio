@@ -25,6 +25,7 @@ const actions = {
 
         if (!activeBoard) return
 
+        commit('emptyBoardUsers')
         const boardUsersRef = firebase
             .database()
             .ref(`/boardUsers/${activeBoard.id}`)
@@ -82,8 +83,7 @@ const actions = {
         const boardUserRef = firebase
             .database()
             .ref(
-                `/boardUsers/${activeBoard.id}/${
-                    firebase.auth().currentUser.uid
+                `/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid
                 }`
             )
         await boardUserRef.set({
@@ -105,6 +105,9 @@ const actions = {
 }
 
 const mutations = {
+    emptyBoardUsers(state) {
+        state.boardUsers = []
+    },
     addBoardUser(state, user) {
         state.boardUsers = [...state.boardUsers, user]
     },

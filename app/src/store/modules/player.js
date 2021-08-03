@@ -45,6 +45,7 @@ const actions = {
             const skipByRemote =
                 play.mutedUsers && play.mutedUsers.includes(user.uid)
             const skip = skipByRemote || rootGetters['user/selfMute']
+            if (skip) return;
 
             const playedSound = {
                 ...play,
