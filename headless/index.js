@@ -42,6 +42,14 @@ function saveUserInFile() {
   fs.writeFileSync("user.json", userJson);
 }
 
+function playSoundWithId(soundId) {
+  player.play(`sounds/${soundId}`, function (err) {
+    if (err) {
+      console.log(err);
+    }
+  });
+}
+
 async function start() {
   if (fs.existsSync("user.json")) {
     const userData = JSON.parse(fs.readFileSync("user.json"));
@@ -109,17 +117,17 @@ async function start() {
           return;
         }
 
-        let file = fs.createWriteStream("file.mp3");
-        const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${value.soundId}?alt=media`;
-        console.log(url);
-        https.get(url, function (response) {
-          response.pipe(file);
-          player.play("file.mp3", function (err) {
-            if (err) {
-              console.log(err);
-            }
+        if (fs.existsSync(`sounds/${value.soundId}`)) {
+          playSoundWithId(value.soundId);
+        } else {
+          let file = fs.createWriteStream(`sounds/${value.soundId}`);
+          const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${value.soundId}?alt=media`;
+          console.log(url);
+          https.get(url, function (response) {
+            response.pipe(file);
+            playSoundWithId(value.soundId);
           });
-        });
+        }
       },
       (errorObject) => {
         console.log("The read failed: ", errorObject);
