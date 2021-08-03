@@ -1,14 +1,7 @@
 const commandLineArgs = require("command-line-args");
 const fs = require("fs");
 var player = require("play-sound")((opts = {}));
-const Speaker = require("speaker");
 
-// Create the Speaker instance
-const speaker = new Speaker({
-  channels: 1, // 2 channels
-  bitDepth: 16, // 16-bit samples
-  sampleRate: 44100, // 44,100 Hz sample rate
-});
 var firebase = require("firebase");
 firebase.initializeApp({
   apiKey: "AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM",
