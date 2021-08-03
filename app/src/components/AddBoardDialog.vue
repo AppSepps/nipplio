@@ -70,6 +70,35 @@
                         </template>
                     </q-input>
                 </q-form>
+                <q-form
+                    @submit="onAddBoardSend"
+                    class="q-gutter-md"
+                    v-if="showCreateBoardInput"
+                >
+                    <q-input
+                        color="secondary"
+                        v-model="boardName"
+                        label="Board Name"
+                        placeholder="My fancy board name"
+                        :rules="[
+                            (val) =>
+                                (val && val.length > 0) ||
+                                'Please type something',
+                        ]"
+                    >
+                        <template v-slot:after>
+                            <q-btn
+                                :disabled="boardName.trim().length == 0"
+                                round
+                                dense
+                                flat
+                                color="secondary"
+                                icon="send"
+                                @click="onAddBoardSend"
+                            />
+                        </template>
+                    </q-input>
+                </q-form>
             </q-card-section>
         </q-card>
     </q-dialog>
@@ -81,23 +110,33 @@ export default {
     data() {
         return {
             inviteUrlText: '',
+            boardName: '',
             showJoinBoardInput: false,
-            name: '',
+            showCreateBoardInput: false,
         }
     },
     methods: {
         onHide: function () {
             this.showJoinBoardInput = false
+            this.showCreateBoardInput = false
             this.inviteUrlText = ''
         },
         onAddBoardClick: async function () {
+            this.showCreateBoardInput = true
+            this.showJoinBoardInput = false
+        },
+        onAddBoardSend: async function () {
+            if (this.boardName.trim().length == 0) {
+                return
+            }
             await this.$store.dispatch('board/createBoard', {
-                boardName: 'NewBoardName' + (Math.random() * 1000).toFixed(0),
+                boardName: this.boardName,
             })
             this.$emit('closeDialog')
         },
         onJoinBoardClick: function () {
             this.showJoinBoardInput = true
+            this.showCreateBoardInput = false
         },
         onInviteUrlSend: async function () {
             if (this.inviteUrlText.trim().length == 0) {
