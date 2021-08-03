@@ -28,17 +28,27 @@ const actions = {
 
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
-        soundsRef.on('child_added', (snapshot) => {
+        soundsRef.on('child_added', async (snapshot) => {
+            const soundUrl = await firebase
+                .storage()
+                .ref(`boards/${activeBoard.id}/${snapshot.key}`)
+                .getDownloadURL()
             commit('addSound', {
                 id: snapshot.key,
                 ...snapshot.val(),
+                downloadUrl: soundUrl
             })
         })
 
-        soundsRef.on('child_changed', (snapshot) => {
+        soundsRef.on('child_changed', async (snapshot) => {
+            const soundUrl = await firebase
+                .storage()
+                .ref(`boards/${activeBoard.id}/${snapshot.key}`)
+                .getDownloadURL()
             commit('changeSound', {
                 id: snapshot.key,
                 ...snapshot.val(),
+                downloadUrl: soundUrl
             })
         })
 
@@ -93,9 +103,9 @@ const actions = {
                 .storage()
                 .ref(
                     '/boards/' +
-                        rootState.board.activeBoard.id +
-                        '/' +
-                        soundSnap.key
+                    rootState.board.activeBoard.id +
+                    '/' +
+                    soundSnap.key
                 )
                 .put(file)
         }
