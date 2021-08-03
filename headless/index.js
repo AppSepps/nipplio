@@ -19,6 +19,7 @@ axios.defaults.headers.post["Referer"] = "localhost";
 const optionDefinitions = [
   { name: "boardId", alias: "b", type: String },
   { name: "debug", type: Boolean, defaultOption: false },
+  { name: "forceSoundsDownload", type: Boolean, defaultOption: false },
   { name: "displayName", alias: "d", type: String },
   { name: "ownerIdToken", type: String },
 ];
@@ -47,6 +48,25 @@ function playSoundWithId(soundId) {
     if (err) {
       console.log(err);
     }
+  });
+}
+
+function downloadSoundWithId(soundId) {
+  return new Promise((resolve, reject) => {
+    let file = fs.createWriteStream(`sounds/${soundId}`);
+    const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${soundId}?alt=media`;
+    console.log(url);
+    https
+      .get(url, function (response) {
+        response.pipe(file);
+        file.on("finish", function () {
+          file.close(cb); // close() is async, call cb after close completes.
+          resolve();
+        });
+      })
+      .on("error", () => {
+        reject();
+      });
   });
 }
 
@@ -82,6 +102,19 @@ async function start() {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  if (options.forceSoundsDownload) {
+    const sounds = await firebase
+      .database()
+      .ref(`sounds/${boardId}`)
+      .once("value");
+    sounds.forEach(function wrapper() {
+      async (childSnapshot) => {
+        var childKey = childSnapshot.key;
+        await downloadSoundWithId(childKey);
+      };
+    });
   }
 
   firebase.auth().onIdTokenChanged(function (user) {
@@ -120,13 +153,8 @@ async function start() {
         if (fs.existsSync(`sounds/${value.soundId}`)) {
           playSoundWithId(value.soundId);
         } else {
-          let file = fs.createWriteStream(`sounds/${value.soundId}`);
-          const url = `${storageHost}/v0/b/nipplio.appspot.com/o/boards%2F${boardId}%2F${value.soundId}?alt=media`;
-          console.log(url);
-          https.get(url, function (response) {
-            response.pipe(file);
-            playSoundWithId(value.soundId);
-          });
+          await downloadSoundWithId(value.soundId);
+          playSoundWithId(value.soundId);
         }
       },
       (errorObject) => {
