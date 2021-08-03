@@ -115,13 +115,13 @@ async function start() {
       .database()
       .ref(`sounds/${boardId}`)
       .once("value");
-    sounds.forEach(function wrapper() {
-      async (childSnapshot) => {
-        console.log("downloadSoundWithID: ", childKey);
-        var childKey = childSnapshot.key;
-        await downloadSoundWithId(childKey);
-      };
-    });
+    const array = [];
+    sounds.forEach((child) => array.push(child));
+    for (const child of array) {
+      var childKey = child.key;
+      console.log("downloadSoundWithID: ", childKey);
+      await downloadSoundWithId(childKey);
+    }
   }
 
   firebase.auth().onIdTokenChanged(function (user) {
