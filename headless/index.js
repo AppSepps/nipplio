@@ -19,7 +19,7 @@ axios.defaults.headers.post["Referer"] = "localhost";
 const optionDefinitions = [
   { name: "boardId", alias: "b", type: String },
   { name: "debug", type: Boolean, defaultOption: false },
-  { name: "forceSoundsDownload", type: Boolean, defaultOption: false },
+  { name: "forceSoundsDownload", type: Boolean },
   { name: "displayName", alias: "d", type: String },
   { name: "ownerIdToken", type: String },
 ];
