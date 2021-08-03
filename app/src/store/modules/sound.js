@@ -8,6 +8,18 @@ function initialState() {
 }
 
 const getters = {
+    favoriteSounds: (state) => {
+        return state.sounds
+            .sort((a, b) =>
+                a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            )
+            .filter((sound) =>
+                sound.name
+                    .toLowerCase()
+                    .includes(state.searchText.toLowerCase())
+
+            ).filter((sound) => sound.favorite)
+    },
     filteredSounds: (state) =>
         state.sounds
             .sort((a, b) =>
@@ -17,7 +29,7 @@ const getters = {
                 sound.name
                     .toLowerCase()
                     .includes(state.searchText.toLowerCase())
-            ),
+            ).filter((sound) => !sound.favorite),
 }
 
 const actions = {
