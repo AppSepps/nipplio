@@ -16,6 +16,7 @@ firebase.initializeApp({
 const axios = require("axios").default;
 axios.defaults.headers.post["Referer"] = "localhost";
 
+let firstSoundStart = true;
 const optionDefinitions = [
   { name: "boardId", alias: "b", type: String },
   { name: "debug", type: Boolean, defaultOption: false },
@@ -44,6 +45,10 @@ function saveUserInFile() {
 }
 
 function playSoundWithId(soundId) {
+  if (firstSoundStart) {
+    firstSoundStart = false;
+    return;
+  }
   player.play(`sounds/${soundId}`, function (err) {
     if (err) {
       console.log(err);
@@ -105,12 +110,14 @@ async function start() {
   }
 
   if (options.forceSoundsDownload) {
+    console.log("in force Sounds download");
     const sounds = await firebase
       .database()
       .ref(`sounds/${boardId}`)
       .once("value");
     sounds.forEach(function wrapper() {
       async (childSnapshot) => {
+        console.log("downloadSoundWithID: ", childKey);
         var childKey = childSnapshot.key;
         await downloadSoundWithId(childKey);
       };
