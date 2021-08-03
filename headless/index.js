@@ -139,7 +139,7 @@ async function start() {
     .ref(`/play/${boardId}`)
     .on(
       "value",
-      (snap) => {
+      async (snap) => {
         const value = snap.val();
         console.log("play sound changed: ", value);
         console.log("my uid: ", firebase.auth().currentUser.uid);
