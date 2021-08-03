@@ -65,7 +65,7 @@ function downloadSoundWithId(soundId) {
       .get(url, function (response) {
         response.pipe(file);
         file.on("finish", function () {
-          file.close(cb); // close() is async, call cb after close completes.
+          file.close(); // close() is async, call cb after close completes.
           resolve();
         });
       })
