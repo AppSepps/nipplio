@@ -7,21 +7,30 @@
       "displayName": "Max Mustermann",
       "remoteDevices": {
         "deviceId1": { // Unique Hardware-ID
-          "board": "boardid1", // Set through UI
-          "slots" : { // Set through Hardware
-            "randomid1": { // Set through Hardware
-              "name": "Button Oben" // Set through Hardware
-              "sound":"soundid1" // Set through UI
-            },
-            "randomid2": {
-              "name": "Button Unten"
-              "sound":"soundid2"
-            },
+          "slots": { // Set through Hardware
+            "0": "Button 1",
+            "1": "Button 2",
+            "2": "Button 3"
+          },
+          "boardID": { // Set through UI
+            "slots" : {
+              "0": "soundid1",
+              "1": "soundid2",
+              "2": "soundid3",
+            }
           }
         }
       },
       "boards": {
         "boardid1": true
+      }
+    }
+  },
+  "remotePlay": {
+    "userid": {
+      "remoteDeviceId": {
+        "uuid": "asdf", // To get notified when the same slot is played twice
+        "slotId": 2
       }
     }
   },
@@ -46,7 +55,8 @@
       "userid1": {
         "displayName": "Max Mustermann",
         "connected": false,
-        "muted": false
+        "muted": false,
+        "activeSessionId": "12346ajsdf"
       }
     }
   },
