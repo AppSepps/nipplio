@@ -154,9 +154,7 @@ app.on('ready', async () => {
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
-    globalShortcut.register('Esc', () => {
-        win.hide()
-    })
+    
     globalShortcut.register('CommandOrControl+Shift+S', () => {
         onToggleSelfMuteShortCut()
     })
@@ -238,8 +236,13 @@ if (isDevelopment) {
 const onToggleWindowShortCut = () => {
     if (win.isVisible()) {
         win.hide()
+        globalShortcut.unregister('Esc')
     } else {
         show()
+        globalShortcut.register('Esc', () => {
+            win.hide()
+            globalShortcut.unregister('Esc')
+        })
     }
 }
 
