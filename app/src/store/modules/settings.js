@@ -16,7 +16,7 @@ const actions = {
         await axios.post(url, soundsIdsArray.slice(0, 5))
         await dispatch('getDeviceConfig', ipAddress)
     },
-    async loginOnDevice({ dispatch, commit }, ipAddress) {
+    async registerRemoteDevice({ dispatch, commit }, ipAddress) {
         commit('setDeviceLoading', ipAddress)
         try {
             const idToken = await firebase.auth().currentUser.getIdToken()

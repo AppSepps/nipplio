@@ -1,38 +1,34 @@
 <template>
     <q-item>
         <q-item-section avatar>
-            <q-icon name="settings_remote" />
+            <q-icon name="memory" />
         </q-item-section>
         <q-item-section>
             <q-item-label>{{ device.name }}</q-item-label>
             <q-item-label caption>{{ device.addresses[0] }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
-            <q-btn
-                v-if="!device.loading"
-                unelevated
-                flat
-                label="add SoundMapping"
-                icon="add_circle"
-                color="primary"
-                @click="addSoundMappingToDevice(device.addresses[0])"
-            />
-        </q-item-section>
-        <q-item-section avatar>
-            <q-btn
-                v-if="!device.loading"
-                unelevated
-                flat
-                label="login"
-                icon="login"
-                color="primary"
-                @click="onAddDeviceClicked(device.addresses[0])"
-            />
-            <q-circular-progress
-                v-if="device.loading"
-                indeterminate
-                size="sm"
-            />
+            <div :class="device.loading ? 'rotating' : ''">
+                <q-btn
+                    unelevated
+                    flat
+                    round
+                    :icon="device.loading ? 'sync' : 'add_link'"
+                    color="secondary"
+                    @click="onAddDeviceClicked(device.addresses[0])"
+                >
+                    <q-tooltip
+                        class="bg-grey-9"
+                        :delay="500"
+                        :offset="[0, 10]"
+                        >{{
+                            device.loading
+                                ? 'Syncing...'
+                                : 'Link device to user'
+                        }}</q-tooltip
+                    >
+                </q-btn>
+            </div>
         </q-item-section>
     </q-item>
 </template>
@@ -43,10 +39,7 @@ export default {
     props: ['device'],
     methods: {
         onAddDeviceClicked: function (ipAddress) {
-            this.$store.dispatch('settings/loginOnDevice', ipAddress)
-        },
-        addSoundMappingToDevice: function (ipAddress) {
-            this.$store.dispatch('settings/addSoundMappingToDevice', ipAddress)
+            this.$store.dispatch('settings/registerRemoteDevice', ipAddress)
         },
     },
 }

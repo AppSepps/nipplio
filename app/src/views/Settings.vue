@@ -12,7 +12,7 @@
                 <q-btn icon="close" flat round dense v-close-popup />
             </q-card-section>
             <q-card-section>
-                <div class="row q-pb-md">
+                <div class="row q-pb-sm">
                     <q-list class="col-6">
                         <q-item-label header>Desktop App Settings</q-item-label>
                         <q-item clickable>
@@ -23,14 +23,24 @@
                         <q-separator spaced />
                     </q-list>
                 </div>
-                <div class="row q-pb-md">
+                <div class="row q-pb-sm">
                     <q-list class="col-6">
-                        <q-item-label header>Discovered Devices</q-item-label>
+                        <q-item-label header
+                            >Discovered Devices -
+                            {{ discoveredDevices.length }}</q-item-label
+                        >
                         <remote-device
                             v-for="(device, index) in discoveredDevices"
                             :key="index"
                             :device="device"
                         />
+                        <q-item v-if="discoveredDevices.length === 0">
+                            <q-item-section>
+                                <q-item-label
+                                    >No devices discovered...</q-item-label
+                                >
+                            </q-item-section>
+                        </q-item>
                     </q-list>
                 </div>
                 <q-btn
