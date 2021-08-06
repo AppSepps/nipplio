@@ -1,6 +1,6 @@
 <template>
     <q-layout view="hHh LpR fff" container style="height: 100vh">
-        <q-header>
+        <q-header class="shadow-1">
             <q-toolbar class="bg-dark text-white">
                 <board-dropdown v-on:openDialog="showAddBoardDialog = true" />
                 <sound-upload class="q-ml-sm" v-if="activeBoard" />
@@ -25,48 +25,7 @@
                 />
             </q-toolbar>
         </q-header>
-        <q-drawer
-            side="right"
-            show-if-above
-            :width="350"
-            :breakpoint="300"
-            v-if="activeBoard"
-        >
-            <q-scroll-area class="fit">
-                <div class="q-pa-sm">
-                    <div v-if="boardUsers && boardUsers.length > 0">
-                        <q-list dark>
-                            <q-item-label header class="text-uppercase"
-                                >Online –
-                                {{ connectedUsers.length }}</q-item-label
-                            >
-                            <user
-                                v-for="boardUser in connectedUsers"
-                                :key="boardUser.id"
-                                :user="boardUser"
-                                :isCurrentUser="user.uid === boardUser.id"
-                                :muted="mutedUsers.includes(boardUser.id)"
-                                :speaker="boardUser.id === speaker"
-                            />
-                        </q-list>
-                        <q-list dark>
-                            <q-item-label header class="text-uppercase"
-                                >Offline –
-                                {{ disconnectedUsers.length }}</q-item-label
-                            >
-                            <user
-                                v-for="boardUser in disconnectedUsers"
-                                :key="boardUser.id"
-                                :user="boardUser"
-                                :isCurrentUser="user.uid === boardUser.id"
-                                :muted="mutedUsers.includes(boardUser.id)"
-                                :speaker="boardUser.id === speaker"
-                            />
-                        </q-list>
-                    </div>
-                </div>
-            </q-scroll-area>
-        </q-drawer>
+        <user-drawer v-if="activeBoard" />
         <q-page-container>
             <q-page padding>
                 <div v-if="!activeBoard">
@@ -125,7 +84,6 @@ import { mapState, mapGetters } from 'vuex'
 import Settings from './Settings.vue'
 import BoardDropdown from '../components/BoardDropdown.vue'
 import Sound from '../components/Sound.vue'
-import User from '../components/User.vue'
 import SoundUpload from '../components/SoundUpload.vue'
 import BoardInvite from '../components/BoardInvite.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
@@ -136,13 +94,13 @@ import RemoveSoundDialog from '../components/RemoveSoundDialog.vue'
 import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
 import ManageBoardButton from '../components/ManageBoardButton.vue'
+import UserDrawer from '../components/UserDrawer.vue'
 
 export default {
     name: 'Home',
     components: {
         Settings,
         Sound,
-        User,
         BoardDropdown,
         SoundUpload,
         BoardInvite,
@@ -154,6 +112,7 @@ export default {
         EditSoundDialog,
         SoundInfoDialog,
         ManageBoardButton,
+        UserDrawer,
     },
     data() {
         return {
@@ -167,13 +126,10 @@ export default {
     },
     computed: {
         ...mapGetters('sound', ['filteredSounds']),
-        ...mapGetters('user', ['connectedUsers', 'disconnectedUsers']),
         ...mapState({
             activeBoard: (state) => state.board.activeBoard,
             boardUsers: (state) => state.user.boardUsers,
-            mutedUsers: (state) => state.user.mutedUsers,
             sounds: (state) => state.sound.sounds,
-            speaker: (state) => state.user.speaker,
             user: (state) => state.user.user,
         }),
     },

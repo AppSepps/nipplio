@@ -1,5 +1,5 @@
 <template>
-    <q-toolbar class="bg-dark row footer q-py-md">
+    <q-toolbar class="bg-dark row footer shadow-1 q-py-md">
         <div class="col-auto row">
             <q-avatar
                 :color="playingColor"
