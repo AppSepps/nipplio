@@ -128,6 +128,9 @@ const actions = {
 }
 
 const mutations = {
+    setSearchText(state, searchText) {
+        state.searchText = searchText
+    },
     clearSounds(state) {
         state.sounds = []
     },

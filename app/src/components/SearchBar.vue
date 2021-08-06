@@ -24,14 +24,16 @@
 <script>
 export default {
     name: 'SearchBar',
-    data() {
-        return {
-            searchText: '',
-        }
-    },
-    watch: {
-        searchText(val) {
-            this.$store.dispatch('sound/onSearchChange', { text: val })
+    computed: {
+        searchText: {
+            get() {
+                return this.$store.state.sound.searchText
+            },
+            set(value) {
+                return this.$store.dispatch('sound/onSearchChange', {
+                    text: value,
+                })
+            },
         },
     },
 }
