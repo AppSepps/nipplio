@@ -6,5 +6,5 @@ void setupFirebaseNetwork();
 void getAuthTokensFromCustomToken(String customToken);
 void getUserData();
 void updateBoardInformation();
-void updatePlaySound(String soundId);
+void updatePlaySound(int slotId);
 void checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();

@@ -6,9 +6,7 @@ String uid;
 String displayName;
 String idToken;
 String refreshToken;
-String boardId;
 String slotNames[255];
-String slotSoundMapping[255];
 
 void storageSetup()
 {
@@ -34,16 +32,6 @@ void saveValuesToSpiffs()
 	doc["displayName"] = displayName;
 	doc["idToken"] = idToken;
 	doc["refreshToken"] = refreshToken;
-	doc["boardId"] = boardId;
-
-	JsonArray mapping = doc.createNestedArray("slotSoundMapping");
-	for (int i = 0; i < (sizeof(slotSoundMapping) / sizeof(slotSoundMapping[0])); i++)
-	{
-		if (slotSoundMapping[i] != "")
-		{
-			mapping.add(slotSoundMapping[i]);
-		}
-	}
 
 	serializeJson(doc, output);
 	if (file.print(output))
@@ -85,23 +73,9 @@ void readValuesFromSpiffs()
 	const char *displayName_ = doc["displayName"];
 	const char *idToken_ = doc["idToken"];
 	const char *refreshToken_ = doc["refreshToken"];
-	const char *boardId_ = doc["boardId"];
-	JsonArray slotSoundMapping_ = doc["slotSoundMapping"];
-
-	int i = 0;
-	for (JsonVariant v : slotSoundMapping_)
-	{
-		if (i < 255)
-		{
-			Serial.println(v.as<int>());
-			slotSoundMapping[i] = v.as<String>();
-			i++;
-		}
-	}
-
+	
 	uid = uid_;
 	displayName = displayName_;
 	idToken = idToken_;
 	refreshToken = refreshToken_;
-	boardId = boardId_;
 }
