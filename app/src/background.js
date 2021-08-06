@@ -200,6 +200,7 @@ app.on('ready', async () => {
         bonjourService.stop()
     })
 
+
     if (!isDevelopment) {
         app.setLoginItemSettings({
             openAtLogin: true

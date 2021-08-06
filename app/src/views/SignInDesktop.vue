@@ -4,6 +4,9 @@
             <div v-if="showCloseButton">
                 <p>You can now close this window</p>
             </div>
+            <div v-if="showLoading">
+                <q-spinner color="primary" size="3em" />
+            </div>
             <section id="firebaseui-auth-container"></section>
         </q-page>
     </div>
@@ -19,6 +22,7 @@ export default {
     data() {
         return {
             showCloseButton: false,
+            showLoading: true,
         }
     },
     components: {},
@@ -48,6 +52,7 @@ export default {
                     // window.location.href.
                     // ...
                     console.log('Grabbed the user', authResult.user)
+                    that.showLoading = true
                     console.log(authResult)
                     console.log(redirectUrl)
 
@@ -57,6 +62,9 @@ export default {
                     that.callCreateAuthToken(authResult)
 
                     return false
+                },
+                uiShown: function () {
+                    that.showLoading = false
                 },
             },
         }
@@ -83,6 +91,7 @@ export default {
             })
             console.log('result', result)
             this.showCloseButton = true
+            this.showLoading = false
             window.close()
         },
     },

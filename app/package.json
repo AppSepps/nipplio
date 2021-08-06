@@ -31,6 +31,7 @@
         "fetch": "^1.1.0",
         "firebase": "^8.7.0",
         "firebaseui": "^4.8.0",
+        "hotkeys-js": "^3.8.7",
         "howler": "^2.2.3",
         "is-electron": "^2.2.0",
         "mitt": "^3.0.0",

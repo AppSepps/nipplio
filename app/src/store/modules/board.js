@@ -1,5 +1,6 @@
 import firebase from 'firebase'
 import { useRoute } from 'vue-router'
+import hotkeys from 'hotkeys-js'
 
 function initialState() {
     return {
@@ -24,6 +25,14 @@ const actions = {
                 dispatch('joinBoard', { token, boardId })
             }
         }
+    },
+    registerShortcuts({ dispatch, rootGetters }) {
+        hotkeys('*', async function (event) {
+            if (event.key.match(/^[1-9]$/)) {
+                const id = rootGetters['sound/filteredSounds'][event.key - 1].id
+                dispatch('player/playRemoteSound', { id }, { root: true })
+            }
+        })
     },
     async createBoard(context, params) {
         const { boardName } = params

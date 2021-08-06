@@ -39,6 +39,7 @@ try {
         console.log('discoveredNipplioDevice service', service)
         await store.dispatch('settings/discoveredNipplioDevice', service)
     })
+
 } catch (error) {
     // Is Web instance
 }

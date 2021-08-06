@@ -134,6 +134,7 @@ export default {
         }),
     },
     async mounted() {
+        this.$store.dispatch('board/registerShortcuts')
         await this.$store.dispatch('board/checkForInviteLinkInUrl')
         await this.$store.dispatch('board/getBoards')
         await this.$store.dispatch('user/getUser')
