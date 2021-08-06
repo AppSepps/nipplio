@@ -28,6 +28,12 @@
         ".read": "root.child('boards').child($boardId).child('users').child(auth.uid).val() === true"
       }
     },
+    "remotePlay": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid"
+      }
+    },
     "play": {
       "$boardId": {
         ".write": "root.child('boards').child($boardId).child('users').child(auth.uid).val() === true",

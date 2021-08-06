@@ -38,19 +38,10 @@ void loginWithCustomToken()
 	server.send(200, "application/json", "\"idToken\":\"" + idToken + "\",\"refreshToken\":\"" + refreshToken + "\"");
 }
 
-void setBoardIdRoute()
-{
-	String bId = server.arg("boardId");
-	boardId = bId;
-	server.sendHeader("Access-Control-Allow-Origin", "*");
-	server.send(200, "application/json", "{'statusCode':'OK'}");
-}
-
 void getConfigRoute()
 {
 	String output = "";
 	DynamicJsonDocument doc(4096);
-	doc["boardID"] = boardId;
 	doc["uid"] = uid;
 	doc["idToken"] = idToken;
 	doc["refreshToken"] = refreshToken;
@@ -63,43 +54,10 @@ void getConfigRoute()
 			slots.add(slotNames[i]);
 		}
 	}
-	JsonArray soundsMapping = doc.createNestedArray("slotSoundMapping");
-	for (int i = 0; i < (sizeof(slotSoundMapping) / sizeof(slotSoundMapping[0])); i++)
-	{
-		if (slotSoundMapping[i] != "")
-		{
-			soundsMapping.add(slotSoundMapping[i]);
-		}
-	}
 	serializeJson(doc, output);
 
 	server.sendHeader("Access-Control-Allow-Origin", "*");
 	server.send(200, "application/json", output);
-}
-
-void setSlotSoundMappingRoute()
-{
-	String body = server.arg("plain");
-
-	memset(slotSoundMapping, 0, sizeof(slotSoundMapping));
-	StaticJsonDocument<1024> doc;
-	deserializeJson(doc, body);
-
-	// extract the values
-	JsonArray array = doc.as<JsonArray>();
-	int i = 0;
-	for (JsonVariant v : array)
-	{
-		if (i < 255)
-		{
-			Serial.println(v.as<int>());
-			slotSoundMapping[i] = v.as<String>();
-			i++;
-		}
-	}
-	server.sendHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-	server.sendHeader("Access-Control-Allow-Headers", "*");
-	getConfigRoute();
 }
 
 void writeString(char add, String data)
@@ -134,11 +92,6 @@ String read_String(char add)
 void Nipplio::setup()
 {
 	setupFirebaseNetwork();
-	for (int i = 0; i < 17; i = i + 8)
-	{
-		chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
-	}
-
 	Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
 	Serial.printf("This chip has %d cores\n", ESP.getChipCores());
 	Serial.print("Chip ID: ");
@@ -168,8 +121,6 @@ void Nipplio::setup()
 
 	server.on("/", handleRoot);
 	server.on("/loginWithCustomToken", loginWithCustomToken);
-	server.on("/setBoardId", setBoardIdRoute);
-	server.on("/setSlotSoundMapping", setSlotSoundMappingRoute);
 	server.on("/getConfig", getConfigRoute);
 	server.begin();
 	String recivedData;
@@ -187,7 +138,7 @@ void Nipplio::setSlotNames(String slotNamesArray[])
 
 void Nipplio::triggerSlotWithNumber(int slot)
 {
-	updatePlaySound(slotSoundMapping[slot]);
+	updatePlaySound(slot);
 }
 
 void Nipplio::loop()

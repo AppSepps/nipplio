@@ -33,7 +33,7 @@ void checkIfRefreshTokenStillValidAndIfNotRefreshTheToken()
 void updateBoardInformation()
 {
 	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
-	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/users/" + uid + "/remoteDevices/" + (uint16_t)(ESP.getEfuseMac() >> 32) + ".json?auth=" + idToken;
+	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/users/" + uid + "/remoteDevices/" + chipId + "/slots.json?auth=" + idToken;
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
 	WiFiClientSecure client;
@@ -43,7 +43,18 @@ void updateBoardInformation()
 	http.addHeader("Content-Type", "application/json");
 	http.addHeader("Referer", "https://nipplio.web.app");
 	// TODO: dynamic slot mappings
-	const int httpCode = http.PATCH("{\"slots\":{ \"1\": {\"name\": \"Button oben\"},\"2\": {\"name\": \"Button unten\"}}}");
+	String jsonOutput;
+	DynamicJsonDocument doc(2048);
+
+	for (int i = 0; i < (sizeof(slotNames) / sizeof(slotNames[0])); i++)
+	{
+		if (slotNames[i] != "")
+		{
+			doc[String(i)] = slotNames[i];
+		}
+	}
+	serializeJson(doc, jsonOutput);
+	const int httpCode = http.PUT(jsonOutput);
 	String payload = http.getString(); //Get the response payload
 
 	Serial.println(httpCode); //Print HTTP return code
@@ -51,10 +62,11 @@ void updateBoardInformation()
 
 	http.end();
 }
-void updatePlaySound(String soundId)
+
+void updatePlaySound(int slotId)
 {
 	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
-	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/play/" + boardId + ".json?auth=" + idToken;
+	String host = "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/remotePlay/" + uid + "/" + chipId +".json?auth=" + idToken;
 	Serial.println(host);
 	HTTPClient http; //Declare object of class HTTPClient
 	WiFiClientSecure client;
@@ -68,7 +80,7 @@ void updatePlaySound(String soundId)
 	String uuidStr = StringUUIDGen();
 	Serial.println("The UUID number is " + uuidStr);
 
-	const int httpCode = http.PATCH("{\"playedBy\":\"" + uid + "\", \"random\":false, \"soundId\":\"" + soundId + "\", \"uuid\":\"" + uuidStr + "\"}");
+	const int httpCode = http.PATCH("{\"slotId\":\"" + String(slotId) + "\", \"uuid\":\"" + uuidStr + "\"}");
 	String payload = http.getString(); //Get the response payload
 
 	Serial.println(httpCode); //Print HTTP return code
