@@ -54,7 +54,7 @@ void updateBoardInformation()
 		}
 	}
 	serializeJson(doc, jsonOutput);
-	const int httpCode = http.POST(jsonOutput);
+	const int httpCode = http.PUT(jsonOutput);
 	String payload = http.getString(); //Get the response payload
 
 	Serial.println(httpCode); //Print HTTP return code
