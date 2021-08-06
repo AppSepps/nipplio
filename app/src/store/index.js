@@ -11,7 +11,7 @@ const persistedAppState = createPersistedState({
     paths: [
         'board.activeBoard',
         'player.volume',
-        'sound.selfMute',
+        'sound.favoriteSoundIds',
         'user.mutedUsers',
         'user.speaker',
         'user.user',

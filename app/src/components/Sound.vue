@@ -13,6 +13,12 @@
             <q-item-label>{{ sound.name }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
+            <q-icon
+                :name="sound.type.includes('video') ? 'videocam' : ''"
+                color="grey"
+            />
+        </q-item-section>
+        <q-item-section avatar>
             <q-btn
                 unelevated
                 flat

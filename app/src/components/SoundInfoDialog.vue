@@ -14,11 +14,9 @@
                         </q-item-section>
                         <q-item-section>
                             <q-item-label>Name</q-item-label>
-                            <q-item-label caption href="asdf"
-                                ><a :href="sound.downloadUrl">{{
-                                    sound.name
-                                }}</a></q-item-label
-                            >
+                            <q-item-label caption>{{
+                                sound.name
+                            }}</q-item-label>
                         </q-item-section>
                     </q-item>
                     <q-separator spaced />
@@ -71,6 +69,24 @@
                         </q-item-section>
                         <q-item-section>
                             <q-item-label>Play this sound!</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                    <q-separator spaced />
+                    <q-item>
+                        <q-item-section avatar>
+                            <q-btn
+                                type="a"
+                                :href="sound.downloadUrl"
+                                target="_blank"
+                                unelevated
+                                round
+                                dense
+                                icon="download"
+                                color="secondary"
+                            />
+                        </q-item-section>
+                        <q-item-section>
+                            <q-item-label>Download this sound!</q-item-label>
                         </q-item-section>
                     </q-item>
                 </q-list>

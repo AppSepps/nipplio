@@ -72,30 +72,9 @@
                     <div class="q-pr-md">
                         <q-list dark v-if="sounds && sounds.length > 0">
                             <q-item-label header class="text-uppercase"
-                                >Sounds - {{ sounds.length }}</q-item-label
+                                >Sounds -
+                                {{ filteredSounds.length }}</q-item-label
                             >
-                            <sound
-                                v-for="sound in favoriteSounds"
-                                :key="sound.id"
-                                :sound="sound"
-                                :user="
-                                    boardUsers.filter(
-                                        (u) => u.id === sound.createdBy
-                                    )[0]
-                                "
-                                v-on:openRemoveDialog="
-                                    showRemoveSoundDialog = true
-                                "
-                                v-on:openEditDialog="showEditSoundDialog = true"
-                                v-on:openInfoDialog="showSoundInfoDialog = true"
-                            />
-                            <q-separator
-                                v-if="
-                                    favoriteSounds.length > 0 &&
-                                    filteredSounds.length > 0
-                                "
-                                spaced
-                            />
                             <sound
                                 v-for="sound in filteredSounds"
                                 :key="sound.id"
@@ -111,12 +90,7 @@
                                 v-on:openEditDialog="showEditSoundDialog = true"
                                 v-on:openInfoDialog="showSoundInfoDialog = true"
                             />
-                            <q-item
-                                v-if="
-                                    filteredSounds.length === 0 &&
-                                    favoriteSounds.length === 0
-                                "
-                            >
+                            <q-item v-if="filteredSounds.length === 0">
                                 <q-item-label caption
                                     >No sounds found.</q-item-label
                                 >
@@ -185,7 +159,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('sound', ['filteredSounds', 'favoriteSounds']),
+        ...mapGetters('sound', ['filteredSounds']),
         ...mapGetters('user', ['connectedUsers', 'disconnectedUsers']),
         ...mapState({
             activeBoard: (state) => state.board.activeBoard,

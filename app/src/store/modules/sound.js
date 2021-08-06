@@ -4,32 +4,27 @@ function initialState() {
     return {
         searchText: '',
         sounds: [],
+        favoriteSoundIds: [],
     }
 }
 
 const getters = {
-    favoriteSounds: (state) => {
-        return state.sounds
-            .sort((a, b) =>
-                a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-            )
-            .filter((sound) =>
-                sound.name
-                    .toLowerCase()
-                    .includes(state.searchText.toLowerCase())
-
-            ).filter((sound) => sound.favorite)
-    },
     filteredSounds: (state) =>
         state.sounds
+            .map((sound) =>
+                state.favoriteSoundIds.includes(sound.id)
+                    ? { ...sound, favorite: true }
+                    : { ...sound, favorite: false }
+            )
             .sort((a, b) =>
                 a.name.toLowerCase().localeCompare(b.name.toLowerCase())
             )
+            .sort((a, b) => b.favorite - a.favorite)
             .filter((sound) =>
                 sound.name
                     .toLowerCase()
                     .includes(state.searchText.toLowerCase())
-            ).filter((sound) => !sound.favorite),
+            ),
 }
 
 const actions = {
@@ -49,7 +44,7 @@ const actions = {
             commit('addSound', {
                 id: snapshot.key,
                 ...snapshot.val(),
-                downloadUrl: soundUrl
+                downloadUrl: soundUrl,
             })
         })
 
@@ -61,7 +56,7 @@ const actions = {
             commit('changeSound', {
                 id: snapshot.key,
                 ...snapshot.val(),
-                downloadUrl: soundUrl
+                downloadUrl: soundUrl,
             })
         })
 
@@ -110,12 +105,16 @@ const actions = {
 
             await firebase
                 .storage()
-                .ref(`/boards/${rootState.board.activeBoard.id}/${newSoundKey.key}`)
+                .ref(
+                    `/boards/${rootState.board.activeBoard.id}/${newSoundKey.key}`
+                )
                 .put(file)
 
             await firebase
                 .database()
-                .ref(`/sounds/${rootState.board.activeBoard.id}/${newSoundKey.key}`)
+                .ref(
+                    `/sounds/${rootState.board.activeBoard.id}/${newSoundKey.key}`
+                )
                 .set({
                     name: file.name,
                     type: file.type,
@@ -147,16 +146,9 @@ const mutations = {
         state.sounds = state.sounds.filter((sound) => sound.id !== id)
     },
     toggleFavoriteSound(state, { id }) {
-        // TODO: Better solution if new sounds are loaded or user signs out. Remote favorites?
-        state.sounds = state.sounds.map((sound) => {
-            if (sound.id === id) {
-                return {
-                    ...sound,
-                    favorite: !sound.favorite,
-                }
-            }
-            return sound
-        })
+        state.favoriteSoundIds = state.favoriteSoundIds.includes(id)
+            ? state.favoriteSoundIds.filter((i) => i !== id)
+            : [...state.favoriteSoundIds, id]
     },
     reset(state) {
         const s = initialState()
