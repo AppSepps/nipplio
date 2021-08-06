@@ -4,7 +4,7 @@
             class="full-width"
             no-caps
             unelevated
-            color="secondary"
+            color="grey-9"
             icon="person_add"
             label="Invite users"
             @click="onInviteClicked"
