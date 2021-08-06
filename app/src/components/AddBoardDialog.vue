@@ -7,7 +7,7 @@
                 <q-btn icon="close" flat round dense v-close-popup />
             </q-card-section>
             <q-card-section class="q-p-none">
-                <q-list>
+                <q-list class="q-pb-md">
                     <q-item clickable v-ripple @click="onAddBoardClick">
                         <q-item-section avatar>
                             <q-avatar
@@ -23,7 +23,6 @@
                             >
                         </q-item-section>
                     </q-item>
-                    <q-separator spaced />
                     <q-item clickable v-ripple @click="onJoinBoardClick">
                         <q-item-section avatar>
                             <q-avatar
@@ -47,7 +46,7 @@
                     v-if="showJoinBoardInput"
                 >
                     <q-input
-                        color="secondary"
+                        filled
                         v-model="inviteUrlText"
                         label="Invite Link"
                         placeholder="Paste in your invite link..."
@@ -57,13 +56,13 @@
                                 'Please type something',
                         ]"
                     >
-                        <template v-slot:after>
+                        <template v-slot:append>
                             <q-btn
                                 :disabled="inviteUrlText.trim().length == 0"
                                 round
                                 dense
                                 flat
-                                color="secondary"
+                                color="primary"
                                 icon="send"
                                 @click="onInviteUrlSend"
                             />
@@ -76,7 +75,7 @@
                     v-if="showCreateBoardInput"
                 >
                     <q-input
-                        color="secondary"
+                        filled
                         v-model="boardName"
                         label="Board Name"
                         placeholder="My fancy board name"
@@ -86,13 +85,13 @@
                                 'Please type something',
                         ]"
                     >
-                        <template v-slot:after>
+                        <template v-slot:append>
                             <q-btn
                                 :disabled="boardName.trim().length == 0"
                                 round
                                 dense
                                 flat
-                                color="secondary"
+                                color="primary"
                                 icon="send"
                                 @click="onAddBoardSend"
                             />

@@ -3,19 +3,24 @@
         <q-header>
             <q-toolbar class="bg-dark text-white">
                 <board-dropdown v-on:openDialog="showAddBoardDialog = true" />
+                <sound-upload class="q-ml-sm" v-if="activeBoard" />
                 <board-invite
                     v-if="activeBoard && user && activeBoard.owner === user.uid"
-                    class="q-ml-sm"
+                    class="q-mx-sm"
                     v-on:openDialog="showBoardInviteDialog = true"
                 />
-                <sound-upload class="q-ml-sm" v-if="activeBoard" />
+
                 <q-space />
                 <search-bar v-if="activeBoard" />
                 <q-space />
+                <manage-board-button
+                    v-if="activeBoard && user && activeBoard.owner === user.uid"
+                />
                 <q-btn
                     unelevated
                     icon="settings"
                     color="grey-9"
+                    class="q-ml-sm"
                     @click="showSettingsModal = true"
                 />
             </q-toolbar>
@@ -130,6 +135,7 @@ import SearchBar from '../components/SearchBar.vue'
 import RemoveSoundDialog from '../components/RemoveSoundDialog.vue'
 import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
+import ManageBoardButton from '../components/ManageBoardButton.vue'
 
 export default {
     name: 'Home',
@@ -147,6 +153,7 @@ export default {
         SearchBar,
         EditSoundDialog,
         SoundInfoDialog,
+        ManageBoardButton,
     },
     data() {
         return {
