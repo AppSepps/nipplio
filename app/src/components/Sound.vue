@@ -1,5 +1,10 @@
 <template>
     <q-item clickable class="q-py-md">
+        <q-item-section side>
+            <q-item-label :style="index > 9 ? 'visibility: hidden' : ''">{{
+                getFormattedIndex
+            }}</q-item-label>
+        </q-item-section>
         <q-item-section avatar>
             <q-btn
                 unelevated
@@ -74,7 +79,12 @@
 <script>
 export default {
     name: 'Sound',
-    props: ['sound', 'user'],
+    props: ['sound', 'user', 'index'],
+    computed: {
+        getFormattedIndex: function () {
+            return this.index <= 9 ? this.index : '–'
+        },
+    },
     components: {},
     methods: {
         onSoundPlay: async function (id) {

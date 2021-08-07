@@ -40,9 +40,10 @@
                                 {{ filteredSounds.length }}</q-item-label
                             >
                             <sound
-                                v-for="sound in filteredSounds"
+                                v-for="(sound, index) in filteredSounds"
                                 :key="sound.id"
                                 :sound="sound"
+                                :index="index + 1"
                                 :user="
                                     boardUsers.filter(
                                         (u) => u.id === sound.createdBy
