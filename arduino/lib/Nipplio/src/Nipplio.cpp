@@ -1,20 +1,31 @@
 #include <Arduino.h>
 #include "Nipplio.h"
 
-#include <WiFi.h>
+#if defined(ESP8266)
+	#include <ESP8266HTTPClient.h>
+	#include <ESP8266WiFi.h>
+	#include <ESP8266WebServer.h>
+	#include <ESP8266mDNS.h>
+#else
+	#include <HTTPClient.h>
+	#include <WiFi.h>
+	#include <WebServer.h>
+	#include <ESPmDNS.h>
+#endif
 #include <DNSServer.h>
-#include <WebServer.h>
-#include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
 #include <ArduinoJson.h>
-#include <HTTPClient.h>
+#include <WiFiManager.h>
 #include <EEPROM.h>
 #include "FirebaseNetwork.h"
 #include "Storage.h"
-#include <ESPmDNS.h>
 
 // Set these to run example.
 #define FIREBASE_HOST "https://nipplio-default-rtdb.europe-west1.firebasedatabase.app/"
-WebServer server(80);
+#if defined(ESP8266)
+	ESP8266WebServer server(80);
+#else
+	WebServer server(80);
+#endif
 
 Nipplio::Nipplio()
 {
@@ -92,17 +103,14 @@ String read_String(char add)
 void Nipplio::setup()
 {
 	setupFirebaseNetwork();
-	Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
-	Serial.printf("This chip has %d cores\n", ESP.getChipCores());
-	Serial.print("Chip ID: ");
-	Serial.println(chipId);
-	Serial.print("efuse ID: ");
-	Serial.println(ESP.getEfuseMac());
+	//Serial.print("Chip ID: ");
+	//Serial.println(chipId);
+	//Serial.print("efuse ID: ");
 	storageSetup();
 	readValuesFromSpiffs();
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
-	Serial.println(WiFi.localIP());
+	//Serial.println(WiFi.localIP());
 	String str = String(chipId);
 	// Length (with one extra character for the null terminator)
 	int str_len = str.length() + 1;
@@ -114,10 +122,10 @@ void Nipplio::setup()
 	str.toCharArray(char_array, str_len);
 	if (!MDNS.begin(char_array))
 	{ // Start the mDNS responder for esp8266.local
-		Serial.println("Error setting up MDNS responder!");
+		//Serial.println("Error setting up MDNS responder!");
 	}
 	MDNS.addService("nipplio", "tcp", 80);
-	Serial.println("Added nipplio service tcp on port 80");
+	//Serial.println("Added nipplio service tcp on port 80");
 
 	server.on("/", handleRoot);
 	server.on("/loginWithCustomToken", loginWithCustomToken);
@@ -125,7 +133,7 @@ void Nipplio::setup()
 	server.begin();
 	String recivedData;
 	recivedData = read_String(10);
-	Serial.println("read_String: " + recivedData);
+	//Serial.println("read_String: " + recivedData);
 }
 
 void Nipplio::setSlotNames(String slotNamesArray[])
@@ -145,5 +153,7 @@ void Nipplio::loop()
 {
 	server.handleClient();
 	checkIfRefreshTokenStillValidAndIfNotRefreshTheToken();
-	//MDNS.update();
+	#if defined(ESP8266)
+	MDNS.update();
+	#endif
 }

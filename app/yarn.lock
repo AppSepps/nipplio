@@ -6164,6 +6164,11 @@
   dependencies:
     "lru-cache" "^6.0.0"
 
+"hotkeys-js@^3.8.7":
+  "integrity" "sha512-ckAx3EkUr5XjDwjEHDorHxRO2Kb7z6Z2Sxul4MbBkN8Nho7XDslQsgMJT+CiJ5Z4TgRxxvKHEpuLE3imzqy4Lg=="
+  "resolved" "https://registry.npmjs.org/hotkeys-js/-/hotkeys-js-3.8.7.tgz"
+  "version" "3.8.7"
+
 "howler@^2.2.3":
   "integrity" "sha512-QM0FFkw0LRX1PR8pNzJVAY25JhIWvbKMBFM4gqk+QdV+kPXOhleWGCB6AiAF/goGjIHK2e/nIElplvjQwhr0jg=="
   "resolved" "https://registry.npmjs.org/howler/-/howler-2.2.3.tgz"
@@ -11472,9 +11477,9 @@
   "version" "2.3.4"
 
 "vue-loader-v16@npm:vue-loader@^16.1.0":
-  "integrity" "sha512-/1GzCuQ6MRORbC+leKTKoTGtpQt60bYe0gDGEextSteA2OM+v201FPha5jzmjQzVhRcwieZeUvezAtG5a/e5cw=="
-  "resolved" "https://registry.npmjs.org/vue-loader/-/vue-loader-16.3.3.tgz"
-  "version" "16.3.3"
+  "integrity" "sha512-nL1bDhfMAZgTVmVkOXQaK/WJa9zFDLM9vKHbh5uGv6HeH1TmZrXMWUEVhUrACT38XPhXM4Awtjj25EvhChEgXw=="
+  "resolved" "https://registry.npmjs.org/vue-loader/-/vue-loader-16.4.1.tgz"
+  "version" "16.4.1"
   dependencies:
     "chalk" "^4.1.0"
     "hash-sum" "^2.0.0"

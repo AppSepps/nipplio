@@ -1,5 +1,10 @@
 #include "Storage.h"
-#include "SPIFFS.h"
+
+#if defined(ESP8266)
+	#include "FS.h"
+#else
+	#include "SPIFFS.h"
+#endif
 #include <ArduinoJson.h>
 
 String uid;
@@ -10,20 +15,28 @@ String slotNames[255];
 
 void storageSetup()
 {
-	if (!SPIFFS.begin(true))
+	#if defined(ESP8266)
+		if (!SPIFFS.begin())
 	{
-		Serial.println("An Error has occurred while mounting SPIFFS");
+		//Serial.println("An Error has occurred while mounting SPIFFS");
 		return;
 	}
+	#else
+		if (!SPIFFS.begin(true))
+	{
+		//Serial.println("An Error has occurred while mounting SPIFFS");
+		return;
+	}
+	#endif
 }
 
 void saveValuesToSpiffs()
 {
 	String output;
-	File file = SPIFFS.open("/config.json", FILE_WRITE);
+	File file = SPIFFS.open("/config.json", "w");
 	if (!file)
 	{
-		Serial.println("There was an error opening the file for writing");
+		//Serial.println("There was an error opening the file for writing");
 		return;
 	}
 	DynamicJsonDocument doc(2048);
@@ -36,11 +49,11 @@ void saveValuesToSpiffs()
 	serializeJson(doc, output);
 	if (file.print(output))
 	{
-		Serial.println("File was written");
+		//Serial.println("File was written");
 	}
 	else
 	{
-		Serial.println("File write failed");
+		//Serial.println("File write failed");
 	}
 
 	file.close();
@@ -48,15 +61,15 @@ void saveValuesToSpiffs()
 
 void readValuesFromSpiffs()
 {
-	File file = SPIFFS.open("/config.json");
+	File file = SPIFFS.open("/config.json", "r");
 	if (!file)
 	{
-		Serial.println("There was an error opening the file for writing");
+		//Serial.println("There was an error opening the file for writing");
 		return;
 	}
-	Serial.print("input from config.json: ");
+	//Serial.print("input from config.json: ");
 	String input = file.readString();
-	Serial.println(input);
+	//Serial.println(input);
 
 	DynamicJsonDocument doc(2048);
 
@@ -64,8 +77,8 @@ void readValuesFromSpiffs()
 
 	if (error)
 	{
-		Serial.print(F("deserializeJson() failed: "));
-		Serial.println(error.f_str());
+		//Serial.print(F("deserializeJson() failed: "));
+		//Serial.println(error.f_str());
 		return;
 	}
 
