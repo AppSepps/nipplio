@@ -65,6 +65,10 @@ const createTray = () => {
                 app.quit()
             },
         },
+        {
+            label: `Version: ${app.getVersion()}`,
+            enabled: false
+        },
     ])
 
     tray.setContextMenu(contextMenu)
@@ -151,7 +155,7 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) {}
+    } catch (error) { }
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
@@ -189,7 +193,7 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function(
+        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function (
             service
         ) {
             console.log('Found an Nipplio server:', service)
