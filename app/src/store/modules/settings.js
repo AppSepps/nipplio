@@ -26,6 +26,17 @@ const actions = {
         await axios.post(url, soundsIdsArray.slice(0, 5))
         await dispatch('getDeviceConfig', ipAddress)
     },
+    async getAvailableSlotSounds({ commit }, { boardId }) {
+        try {
+            const sounds = await firebase
+                .database()
+                .ref(`sounds/${boardId}`)
+                .once('value')
+            commit('addAvailableSlotSounds', sounds.val())
+        } catch (error) {
+            console.log(error)
+        }
+    },
     async registerRemoteDevice({ dispatch, commit }, ipAddress) {
         commit('setDeviceLoading', ipAddress)
         try {
@@ -69,6 +80,26 @@ const actions = {
             }
         }
     },
+    async saveSlotMapping(context, { device, boardId, selectedSounds }) {
+        const slotMappingRef = firebase
+            .database()
+            .ref(
+                `/users/${firebase.auth().currentUser.uid}/remoteDevices/${
+                    device.id
+                }/${boardId}/slots`
+            )
+        try {
+            const slotMapping = {}
+            device.slots.forEach((slot, index) => {
+                slotMapping[index] = selectedSounds[index]
+                    ? selectedSounds[index].id
+                    : null
+            })
+            await slotMappingRef.set(slotMapping)
+        } catch (error) {
+            console.log(error)
+        }
+    },
     subscribeToRemoteDevices({ commit }) {
         const user = firebase.auth().currentUser
         const deviceRef = firebase
@@ -101,6 +132,16 @@ const actions = {
 }
 
 const mutations = {
+    addAvailableSlotSounds(state, sounds) {
+        let availableSounds = []
+        for (let [key, value] of Object.entries(sounds)) {
+            availableSounds.push({ id: key, ...value })
+        }
+        availableSounds = availableSounds.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        )
+        state.availableSlotSounds = availableSounds
+    },
     addRemoteDevice(state, device) {
         state.remoteDevices.push(device)
     },
