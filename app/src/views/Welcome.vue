@@ -49,7 +49,7 @@ export default {
                     router.push('/')
                 }
             })
-            const googleLink = `${window.location.origin}/desktop-sign-in?ot-auth-code=${id}`
+            const googleLink = `${window.location.origin}/auth?ot-auth-code=${id}`
             console.log(googleLink)
 
             sendToIPCRenderer('openExternalBrowser', googleLink, (error) => {

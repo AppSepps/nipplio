@@ -8,7 +8,7 @@ import Login from '../views/Login.vue'
 const routes = [
     { path: '/', component: Home, meta: { auth: true } },
     { path: '/welcome', component: Welcome },
-    { path: '/login', component: Login },
+    { path: '/auth', component: Login },
 ]
 
 const router = createRouter({

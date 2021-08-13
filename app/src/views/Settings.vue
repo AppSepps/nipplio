@@ -75,6 +75,7 @@ export default {
             this.$store.dispatch('player/unsubscribeToPlayer')
             this.$store.dispatch('clearAll')
             this.$router.push('/login')
+            this.$router.push('/welcome')
         },
     },
     mounted() {
