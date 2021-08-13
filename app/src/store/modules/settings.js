@@ -3,11 +3,20 @@ import axios from 'axios'
 
 function initialState() {
     return {
+        remoteDevices: [],
         discoveredDevices: [],
     }
 }
 
-const getters = {}
+const getters = {
+    filteredDiscoveredDevices: (state) =>
+        state.discoveredDevices.filter((dd) => {
+            const remoteDevices = state.remoteDevices.filter(
+                (rd) => rd.id === dd.name
+            )
+            return remoteDevices.length === 0
+        }),
+}
 
 const actions = {
     async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
@@ -48,19 +57,62 @@ const actions = {
     },
     async discoveredNipplioDevice({ dispatch, commit, state }, device) {
         if (device) {
-            const foundItem = state.discoveredDevices.filter(
-                (device) => device.addresses[0] === device.addresses[0]
-            )
-            if (foundItem && foundItem.length === 0) {
+            const discoveredDevice = state.discoveredDevices.filter(
+                (d) => d.addresses[0] === device.addresses[0]
+            )[0]
+            if (!discoveredDevice) {
                 commit('addDiscoveredDevice', { device })
             } else {
+                // Do we need this?
                 await dispatch('getDeviceConfig', device.addresses[0])
             }
         }
     },
+    subscribeToRemoteDevices({ commit }) {
+        const user = firebase.auth().currentUser
+        const deviceRef = firebase
+            .database()
+            .ref(`/users/${user.uid}/remoteDevices`)
+
+        deviceRef.on('child_added', (snapshot) => {
+            commit('addRemoteDevice', {
+                id: snapshot.key,
+                ...snapshot.val(),
+            })
+        })
+
+        deviceRef.on('child_changed', (snapshot) => {
+            commit('changeRemoteDevice', {
+                id: snapshot.key,
+                ...snapshot.val(),
+            })
+        })
+
+        deviceRef.on('child_removed', (snapshot) => {
+            commit('removeRemoteDevice', {
+                id: snapshot.key,
+            })
+        })
+    },
+    unlinkRemoteDevice(context, id) {
+        console.log(id)
+    },
 }
 
 const mutations = {
+    addRemoteDevice(state, device) {
+        state.remoteDevices.push(device)
+    },
+    changeRemoteDevice(state, device) {
+        state.remoteDevices = state.remoteDevices.map((d) => {
+            return d.id === device.id ? device : d
+        })
+    },
+    removeRemoteDevice(state, { id }) {
+        state.remoteDevices = state.remoteDevices.filter(
+            (device) => device.id !== id
+        )
+    },
     setDeviceLoading(state, ipAddress) {
         state.discoveredDevices.forEach((device) => {
             if (device.addresses.includes(ipAddress)) {

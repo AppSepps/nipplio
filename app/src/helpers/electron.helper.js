@@ -10,3 +10,11 @@ export const sendToIPCRenderer = (
         errorCb(error)
     }
 }
+
+export const isElectron = () => {
+    if (window.ipcRenderer) {
+        return true
+    } else {
+        return false
+    }
+}

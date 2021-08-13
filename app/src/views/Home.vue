@@ -145,6 +145,7 @@ export default {
         await this.$store.dispatch('player/unsubscribeToPlayer')
         await this.$store.dispatch('player/subscribeToPlayer')
         await this.$store.dispatch('player/subscribeToRemotePlayer')
+        await this.$store.dispatch('settings/subscribeToRemoteDevices')
     },
 }
 </script>

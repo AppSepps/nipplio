@@ -25,16 +25,27 @@
                 </div>
                 <div class="row q-pb-sm">
                     <q-list class="col-6">
-                        <q-item-label header
-                            >Discovered Devices -
-                            {{ discoveredDevices.length }}</q-item-label
+                        <q-item-label header v-if="remoteDevices.length > 0"
+                            >Linked Devices -
+                            {{ remoteDevices.length }}</q-item-label
                         >
                         <remote-device
-                            v-for="(device, index) in discoveredDevices"
+                            v-for="(device, index) in remoteDevices"
                             :key="index"
                             :device="device"
+                            :linked="true"
                         />
-                        <q-item v-if="discoveredDevices.length === 0">
+                        <q-item-label header
+                            >Discovered Devices -
+                            {{ filteredDiscoveredDevices.length }}</q-item-label
+                        >
+                        <remote-device
+                            v-for="(device, index) in filteredDiscoveredDevices"
+                            :key="index"
+                            :device="device"
+                            :linked="false"
+                        />
+                        <q-item v-if="filteredDiscoveredDevices.length === 0">
                             <q-item-section>
                                 <q-item-label
                                     >No devices discovered...</q-item-label
@@ -58,7 +69,7 @@
 <script>
 import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import RemoteDevice from '../components/RemoteDevice.vue'
 
 export default {
@@ -66,15 +77,15 @@ export default {
     components: { RemoteDevice },
     computed: {
         ...mapState({
-            discoveredDevices: (state) => state.settings.discoveredDevices,
+            remoteDevices: (state) => state.settings.remoteDevices,
         }),
+        ...mapGetters('settings', ['filteredDiscoveredDevices']),
     },
     methods: {
         signOut: async function () {
             await firebase.auth().signOut()
             this.$store.dispatch('player/unsubscribeToPlayer')
             this.$store.dispatch('clearAll')
-            this.$router.push('/login')
             this.$router.push('/welcome')
         },
     },
