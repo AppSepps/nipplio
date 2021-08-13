@@ -3,9 +3,9 @@ import axios from 'axios'
 
 function initialState() {
     return {
-        remoteDevices: [],
-        discoveredDevices: [],
         availableSlotSounds: [],
+        discoveredDevices: [],
+        remoteDevices: [],
     }
 }
 
