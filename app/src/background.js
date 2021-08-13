@@ -22,6 +22,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const WINDOW_WIDTH = 1400
 const WINDOW_HEIGHT = 960
+let x, y
+
+let windowBounds = { x, y, width: WINDOW_WIDTH, height: WINDOW_HEIGHT }
 
 let willQuitApp = false
 let tray = null
@@ -82,13 +85,13 @@ const show = () => {
         screen.getCursorScreenPoint()
     )
     let bounds = currentScreen.bounds
-    let x = Math.ceil(bounds.x + (bounds.width - WINDOW_WIDTH) / 2)
-    let y = Math.ceil(bounds.y + (bounds.height - WINDOW_HEIGHT) / 2)
+    let x = Math.ceil(bounds.x + (bounds.width - windowBounds.width) / 2)
+    let y = Math.ceil(bounds.y + (bounds.height - windowBounds.height) / 2)
     const newBounds = {
         x,
         y,
-        width: WINDOW_WIDTH,
-        height: WINDOW_HEIGHT,
+        width: windowBounds.width,
+        height: windowBounds.height,
     }
     win.setBounds(newBounds)
     win.show()
@@ -102,8 +105,8 @@ async function createWindow() {
     win = new BrowserWindow({
         userAgent: 'Chrome',
         backgroundColor: '#121212',
-        height: WINDOW_HEIGHT,
-        width: WINDOW_WIDTH,
+        height: windowBounds.height,
+        width: windowBounds.width,
         fullscreenable: false,
         skipTaskbar: true,
         show: false,
@@ -124,6 +127,8 @@ async function createWindow() {
     win.setAlwaysOnTop(true, 'floating')
 
     win.on('close', e => {
+        console.log(win.getBounds())
+        windowBounds = win.getBounds()
         if (willQuitApp) {
             /* the user tried to quit the app */
             win = null
@@ -237,11 +242,13 @@ if (isDevelopment) {
 
 const onToggleWindowShortCut = () => {
     if (win.isVisible()) {
+        windowBounds = win.getBounds()
         win.hide()
         globalShortcut.unregister('Esc')
     } else {
         show()
         globalShortcut.register('Esc', () => {
+            windowBounds = win.getBounds()
             win.hide()
             globalShortcut.unregister('Esc')
         })
