@@ -57,7 +57,7 @@ const createTray = () => {
             label: 'Check for Updates',
             click: () => {
                 autoUpdater.checkForUpdatesAndNotify()
-            }
+            },
         },
         {
             label: 'Quit',
@@ -118,7 +118,7 @@ async function createWindow() {
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
 
-    win.on('close', (e) => {
+    win.on('close', e => {
         if (willQuitApp) {
             /* the user tried to quit the app */
             win = null
@@ -150,11 +150,11 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) { }
+    } catch (error) {}
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
-    
+
     globalShortcut.register('CommandOrControl+Shift+S', () => {
         onToggleSelfMuteShortCut()
     })
@@ -188,23 +188,21 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find(
-            { type: 'nipplio' },
-            function (service) {
-                console.log('Found an Nipplio server:', service)
-                win.webContents.send('discoveredNipplioDevice', service)
-            }
-        )
+        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function(
+            service
+        ) {
+            console.log('Found an Nipplio server:', service)
+            win.webContents.send('discoveredNipplioDevice', service)
+        })
     })
     ipcMain.on('stopScanForDevices', () => {
         console.log('stop bonjourService')
         bonjourService.stop()
     })
 
-
     if (!isDevelopment) {
         app.setLoginItemSettings({
-            openAtLogin: true
+            openAtLogin: true,
         })
     }
 })
@@ -217,11 +215,10 @@ app.on('will-quit', () => {
  * the signal to exit and wants to start closing windows */
 app.on('before-quit', () => (willQuitApp = true))
 
-
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
-        process.on('message', (data) => {
+        process.on('message', data => {
             if (data === 'graceful-exit') {
                 app.quit()
             }

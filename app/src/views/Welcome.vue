@@ -2,7 +2,7 @@
     <div>
         <q-page class="flex flex-center">
             <div class="">
-                <img class="center" src="assets/icon.png" />
+                <img class="center" src="assets/logo_text.svg" />
                 <p class="text-body1">
                     Welcome to Nipplio. The best Software ever written!
                 </p>
@@ -40,7 +40,7 @@ export default {
                 .database()
                 .ref(`ot-auth-codes/${id}`)
 
-            oneTimeCodeRef.on('value', async (snapshot) => {
+            oneTimeCodeRef.on('value', async snapshot => {
                 const authToken = snapshot.val()
                 console.log('authToken', authToken)
                 if (authToken) {
@@ -52,7 +52,7 @@ export default {
             const googleLink = `${window.location.origin}/auth?ot-auth-code=${id}`
             console.log(googleLink)
 
-            sendToIPCRenderer('openExternalBrowser', googleLink, (error) => {
+            sendToIPCRenderer('openExternalBrowser', googleLink, error => {
                 window.open(googleLink, '_blank')
                 console.log(error)
             })
