@@ -11,7 +11,9 @@
                     {{ soundName }}
                 </div>
                 <div v-if="playedBy" class="text-caption">
-                    {{ playedBy.displayName }} [{{ soundDate }}]
+                    {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> [{{
+                        soundDate
+                    }}]
                 </div>
             </div>
         </div>
@@ -66,12 +68,12 @@ export default {
     computed: {
         ...mapGetters('user', ['selfMute']),
         ...mapState({
-            isSoundLoading: (state) => state.player.isSoundLoading,
-            volume: (state) => state.player.volume / 100,
-            soundName: (state) => {
+            isSoundLoading: state => state.player.isSoundLoading,
+            volume: state => state.player.volume / 100,
+            soundName: state => {
                 if (state.player.playedSound) {
                     const sound = state.sound.sounds.filter(
-                        (sound) => sound.id === state.player.playedSound.soundId
+                        sound => sound.id === state.player.playedSound.soundId
                     )[0]
                     if (sound) {
                         return sound.name
@@ -79,7 +81,7 @@ export default {
                 }
                 return 'Crickets are zirping.mp3'
             },
-            soundDate: (state) => {
+            soundDate: state => {
                 if (state.player.playedSound) {
                     return moment(state.player.playedSound.timestamp).format(
                         'LTS'
@@ -87,21 +89,36 @@ export default {
                 }
                 return moment().format('LTS')
             },
-            playedBy: (state) => {
+            playedBy: state => {
                 return state.player.playedSound
                     ? state.user.boardUsers.filter(
-                          (u) => u.id === state.player.playedSound.playedBy
+                          u => u.id === state.player.playedSound.playedBy
                       )[0]
                     : '*chirp*'
             },
-            playedSound: (state) => state.player.playedSound,
-            playingColor: function (state) {
+            sourceIcon: function(state) {
+                if (!state.player.playedSound) return ''
+                switch (state.player.playedSound.source) {
+                    case 'web':
+                        return 'web'
+                    case 'desktop':
+                        return 'desktop_windows'
+                    case 'hardware':
+                        return 'memory'
+                    case 'api':
+                        return 'code'
+                    default:
+                        return ''
+                }
+            },
+            playedSound: state => state.player.playedSound,
+            playingColor: function(state) {
                 if (!this.playing) {
                     return 'grey'
                 }
                 return state.player.playedSound.random ? 'purple' : 'primary'
             },
-            playingIcon: (state) =>
+            playingIcon: state =>
                 state.player.playedSound && state.player.playedSound.random
                     ? 'casino'
                     : 'graphic_eq',
