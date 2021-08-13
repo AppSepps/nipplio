@@ -21,22 +21,37 @@
                 </div>
                 <div v-for="(slot, index) in device.slots" :key="index">
                     <div class="row q-py-md">
-                        <div class="col-1 text-caption self-center">
-                            {{ index }}
-                        </div>
                         <div class="col-4 text-bold self-center">
                             {{ slot }}
                         </div>
                         <q-select
-                            class="col-7"
+                            class="col-8"
                             filled
                             dense
                             v-model="selectedSounds[index]"
                             :options="sounds"
                             option-value="id"
-                            option-label="name"
+                            :option-label="
+                                (sound) =>
+                                    sounds.filter((s) => {
+                                        return s.id === sound.id
+                                    })[0]
+                                        ? sounds.filter((s) => {
+                                              return s.id === sound.id
+                                          })[0].name
+                                        : null
+                            "
                             label="Sound"
-                        />
+                        >
+                            <template v-slot:append>
+                                <q-icon
+                                    v-if="selectedSounds[index]"
+                                    name="close"
+                                    @click.stop="removeMappedSound(index)"
+                                    class="cursor-pointer"
+                                />
+                            </template>
+                        </q-select>
                     </div>
                     <q-separator dark />
                 </div>
@@ -78,22 +93,33 @@ export default {
                 this.$store.dispatch('settings/getAvailableSlotSounds', {
                     boardId: val.id,
                 })
-                this.selectedSounds = {}
+                if (this.device[val.id] && this.device[val.id].slots) {
+                    const slotMapping = {}
+                    this.device[val.id].slots.forEach((slot, index) => {
+                        slotMapping[index] = { id: slot }
+                    })
+                    this.selectedSounds = slotMapping
+                } else {
+                    this.selectedSounds = {}
+                }
             }
         },
     },
     mounted() {
-        this.selectedBoard = this.$store.state.board.activeBoard
-            ? {
-                  name: this.$store.state.board.activeBoard.name,
-                  id: this.$store.state.board.activeBoard.id,
-              }
-            : null
         this.bus.on('onChangeSlotMapping', (device) => {
             this.device = device
+            this.selectedBoard = this.$store.state.board.activeBoard
+                ? {
+                      name: this.$store.state.board.activeBoard.name,
+                      id: this.$store.state.board.activeBoard.id,
+                  }
+                : null
         })
     },
     methods: {
+        removeMappedSound: function (index) {
+            delete this.selectedSounds[index]
+        },
         onSave: function () {
             this.$store.dispatch('settings/saveSlotMapping', {
                 device: this.device,
