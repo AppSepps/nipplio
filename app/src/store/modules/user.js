@@ -11,12 +11,11 @@ function initialState() {
 }
 
 const getters = {
-    selfMute: (state) =>
-        state.user && state.mutedUsers.includes(state.user.uid),
-    connectedUsers: (state) =>
-        state.boardUsers.filter((boardUser) => boardUser.connected),
-    disconnectedUsers: (state) =>
-        state.boardUsers.filter((boardUser) => !boardUser.connected),
+    selfMute: state => state.user && state.mutedUsers.includes(state.user.uid),
+    connectedUsers: state =>
+        state.boardUsers.filter(boardUser => boardUser.connected),
+    disconnectedUsers: state =>
+        state.boardUsers.filter(boardUser => !boardUser.connected),
 }
 
 const actions = {
@@ -30,14 +29,14 @@ const actions = {
             .database()
             .ref(`/boardUsers/${activeBoard.id}`)
 
-        boardUsersRef.on('child_added', (snapshot) => {
+        boardUsersRef.on('child_added', snapshot => {
             commit('addBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        boardUsersRef.on('child_changed', (snapshot) => {
+        boardUsersRef.on('child_changed', snapshot => {
             commit('changeBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
@@ -83,7 +82,8 @@ const actions = {
         const boardUserRef = firebase
             .database()
             .ref(
-                `/boardUsers/${activeBoard.id}/${firebase.auth().currentUser.uid
+                `/boardUsers/${activeBoard.id}/${
+                    firebase.auth().currentUser.uid
                 }`
             )
         await boardUserRef.set({
@@ -92,11 +92,16 @@ const actions = {
             connected: true,
             muted: rootGetters['user/selfMute'],
         })
-        await boardUserRef.onDisconnect().update({
-            connected: false,
+        var connectedRef = firebase.database().ref('.info/connected')
+        connectedRef.on('value', function(snap) {
+            if (snap.val() === true) {
+                boardUserRef.onDisconnect().update({
+                    connected: false,
+                })
+            }
         })
         // Keeps the user as connected when another tab gets closed
-        boardUserRef.child('connected').on('value', (snap) => {
+        boardUserRef.child('connected').on('value', snap => {
             if (snap.val() == false) {
                 boardUserRef.child('connected').set(true)
             }
@@ -112,7 +117,7 @@ const mutations = {
         state.boardUsers = [...state.boardUsers, user]
     },
     changeBoardUser(state, user) {
-        state.boardUsers = state.boardUsers.map((u) => {
+        state.boardUsers = state.boardUsers.map(u => {
             return u.id === user.id ? user : u
         })
     },
@@ -126,25 +131,25 @@ const mutations = {
         } else {
             state.speaker = id
             state.mutedUsers = state.boardUsers
-                .filter((user) => user.id !== id)
-                .map((user) => user.id)
+                .filter(user => user.id !== id)
+                .map(user => user.id)
         }
     },
     toggleUserMute(state, { id }) {
         state.speaker = undefined
         state.mutedUsers = state.mutedUsers.includes(id)
-            ? state.mutedUsers.filter((u) => u !== id)
+            ? state.mutedUsers.filter(u => u !== id)
             : [...state.mutedUsers, id]
         if (state.boardUsers.length - 1 === state.mutedUsers.length) {
             const singleUser = state.boardUsers.filter(
-                (user) => state.mutedUsers.indexOf(user.id) === -1
+                user => state.mutedUsers.indexOf(user.id) === -1
             )[0]
             state.speaker = singleUser.id
         }
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

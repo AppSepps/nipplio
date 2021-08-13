@@ -5,6 +5,7 @@
         dense
         standout
         v-model="searchText"
+        ref="input"
         class="q-mx-sm row"
         placeholder="Search..."
         style="width: 300px !important"
@@ -24,6 +25,11 @@
 <script>
 export default {
     name: 'SearchBar',
+    methods: {
+        focus: function() {
+            this.$refs.input.focus()
+        },
+    },
     computed: {
         searchText: {
             get() {

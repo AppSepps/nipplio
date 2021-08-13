@@ -26,10 +26,14 @@ const actions = {
         const { user } = rootState.user
         const playRef = firebase.database().ref('/remotePlay/' + user.uid)
 
-        playRef.on('child_changed', async (snapshot) => {
+        playRef.on('child_changed', async snapshot => {
             const slotId = snapshot.val()['slotId']
             const id = rootGetters['sound/filteredSounds'][slotId - 1].id
-            dispatch('player/playRemoteSound', { id }, { root: true })
+            dispatch(
+                'player/playRemoteSound',
+                { id, source: 'hardware' },
+                { root: true }
+            )
         })
     },
     subscribeToPlayer({ rootState, rootGetters, commit }, params) {
@@ -42,7 +46,7 @@ const actions = {
 
         const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
-        playRef.on('value', async (snapshot) => {
+        playRef.on('value', async snapshot => {
             if (skipInitial) {
                 skipInitial = false
                 return
@@ -67,10 +71,10 @@ const actions = {
             commit('updatePlayedSound', { playedSound })
 
             const sound = rootState.sound.sounds.filter(
-                (sound) => sound.id === play.soundId
+                sound => sound.id === play.soundId
             )[0]
             const playedByUser = boardUsers.filter(
-                (user) => user.id === play.playedBy
+                user => user.id === play.playedBy
             )[0]
             commit('addRecentlyPlayed', {
                 sound: sound,
@@ -81,7 +85,11 @@ const actions = {
     async playRemoteSound({ dispatch, rootState }, params) {
         const { user, mutedUsers } = rootState.user
         const { activeBoard } = rootState.board
-        const { id, random = false } = params
+        const {
+            id,
+            source = window.ipcRenderer !== undefined ? 'desktop' : 'web',
+            random = false,
+        } = params
         dispatch('toggleSoundLoading', true)
         await firebase
             .database()
@@ -92,6 +100,7 @@ const actions = {
                 playedBy: user.uid,
                 mutedUsers,
                 random,
+                source,
             })
     },
     toggleSoundLoading({ commit }, value) {
@@ -133,7 +142,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

@@ -26,19 +26,13 @@ const actions = {
             }
         }
     },
-    registerShortcuts({ rootState, commit, dispatch, rootGetters }) {
+    registerShortcuts({ dispatch, rootGetters }, focusCallback) {
         hotkeys('*', async function (event) {
             if (event.key.match(/^[1-9]$/)) {
                 const id = rootGetters['sound/filteredSounds'][event.key - 1].id
                 dispatch('player/playRemoteSound', { id }, { root: true })
             } else if (event.key.match(/^[a-zA-Z]$/)) {
-                // Set the focues of the search field and append the entered text in the searchfield state property
-                // TODO: focus the search field
-                commit(
-                    'sound/setSearchText',
-                    rootState.sound.searchText.concat(event.key),
-                    { root: true }
-                )
+                focusCallback()
             }
         })
     },

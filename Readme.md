@@ -65,6 +65,8 @@
       "timestamp": 1234,
       "soundName": "",
       "playedBy": "userid1",
+      "random": false,
+      "source": "desktop", // desktop, web, api, hardware
       "mutedUsers": {
         "userid2": true,
         "userid3": true

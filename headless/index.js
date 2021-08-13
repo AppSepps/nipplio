@@ -50,7 +50,7 @@ function playSoundWithId(soundId) {
     firstSoundStart = false;
     return;
   }
-  if (audio) audio.kill()
+  if (audio) audio.kill();
   audio = player.play(`sounds/${soundId}`, function (err) {
     if (err) {
       console.log(err);
@@ -125,11 +125,11 @@ async function start() {
       .once("value");
     const array = [];
     sounds.forEach((child) => {
-      array.push(child.key)
+      array.push(child.key);
       return false;
     });
     for (const [index, childKey] of array.entries()) {
-      console.log(`Downloaded: ${index + 1}/${array.length}`)
+      console.log(`Downloaded: ${index + 1}/${array.length}`);
       await downloadSoundWithId(childKey);
     }
   }
@@ -143,14 +143,20 @@ async function start() {
   var userRef = firebase
     .database()
     .ref(`/boardUsers/${boardId}/${firebase.auth().currentUser.uid}`);
-  await userRef.update({
-    connected: true,
-    displayName: displayName,
-    muted: false,
+  var connectedRef = firebase.database().ref(".info/connected");
+  connectedRef.on("value", function (snap) {
+    if (snap.val() === true) {
+      userRef.update({
+        connected: true,
+        displayName: displayName,
+        muted: false,
+      });
+      userRef.onDisconnect().update({
+        connected: false,
+      });
+    }
   });
-  userRef.onDisconnect().update({
-    connected: false,
-  });
+
   firebase
     .database()
     .ref(`/play/${boardId}`)
