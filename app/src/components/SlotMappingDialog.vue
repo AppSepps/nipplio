@@ -126,7 +126,6 @@ export default {
                 boardId: this.selectedBoard.id,
                 selectedSounds: this.selectedSounds,
             })
-            this.selectedSounds = {}
         },
     },
 }
