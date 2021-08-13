@@ -11,9 +11,9 @@
                     {{ soundName }}
                 </div>
                 <div v-if="playedBy" class="text-caption">
-                    {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> [{{
+                    {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> ({{
                         soundDate
-                    }}]
+                    }})
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@ export default {
             soundDate: state => {
                 if (state.player.playedSound) {
                     return moment(state.player.playedSound.timestamp).format(
-                        'LTS'
+                        'hh:mm:ss'
                     )
                 }
                 return moment().format('LTS')
