@@ -22,6 +22,7 @@ module.exports = {
                     category: 'public.app-category.entertainment',
                 },
                 win: {
+                    verifyUpdateCodeSignature: false,
                     icon: 'src/assets/icon.ico',
                 },
             },
