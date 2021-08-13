@@ -1,64 +1,100 @@
 <template>
     <div>
         <q-page class="flex flex-center">
-            <div class="">
-                <img class="center" src="assets/icon.png" />
-                <p class="text-body1">
-                    Welcome to Nipplio. The best Software ever written!
-                </p>
-                <q-btn
-                    @click="onSignInClicked"
-                    color="primary"
-                    class="full-width"
-                    label="Login"
-                    icon="login"
-                    push
-                >
-                </q-btn>
+            <div v-if="showCloseButton">
+                <p>You can now close this window</p>
             </div>
+            <div v-if="showLoading">
+                <q-spinner color="primary" size="3em" />
+            </div>
+            <section id="firebaseui-auth-container"></section>
         </q-page>
-
-        <button @click="onSignInClicked">Sign in externally</button>
     </div>
 </template>
 
 <script>
 import firebase from 'firebase'
-import router from '../router'
-import { sendToIPCRenderer } from '../helpers/electron.helper'
-import { v4 as uuidv4 } from 'uuid'
+import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 
 export default {
-    name: 'Login',
+    name: 'SignInDesktop',
+    data() {
+        return {
+            showCloseButton: false,
+            showLoading: true,
+        }
+    },
     components: {},
+    mounted() {
+        var that = this
+        this.ui =
+            firebaseui.auth.AuthUI.getInstance() ||
+            new firebaseui.auth.AuthUI(firebase.auth())
+        const uiConfig = {
+            signInSuccessUrl: '/',
+            signInOptions: [
+                {
+                    provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                    customParameters: {
+                        // Forces account selection even when one account
+                        // is available.
+                        prompt: 'select_account',
+                    },
+                },
+            ],
+            callbacks: {
+                signInSuccessWithAuthResult: function (
+                    authResult,
+                    redirectUrl
+                ) {
+                    // If a user signed in with email link, ?showPromo=1234 can be obtained from
+                    // window.location.href.
+                    // ...
+                    console.log('Grabbed the user', authResult.user)
+                    that.showLoading = true
+                    console.log(authResult)
+                    console.log(redirectUrl)
+
+                    if (!authResult.user) {
+                        return true
+                    }
+                    that.callCreateAuthToken(authResult)
+
+                    return false
+                },
+                uiShown: function () {
+                    that.showLoading = false
+                },
+            },
+        }
+        this.ui.start('#firebaseui-auth-container', uiConfig)
+    },
     methods: {
-        onSignInClicked() {
-            const id = uuidv4()
-            console.log('onSignInClicked', id)
-            const oneTimeCodeRef = firebase
-                .database()
-                .ref(`ot-auth-codes/${id}`)
+        closeWindow: () => {
+            window.close()
+        },
+        callCreateAuthToken: async function (authResult) {
+            const params = new URLSearchParams(window.location.search)
 
-            oneTimeCodeRef.on('value', async (snapshot) => {
-                const authToken = snapshot.val()
-                console.log('authToken', authToken)
-                if (authToken) {
-                    await firebase.auth().signInWithCustomToken(authToken)
-                    await oneTimeCodeRef.remove()
-                    router.push('/')
-                }
-            })
-            const googleLink = `${window.location.origin}/desktop-sign-in?ot-auth-code=${id}`
-            console.log(googleLink)
+            const token = await authResult.user.getIdToken()
+            console.log('token', token)
+            const code = params.get('ot-auth-code')
+            console.log('code', code)
 
-            sendToIPCRenderer('openExternalBrowser', googleLink, (error) => {
-                window.open(googleLink, '_blank')
-                console.log(error)
+            const addUserByInvite = firebase
+                .functions()
+                .httpsCallable('createAuthToken')
+            const result = await addUserByInvite({
+                'ot-auth-code': code,
+                'id-token': token,
             })
+            console.log('result', result)
+            this.showCloseButton = true
+            this.showLoading = false
+            window.close()
         },
     },
-    mounted() {},
 }
 </script>
 

@@ -6,6 +6,7 @@ function initialState() {
         playedSound: undefined,
         recentlyPlayed: [],
         volume: 50,
+        isSoundLoading: false,
     }
 }
 
@@ -21,13 +22,13 @@ const actions = {
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
         dispatch('playRemoteSound', { id: randomSound.id, random: true })
     },
-    subscribeToRemotePlayer({rootState, rootGetters, dispatch}) {
+    subscribeToRemotePlayer({ rootState, rootGetters, dispatch }) {
         const { user } = rootState.user
         const playRef = firebase.database().ref('/remotePlay/' + user.uid)
 
-        playRef.on('child_changed', async (snapshot) => { 
-            const slotId = snapshot.val()["slotId"]
-            const id = rootGetters['sound/filteredSounds'][slotId-1].id
+        playRef.on('child_changed', async (snapshot) => {
+            const slotId = snapshot.val()['slotId']
+            const id = rootGetters['sound/filteredSounds'][slotId - 1].id
             dispatch('player/playRemoteSound', { id }, { root: true })
         })
     },
@@ -55,7 +56,7 @@ const actions = {
             const skipByRemote =
                 play.mutedUsers && play.mutedUsers.includes(user.uid)
             const skip = skipByRemote || rootGetters['user/selfMute']
-            if (skip) return;
+            if (skip) return
 
             const playedSound = {
                 ...play,
@@ -77,10 +78,11 @@ const actions = {
             })
         })
     },
-    async playRemoteSound({ rootState }, params) {
+    async playRemoteSound({ dispatch, rootState }, params) {
         const { user, mutedUsers } = rootState.user
         const { activeBoard } = rootState.board
         const { id, random = false } = params
+        dispatch('toggleSoundLoading', true)
         await firebase
             .database()
             .ref('/play/' + activeBoard.id)
@@ -91,6 +93,9 @@ const actions = {
                 mutedUsers,
                 random,
             })
+    },
+    toggleSoundLoading({ commit }, value) {
+        commit('toggleSoundLoading', value)
     },
     unsubscribeToPlayer({ rootState }) {
         const { activeBoard } = rootState.board
@@ -119,6 +124,9 @@ const mutations = {
     },
     changeVolume(state, { volume }) {
         state.volume = volume
+    },
+    toggleSoundLoading(state, value) {
+        state.isSoundLoading = value
     },
     updatePlayedSound(state, { playedSound }) {
         state.playedSound = playedSound

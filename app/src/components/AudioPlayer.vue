@@ -1,11 +1,11 @@
 <template>
     <q-toolbar class="bg-dark row footer shadow-1 q-py-md">
         <div class="col-auto row">
-            <q-avatar
-                :color="playingColor"
-                text-color="white"
-                :icon="playingIcon"
-            />
+            <q-avatar :color="playingColor">
+                <q-spinner v-if="isSoundLoading" color="white" size="1em" />
+                <q-spinner-audio v-else-if="playing" color="white" size="1em" />
+                <q-icon v-else name="mode_night" />
+            </q-avatar>
             <div class="column q-mx-md">
                 <div class="text-bold audio-player-sound-name">
                     {{ soundName }}
@@ -66,6 +66,7 @@ export default {
     computed: {
         ...mapGetters('user', ['selfMute']),
         ...mapState({
+            isSoundLoading: (state) => state.player.isSoundLoading,
             volume: (state) => state.player.volume / 100,
             soundName: (state) => {
                 if (state.player.playedSound) {
@@ -127,6 +128,7 @@ export default {
                 format: ['mp3'],
                 volume: this.volume,
                 onplay: () => {
+                    this.$store.dispatch('player/toggleSoundLoading', false)
                     this.playing = true
                     this.progressInterval = setInterval(() => {
                         this.updateProgress()
