@@ -1,5 +1,7 @@
 @import './quasar.scss';
 
+::-webkit-scrollbar { width: 0px; }
+
 body.body--dark {
     background: #1c1c1d;
 }
