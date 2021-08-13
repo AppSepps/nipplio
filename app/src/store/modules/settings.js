@@ -140,17 +140,23 @@ const actions = {
             })
         })
     },
-    async unlinkRemoteDevice(context, device) {
+    async unlinkRemoteDevice({ commit }, device) {
         console.log(device)
+        commit('setRemoteDeviceLoadingStatus', { device, isLoading: true })
         const idToken = await firebase.auth().currentUser.getIdToken()
         const url =
-            'http://' + device.ipAddress + '/unpairDevice?id-token=' + idToken
-        await axios.get(url)
-        const user = firebase.auth().currentUser
-        await firebase
-            .database()
-            .ref(`/users/${user.uid}/remoteDevices/${device.id}`)
-            .remove()
+            'http://' + device.ipAddress + '/unpairDevice?idToken=' + idToken
+        try {
+            await axios.get(url)
+            const user = firebase.auth().currentUser
+            await firebase
+                .database()
+                .ref(`/users/${user.uid}/remoteDevices/${device.id}`)
+                .remove()
+        } catch (error) {
+            console.log(error)
+        }
+        commit('setRemoteDeviceLoadingStatus', { device, isLoading: false })
     },
 }
 
@@ -177,6 +183,13 @@ const mutations = {
         state.remoteDevices = state.remoteDevices.filter(
             device => device.id !== id
         )
+    },
+    setRemoteDeviceLoadingStatus(state, { device, isLoading }) {
+        state.remoteDevices.forEach(remoteDevice => {
+            if (device.id === remoteDevice.id) {
+                remoteDevice.loading = isLoading
+            }
+        })
     },
     setDeviceLoading(state, ipAddress) {
         state.discoveredDevices.forEach(device => {
