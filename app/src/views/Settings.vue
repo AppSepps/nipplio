@@ -34,6 +34,7 @@
                             :key="index"
                             :device="device"
                             :linked="true"
+                            v-on:openDialog="openSlotMappingDialog()"
                         />
                         <q-item-label header
                             >Discovered Devices -
@@ -82,6 +83,9 @@ export default {
         ...mapGetters('settings', ['filteredDiscoveredDevices']),
     },
     methods: {
+        openSlotMappingDialog: function () {
+            this.$emit('openSlotMappingDialog')
+        },
         signOut: async function () {
             await firebase.auth().signOut()
             this.$store.dispatch('player/unsubscribeToPlayer')

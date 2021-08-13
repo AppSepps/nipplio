@@ -40,7 +40,7 @@
                     round
                     icon="settings_applications"
                     color="white"
-                    @click="onChangeSlotMappingClicked(device.id)"
+                    @click="onChangeSlotMappingClicked(device)"
                 >
                     <q-tooltip class="bg-grey-9" :delay="500" :offset="[0, 10]"
                         >Configure Slots</q-tooltip
@@ -73,6 +73,10 @@ export default {
         },
         onUnlinkDeviceClicked: function (ipAddress) {
             this.$store.dispatch('settings/unlinkRemoteDevice', ipAddress)
+        },
+        onChangeSlotMappingClicked: function (device) {
+            this.$emit('openDialog')
+            this.bus.emit('onChangeSlotMapping', device)
         },
     },
 }

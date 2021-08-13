@@ -5,6 +5,7 @@ function initialState() {
     return {
         remoteDevices: [],
         discoveredDevices: [],
+        availableSlotSounds: [],
     }
 }
 

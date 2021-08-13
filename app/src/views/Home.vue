@@ -68,7 +68,10 @@
         <q-footer v-if="activeBoard">
             <audio-player />
         </q-footer>
-        <settings v-model="showSettingsModal" />
+        <settings
+            v-model="showSettingsModal"
+            v-on:openSlotMappingDialog="showSlotMappingDialog = true"
+        />
         <add-board-dialog
             v-model="showAddBoardDialog"
             v-on:closeDialog="showAddBoardDialog = false"
@@ -77,6 +80,7 @@
         <remove-sound-dialog v-model="showRemoveSoundDialog" />
         <edit-sound-dialog v-model="showEditSoundDialog" />
         <sound-info-dialog v-model="showSoundInfoDialog" />
+        <slot-mapping-dialog v-model="showSlotMappingDialog" />
     </q-layout>
 </template>
 
@@ -96,6 +100,7 @@ import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
 import ManageBoardButton from '../components/ManageBoardButton.vue'
 import UserDrawer from '../components/UserDrawer.vue'
+import SlotMappingDialog from '../components/SlotMappingDialog.vue'
 
 export default {
     name: 'Home',
@@ -114,6 +119,7 @@ export default {
         SoundInfoDialog,
         ManageBoardButton,
         UserDrawer,
+        SlotMappingDialog,
     },
     data() {
         return {
@@ -123,6 +129,7 @@ export default {
             showRemoveSoundDialog: false,
             showEditSoundDialog: false,
             showSoundInfoDialog: false,
+            showSlotMappingDialog: false,
         }
     },
     computed: {
