@@ -70,23 +70,23 @@
 <script>
 import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import RemoteDevice from '../components/RemoteDevice.vue'
 
 export default {
     name: 'Settings',
     components: { RemoteDevice },
     computed: {
-        ...mapState({
-            remoteDevices: (state) => state.settings.remoteDevices,
-        }),
-        ...mapGetters('settings', ['filteredDiscoveredDevices']),
+        ...mapGetters('settings', [
+            'filteredDiscoveredDevices',
+            'remoteDevices',
+        ]),
     },
     methods: {
-        openSlotMappingDialog: function () {
+        openSlotMappingDialog: function() {
             this.$emit('openSlotMappingDialog')
         },
-        signOut: async function () {
+        signOut: async function() {
             await firebase.auth().signOut()
             this.$store.dispatch('player/unsubscribeToPlayer')
             this.$store.dispatch('clearAll')

@@ -10,10 +10,24 @@ function initialState() {
 }
 
 const getters = {
-    filteredDiscoveredDevices: (state) =>
-        state.discoveredDevices.filter((dd) => {
+    remoteDevices: function(state) {
+        return state.remoteDevices.map(remoteDevice => {
+            let ipAddress
+            state.discoveredDevices.forEach(discoveredDevice => {
+                if (discoveredDevice.name === remoteDevice.id) {
+                    ipAddress = discoveredDevice.addresses[0]
+                }
+            })
+            return {
+                ...remoteDevice,
+                ipAddress,
+            }
+        })
+    },
+    filteredDiscoveredDevices: state =>
+        state.discoveredDevices.filter(dd => {
             const remoteDevices = state.remoteDevices.filter(
-                (rd) => rd.id === dd.name
+                rd => rd.id === dd.name
             )
             return remoteDevices.length === 0
         }),
@@ -22,7 +36,7 @@ const getters = {
 const actions = {
     async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
         const url = 'http://' + ipAddress + '/setSlotSoundMapping'
-        const soundsIdsArray = rootState.sound.sounds.map((sound) => sound.id)
+        const soundsIdsArray = rootState.sound.sounds.map(sound => sound.id)
         await axios.post(url, soundsIdsArray.slice(0, 5))
         await dispatch('getDeviceConfig', ipAddress)
     },
@@ -59,7 +73,7 @@ const actions = {
     async discoveredNipplioDevice({ dispatch, commit, state }, device) {
         if (device) {
             const discoveredDevice = state.discoveredDevices.filter(
-                (d) => d.addresses[0] === device.addresses[0]
+                d => d.addresses[0] === device.addresses[0]
             )[0]
             if (!discoveredDevice) {
                 commit('addDiscoveredDevice', { device })
@@ -75,28 +89,37 @@ const actions = {
             .database()
             .ref(`/users/${user.uid}/remoteDevices`)
 
-        deviceRef.on('child_added', (snapshot) => {
+        deviceRef.on('child_added', snapshot => {
             commit('addRemoteDevice', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        deviceRef.on('child_changed', (snapshot) => {
+        deviceRef.on('child_changed', snapshot => {
             commit('changeRemoteDevice', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        deviceRef.on('child_removed', (snapshot) => {
+        deviceRef.on('child_removed', snapshot => {
             commit('removeRemoteDevice', {
                 id: snapshot.key,
             })
         })
     },
-    unlinkRemoteDevice(context, id) {
-        console.log(id)
+    async unlinkRemoteDevice(context, device) {
+        console.log(device)
+        const idToken = await firebase.auth().currentUser.getIdToken()
+        const url =
+            'http://' + device.ipAddress + '/unpairDevice?id-token=' + idToken
+        await axios.get(url)
+        const user = firebase.auth().currentUser
+        await firebase
+            .database()
+            .ref(`/users/${user.uid}/remoteDevices/${device.id}`)
+            .remove()
     },
 }
 
@@ -105,24 +128,24 @@ const mutations = {
         state.remoteDevices.push(device)
     },
     changeRemoteDevice(state, device) {
-        state.remoteDevices = state.remoteDevices.map((d) => {
+        state.remoteDevices = state.remoteDevices.map(d => {
             return d.id === device.id ? device : d
         })
     },
     removeRemoteDevice(state, { id }) {
         state.remoteDevices = state.remoteDevices.filter(
-            (device) => device.id !== id
+            device => device.id !== id
         )
     },
     setDeviceLoading(state, ipAddress) {
-        state.discoveredDevices.forEach((device) => {
+        state.discoveredDevices.forEach(device => {
             if (device.addresses.includes(ipAddress)) {
                 device.loading = true
             }
         })
     },
     setDeviceFinishedLoading(state, ipAddress) {
-        state.discoveredDevices.forEach((device) => {
+        state.discoveredDevices.forEach(device => {
             if (device.addresses.includes(ipAddress)) {
                 device.loading = false
             }
@@ -133,7 +156,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

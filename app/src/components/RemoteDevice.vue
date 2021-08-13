@@ -52,7 +52,7 @@
                     round
                     icon="link_off"
                     color="secondary"
-                    @click="onUnlinkDeviceClicked(device.id)"
+                    @click="onUnlinkDeviceClicked(device)"
                 >
                     <q-tooltip class="bg-grey-9" :delay="500" :offset="[0, 10]"
                         >Unlink device</q-tooltip
@@ -68,13 +68,13 @@ export default {
     name: 'RemoteDevice',
     props: ['device', 'linked'],
     methods: {
-        onAddDeviceClicked: function (ipAddress) {
+        onAddDeviceClicked: function(ipAddress) {
             this.$store.dispatch('settings/registerRemoteDevice', ipAddress)
         },
-        onUnlinkDeviceClicked: function (ipAddress) {
-            this.$store.dispatch('settings/unlinkRemoteDevice', ipAddress)
+        onUnlinkDeviceClicked: function(device) {
+            this.$store.dispatch('settings/unlinkRemoteDevice', device)
         },
-        onChangeSlotMappingClicked: function (device) {
+        onChangeSlotMappingClicked: function(device) {
             this.$emit('openDialog')
             this.bus.emit('onChangeSlotMapping', device)
         },
