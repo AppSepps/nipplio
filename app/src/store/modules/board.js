@@ -10,7 +10,7 @@ function initialState() {
 }
 
 const getters = {
-    sortedBoards: (state) =>
+    sortedBoards: state =>
         state.boards.sort(
             (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()) // TODO: Write activeBoard to position 0
         ),
@@ -26,15 +26,13 @@ const actions = {
             }
         }
     },
-    registerShortcuts({ rootState, commit, dispatch, rootGetters }) {
-        hotkeys('*', async function (event) {
+    registerShortcuts({ dispatch, rootGetters }, focusCallback) {
+        hotkeys('*', async function(event) {
             if (event.key.match(/^[1-9]$/)) {
                 const id = rootGetters['sound/filteredSounds'][event.key - 1].id
                 dispatch('player/playRemoteSound', { id }, { root: true })
-            } else if(event.key.match(/^[a-zA-Z]$/)){
-                // Set the focues of the search field and append the entered text in the searchfield state property
-                // TODO: focus the search field
-                commit('sound/setSearchText', rootState.sound.searchText.concat(event.key), { root: true})
+            } else if (event.key.match(/^[a-zA-Z]$/)) {
+                focusCallback()
             }
         })
     },
@@ -48,11 +46,11 @@ const actions = {
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', (snapshot) => {
+        boardsRef.on('child_added', snapshot => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
+                .on('value', snapshot => {
                     commit('addBoard', {
                         id: snapshot.key,
                         ...snapshot.val(),
@@ -95,7 +93,7 @@ const actions = {
     selectBoard({ commit, state, dispatch }, params) {
         const { boards } = state
         const { id } = params
-        const activeBoard = boards.filter((board) => board.id === id)[0]
+        const activeBoard = boards.filter(board => board.id === id)[0]
 
         if (!activeBoard) return
 
@@ -121,7 +119,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

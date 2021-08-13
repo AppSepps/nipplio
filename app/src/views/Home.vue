@@ -11,7 +11,7 @@
                 />
 
                 <q-space />
-                <search-bar v-if="activeBoard" />
+                <search-bar ref="searchBar" v-if="activeBoard" />
                 <q-space />
                 <manage-board-button
                     v-if="activeBoard && user && activeBoard.owner === user.uid"
@@ -46,7 +46,7 @@
                                 :index="index + 1"
                                 :user="
                                     boardUsers.filter(
-                                        (u) => u.id === sound.createdBy
+                                        u => u.id === sound.createdBy
                                     )[0]
                                 "
                                 v-on:openRemoveDialog="
@@ -128,14 +128,18 @@ export default {
     computed: {
         ...mapGetters('sound', ['filteredSounds']),
         ...mapState({
-            activeBoard: (state) => state.board.activeBoard,
-            boardUsers: (state) => state.user.boardUsers,
-            sounds: (state) => state.sound.sounds,
-            user: (state) => state.user.user,
+            activeBoard: state => state.board.activeBoard,
+            boardUsers: state => state.user.boardUsers,
+            sounds: state => state.sound.sounds,
+            user: state => state.user.user,
         }),
     },
     async mounted() {
-        this.$store.dispatch('board/registerShortcuts')
+        const that = this
+        this.$store.dispatch('board/registerShortcuts', function() {
+            console.log('should focus')
+            that.$refs.searchBar.focus()
+        })
         await this.$store.dispatch('board/checkForInviteLinkInUrl')
         await this.$store.dispatch('board/getBoards')
         await this.$store.dispatch('user/getUser')
