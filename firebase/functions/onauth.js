@@ -52,6 +52,16 @@ exports.createAndReturnAuthToken = functions.https.onCall(
   }
 );
 
+exports.getUserIdForIdToken = functions.https.onRequest(async (req, res) => {
+  const idToken = req.params["id-token"];
+
+  const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+  const uid = decodedToken.uid;
+
+  res.send(uid);
+});
+
 exports.loginOnHeadlessWithIdToken = functions.https.onCall(
   async (data, request) => {
     const boardId = data["boardId"];
