@@ -53,7 +53,7 @@ exports.createAndReturnAuthToken = functions.https.onCall(
 );
 
 exports.getUserIdForIdToken = functions.https.onRequest(async (req, res) => {
-  const idToken = req.params["id-token"];
+  const idToken = req.params["idToken"];
 
   const decodedToken = await admin.auth().verifyIdToken(idToken);
 

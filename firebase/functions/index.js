@@ -17,3 +17,4 @@ exports.loginOnHeadlessWithIdToken = onauth.loginOnHeadlessWithIdToken;
 exports.createAndReturnAuthToken = onauth.createAndReturnAuthToken;
 exports.createBoard = board.createBoard;
 exports.addUserByInvite = invite.addUserByInvite;
+exports.getUserIdForIdToken = onauth.getUserIdForIdToken;
