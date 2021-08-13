@@ -31,8 +31,8 @@
                             class="col-7"
                             filled
                             dense
-                            v-model="selectedBoard"
-                            :options="sortedBoards"
+                            v-model="selectedSounds[index]"
+                            :options="sounds"
                             option-value="id"
                             option-label="name"
                             label="Sound"
@@ -42,7 +42,13 @@
                 </div>
             </q-card-section>
             <q-card-actions align="right">
-                <q-btn no-caps label="Save" color="primary" v-close-popup />
+                <q-btn
+                    no-caps
+                    label="Save"
+                    color="primary"
+                    @click="onSave"
+                    v-close-popup
+                />
             </q-card-actions>
         </q-card>
     </q-dialog>
@@ -57,11 +63,24 @@ export default {
         return {
             device: undefined,
             selectedBoard: null,
+            selectedSounds: {},
         }
     },
     computed: {
         ...mapGetters('board', ['sortedBoards']),
-        ...mapState({}),
+        ...mapState({
+            sounds: (state) => state.settings.availableSlotSounds,
+        }),
+    },
+    watch: {
+        selectedBoard(val, old) {
+            if (!old || val.id !== old.id) {
+                this.$store.dispatch('settings/getAvailableSlotSounds', {
+                    boardId: val.id,
+                })
+                this.selectedSounds = {}
+            }
+        },
     },
     mounted() {
         this.selectedBoard = this.$store.state.board.activeBoard
@@ -73,6 +92,16 @@ export default {
         this.bus.on('onChangeSlotMapping', (device) => {
             this.device = device
         })
+    },
+    methods: {
+        onSave: function () {
+            this.$store.dispatch('settings/saveSlotMapping', {
+                device: this.device,
+                boardId: this.selectedBoard.id,
+                selectedSounds: this.selectedSounds,
+            })
+            this.selectedSounds = {}
+        },
     },
 }
 </script>

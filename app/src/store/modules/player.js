@@ -22,16 +22,28 @@ const actions = {
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
         dispatch('playRemoteSound', { id: randomSound.id, random: true })
     },
-    subscribeToRemotePlayer({ rootState, rootGetters, dispatch }) {
-        const { user } = rootState.user
-        const playRef = firebase.database().ref('/remotePlay/' + user.uid)
+    subscribeToRemotePlayer({ rootState, dispatch }) {
+        const remotePlayRef = firebase
+            .database()
+            .ref('/remotePlay/' + firebase.auth().currentUser.uid)
 
-        playRef.on('child_changed', async snapshot => {
-            const slotId = snapshot.val()['slotId']
-            const id = rootGetters['sound/filteredSounds'][slotId - 1].id
+        remotePlayRef.on('child_changed', (snapshot) => {
+            const { activeBoard } = rootState.board
+            const { remoteDevices } = rootState.settings
+
+            const device = remoteDevices.filter(
+                (device) => device.id === snapshot.key
+            )[0]
+            if (!device && !activeBoard) return
+
+            const soundId =
+                device[activeBoard.id].slots[snapshot.val()['slotId']]
+
+            if (!soundId) return
+
             dispatch(
                 'player/playRemoteSound',
-                { id, source: 'hardware' },
+                { id: soundId, source: 'hardware' },
                 { root: true }
             )
         })
@@ -46,7 +58,7 @@ const actions = {
 
         const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
-        playRef.on('value', async snapshot => {
+        playRef.on('value', async (snapshot) => {
             if (skipInitial) {
                 skipInitial = false
                 return
@@ -71,10 +83,10 @@ const actions = {
             commit('updatePlayedSound', { playedSound })
 
             const sound = rootState.sound.sounds.filter(
-                sound => sound.id === play.soundId
+                (sound) => sound.id === play.soundId
             )[0]
             const playedByUser = boardUsers.filter(
-                user => user.id === play.playedBy
+                (user) => user.id === play.playedBy
             )[0]
             commit('addRecentlyPlayed', {
                 sound: sound,
@@ -90,7 +102,9 @@ const actions = {
             source = window.ipcRenderer !== undefined ? 'desktop' : 'web',
             random = false,
         } = params
-        dispatch('toggleSoundLoading', true)
+        if (!mutedUsers.includes(user.uid)) {
+            dispatch('toggleSoundLoading', true)
+        }
         await firebase
             .database()
             .ref('/play/' + activeBoard.id)
@@ -142,7 +156,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach(key => {
+        Object.keys(s).forEach((key) => {
             state[key] = s[key]
         })
     },
