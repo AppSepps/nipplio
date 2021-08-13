@@ -146,16 +146,15 @@ async function start() {
   var connectedRef = firebase.database().ref(".info/connected");
   connectedRef.on("value", function (snap) {
     if (snap.val() === true) {
+      userRef.update({
+        connected: true,
+        displayName: displayName,
+        muted: false,
+      });
       userRef.onDisconnect().update({
         connected: false,
       });
     }
-  });
-
-  await userRef.update({
-    connected: true,
-    displayName: displayName,
-    muted: false,
   });
 
   firebase
