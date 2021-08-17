@@ -27,12 +27,12 @@ const actions = {
             .database()
             .ref('/remotePlay/' + firebase.auth().currentUser.uid)
 
-        remotePlayRef.on('child_changed', (snapshot) => {
+        remotePlayRef.on('child_changed', snapshot => {
             const { activeBoard } = rootState.board
             const { remoteDevices } = rootState.settings
 
             const device = remoteDevices.filter(
-                (device) => device.id === snapshot.key
+                device => device.id === snapshot.key
             )[0]
             if (!device && !activeBoard) return
 
@@ -58,7 +58,7 @@ const actions = {
 
         const playRef = firebase.database().ref('/play/' + activeBoard.id)
 
-        playRef.on('value', async (snapshot) => {
+        playRef.on('value', async snapshot => {
             if (skipInitial) {
                 skipInitial = false
                 return
@@ -72,7 +72,6 @@ const actions = {
             const skipByRemote =
                 play.mutedUsers && play.mutedUsers.includes(user.uid)
             const skip = skipByRemote || rootGetters['user/selfMute']
-            if (skip) return
 
             const playedSound = {
                 ...play,
@@ -83,10 +82,10 @@ const actions = {
             commit('updatePlayedSound', { playedSound })
 
             const sound = rootState.sound.sounds.filter(
-                (sound) => sound.id === play.soundId
+                sound => sound.id === play.soundId
             )[0]
             const playedByUser = boardUsers.filter(
-                (user) => user.id === play.playedBy
+                user => user.id === play.playedBy
             )[0]
             commit('addRecentlyPlayed', {
                 sound: sound,
@@ -156,7 +155,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },
