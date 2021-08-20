@@ -58,6 +58,13 @@
                 <q-btn
                     no-caps
                     unelevated
+                    color="primary"
+                    label="Pair Bluetooth Board"
+                    @click="bleButtonScanClicked"
+                />
+                <q-btn
+                    no-caps
+                    unelevated
                     color="negative"
                     label="Sign out"
                     @click="signOut"
@@ -70,7 +77,7 @@
 <script>
 import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import RemoteDevice from '../components/RemoteDevice.vue'
 
 export default {
@@ -83,6 +90,7 @@ export default {
         ]),
     },
     methods: {
+        ...mapActions('settings', ['bleButtonScanClicked']),
         openSlotMappingDialog: function() {
             this.$emit('openSlotMappingDialog')
         },
@@ -93,8 +101,9 @@ export default {
             this.$router.push('/welcome')
         },
     },
-    mounted() {
+    async mounted() {
         sendToIPCRenderer('startScanForDevices')
+        await this.$store.dispatch('settings/autoConnect')
     },
     unmounted() {
         sendToIPCRenderer('stopScanForDevices')

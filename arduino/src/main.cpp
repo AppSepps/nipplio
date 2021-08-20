@@ -27,6 +27,8 @@ int buttonState6 = 1;
 
 int buttonMode = 0;
 
+#define NIPPLIO_MODE_BLE
+
 void setup()
 {
   Serial.begin(115200);

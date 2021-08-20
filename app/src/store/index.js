@@ -15,6 +15,7 @@ const persistedAppState = createPersistedState({
         'user.mutedUsers',
         'user.speaker',
         'user.user',
+        'settings.bluetoothDevice',
     ],
 })
 

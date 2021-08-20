@@ -33,6 +33,7 @@ let win = null
 const bonjourInstance = new bonjour()
 var bonjourService
 
+app.commandLine.appendSwitch('enable-web-bluetooth', true)
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } },
@@ -43,7 +44,7 @@ const createTray = () => {
     let icon
 
     if (platform === 'darwin' || platform === 'linux') {
-        icon = path.join(__static, 'assets', '/trayUnmuteTemplate.png')
+        icon = path.join(__static, 'assets', '/icon_tray.png')
     } else if (platform === 'win32') {
         icon = path.join(__static, 'assets', '/icon.ico')
     }
@@ -70,7 +71,7 @@ const createTray = () => {
         },
         {
             label: `Version: ${app.getVersion()}`,
-            enabled: false
+            enabled: false,
         },
     ])
 
@@ -126,6 +127,19 @@ async function createWindow() {
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
     win.setAlwaysOnTop(true, 'floating')
 
+    win.webContents.on(
+        'select-bluetooth-device',
+        (event, deviceList, callback) => {
+            event.preventDefault()
+            console.log('Device list:', deviceList)
+            let result = deviceList[0]
+            if (!result) {
+                callback('')
+            } else {
+                callback(result.deviceId)
+            }
+        }
+    )
     win.on('close', e => {
         console.log(win.getBounds())
         windowBounds = win.getBounds()
@@ -160,7 +174,7 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) { }
+    } catch (error) {}
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
@@ -198,7 +212,7 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function (
+        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function(
             service
         ) {
             console.log('Found an Nipplio server:', service)

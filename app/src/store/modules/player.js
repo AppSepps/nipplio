@@ -22,31 +22,35 @@ const actions = {
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
         dispatch('playRemoteSound', { id: randomSound.id, random: true })
     },
-    subscribeToRemotePlayer({ rootState, dispatch }) {
+    subscribeToRemotePlayer({ dispatch }) {
         const remotePlayRef = firebase
             .database()
             .ref('/remotePlay/' + firebase.auth().currentUser.uid)
 
         remotePlayRef.on('child_changed', snapshot => {
-            const { activeBoard } = rootState.board
-            const { remoteDevices } = rootState.settings
-
-            const device = remoteDevices.filter(
-                device => device.id === snapshot.key
-            )[0]
-            if (!device && !activeBoard) return
-
-            const soundId =
-                device[activeBoard.id].slots[snapshot.val()['slotId']]
-
-            if (!soundId) return
-
             dispatch(
-                'player/playRemoteSound',
-                { id: soundId, source: 'hardware' },
+                'player/triggerRemotePlaySound',
+                { deviceId: snapshot.key, slotId: snapshot.val()['slotId'] },
                 { root: true }
             )
         })
+    },
+    triggerRemotePlaySound({ rootState, dispatch }, params) {
+        const { activeBoard } = rootState.board
+        const { remoteDevices } = rootState.settings
+        const device = remoteDevices.filter(
+            device => device.id === params.deviceId
+        )[0]
+        if (!device && !activeBoard) return
+        const soundId = device[activeBoard.id].slots[params.slotId]
+
+        if (!soundId) return
+
+        dispatch(
+            'player/playRemoteSound',
+            { id: soundId, source: 'hardware' },
+            { root: true }
+        )
     },
     subscribeToPlayer({ rootState, rootGetters, commit }, params) {
         const { user, boardUsers } = rootState.user

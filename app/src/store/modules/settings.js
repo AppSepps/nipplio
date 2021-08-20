@@ -6,6 +6,7 @@ function initialState() {
         availableSlotSounds: [],
         discoveredDevices: [],
         remoteDevices: [],
+        bluetoothDevice: null,
     }
 }
 
@@ -34,6 +35,96 @@ const getters = {
 }
 
 const actions = {
+    async bleButtonScanClicked({ dispatch }) {
+        try {
+            console.log('Requesting any Bluetooth Device...')
+            this.bluetoothDevice = await navigator.bluetooth.requestDevice({
+                // filters: [...] <- Prefer filters to save energy & show relevant devices.
+                filters: [
+                    { services: ['b06396cd-dfc3-495e-b33e-4a4c3b86389d'] },
+                ],
+            })
+            //commit('setBluetoothDevice', bluetoothDevice)
+            dispatch('autoConnect')
+            //connect()
+        } catch (error) {
+            console.log('Argh! ' + error)
+        }
+    },
+    async autoConnect({ dispatch }) {
+        //const devices = await navigator.bluetooth.getDevices()
+        //console.log(devices)
+        if (this.bluetoothDevice === undefined) {
+            console.log('bluetooth device not found')
+            return
+        }
+        this.bluetoothDevice.addEventListener(
+            'gattserverdisconnected',
+            function onDisconect() {
+                dispatch('onDisconnected')
+            }
+        )
+        console.log('Connecting to GATT Server...')
+        const server = await this.bluetoothDevice.gatt.connect()
+        console.log(server)
+        console.log('Getting Service...')
+        const service = await server.getPrimaryService(
+            'b06396cd-dfc3-495e-b33e-4a4c3b86389d'
+        )
+
+        console.log('Getting Characteristic...')
+        const myCharacteristic = await service.getCharacteristic(
+            '4be2fa7d-5c30-409d-b042-87466d4127d2'
+        )
+
+        const slotCharacteristic = await service.getCharacteristic(
+            'db7612a8-737d-4ca3-8d5f-8a56ce58b7ad'
+        )
+        const slotsRaw = await slotCharacteristic.readValue()
+        const slots = JSON.parse(new TextDecoder().decode(slotsRaw))
+        console.log(slots)
+        // Write Slot mapping to firebase
+        await firebase
+            .database()
+            .ref(
+                `users/${firebase.auth().currentUser.uid}/remoteDevices/${
+                    this.bluetoothDevice.name
+                }/slots`
+            )
+            .set(slots)
+
+        await myCharacteristic.startNotifications()
+
+        console.log('> Notifications started')
+        myCharacteristic.addEventListener(
+            'characteristicvaluechanged',
+            function(event) {
+                dispatch('handleNotifications', event)
+            }
+        )
+    },
+    handleNotifications({ dispatch }, event) {
+        let value = event.target.value
+        console.log(event.currentTarget.service.device.name)
+        console.log(event.currentTarget.service.device.id)
+        // Convert raw data bytes to hex values just for the sake of showing something.
+        // In the "real" world, you'd use data.getUint8, data.getUint16 or even
+        // TextDecoder to process raw data bytes.
+        const slotPressed = value.getUint8(0).toString()
+        console.log(slotPressed)
+        dispatch(
+            'player/triggerRemotePlaySound',
+            {
+                slotId: slotPressed,
+                deviceId: event.currentTarget.service.device.name,
+            },
+            { root: true }
+        )
+    },
+    async triggerRemotePlaySoundBySlotIdAndBoardId() {},
+    async onDisconnect() {
+        console.log('onDisconnect')
+    },
     async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
         const url = 'http://' + ipAddress + '/setSlotSoundMapping'
         const soundsIdsArray = rootState.sound.sounds.map(sound => sound.id)
@@ -161,6 +252,9 @@ const actions = {
 }
 
 const mutations = {
+    setBluetoothDevice(state, bluetoothDevice) {
+        state.bluetoothDevice = bluetoothDevice
+    },
     addAvailableSlotSounds(state, sounds) {
         let availableSounds = []
         for (let [key, value] of Object.entries(sounds)) {
