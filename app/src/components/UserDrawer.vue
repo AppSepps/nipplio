@@ -3,7 +3,7 @@
         side="right"
         show-if-above
         :width="350"
-        :breakpoint="300"
+        :breakpoint="600"
         class="bg-grey-10"
     >
         <q-scroll-area class="fit">
