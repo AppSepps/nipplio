@@ -39,10 +39,11 @@ const actions = {
         try {
             console.log('Requesting any Bluetooth Device...')
             this.bluetoothDevice = await navigator.bluetooth.requestDevice({
+                optionalServices: ['b06396cd-dfc3-495e-b33e-4a4c3b86389d'],
+                filters: [{
+                    namePrefix: 'Nipplio'
+                }]
                 // filters: [...] <- Prefer filters to save energy & show relevant devices.
-                filters: [
-                    { services: ['b06396cd-dfc3-495e-b33e-4a4c3b86389d'] },
-                ],
             })
             //commit('setBluetoothDevice', bluetoothDevice)
             dispatch('autoConnect')
@@ -52,8 +53,11 @@ const actions = {
         }
     },
     async autoConnect({ dispatch }) {
-        //const devices = await navigator.bluetooth.getDevices()
-        //console.log(devices)
+        const devices = await navigator.bluetooth.getDevices()
+        console.log(devices)
+        if(devices !== undefined && devices.length > 0) {
+            this.bluetoothDevice = devices[0]
+        }
         if (this.bluetoothDevice === undefined) {
             console.log('bluetooth device not found')
             return

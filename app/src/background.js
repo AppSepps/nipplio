@@ -33,6 +33,7 @@ let win = null
 const bonjourInstance = new bonjour()
 var bonjourService
 
+app.commandLine.appendSwitch('enable-experimental-web-platform-features')
 app.commandLine.appendSwitch('enable-web-bluetooth', true)
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -118,6 +119,7 @@ async function createWindow() {
         nativeWindowOpen: true,
         autoHideMenuBar: true,
         webPreferences: {
+            experimentalFeatures: true,
             nodeIntegration: true,
             contextIsolation: false,
             allowRunningInsecureContent: true,
