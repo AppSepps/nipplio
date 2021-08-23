@@ -36,7 +36,7 @@
                     playedSound && playedSound.random ? 'purple' : 'primary'
                 "
                 class="q-mx-sm"
-                style="max-width: 350px; margin-top: 7px"
+                style="max-width: 350px;"
             />
             <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
