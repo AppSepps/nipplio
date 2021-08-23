@@ -8,7 +8,16 @@
             </q-avatar>
             <div class="column q-mx-md">
                 <div class="text-bold audio-player-sound-name">
-                    {{ soundName }}<q-btn
+                    {{ soundName }}
+                </div>
+                <div v-if="playedBy" class="text-caption">
+                    {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> ({{
+                        soundDate
+                    }})
+                </div>
+            </div>
+            <div class="column justify-center">
+                <q-btn
                     v-if="soundId !== undefined"
                 unelevated
                 flat
@@ -17,12 +26,6 @@
                 color="red"
                 @click="onFavoriteToggle(soundId)"
             />
-                </div>
-                <div v-if="playedBy" class="text-caption">
-                    {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> ({{
-                        soundDate
-                    }})
-                </div>
             </div>
         </div>
         <div class="col row flex-center">
