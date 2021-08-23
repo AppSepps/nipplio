@@ -8,7 +8,15 @@
             </q-avatar>
             <div class="column q-mx-md">
                 <div class="text-bold audio-player-sound-name">
-                    {{ soundName }}
+                    {{ soundName }}<q-btn
+                    v-if="soundId !== undefined"
+                unelevated
+                flat
+                round
+                :icon="favorite ? 'favorite' : 'favorite_border'"
+                color="red"
+                @click="onFavoriteToggle(soundId)"
+            />
                 </div>
                 <div v-if="playedBy" class="text-caption">
                     {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> ({{
@@ -77,6 +85,27 @@ export default {
                     )[0]
                     if (sound) {
                         return sound.name
+                    }
+                }
+                return 'Crickets are zirping.mp3'
+            },
+            soundId: state => {
+                if (state.player.playedSound) {
+                    const sound = state.sound.sounds.filter(
+                        sound => sound.id === state.player.playedSound.soundId
+                    )[0]
+                    if (sound) {
+                        return sound.id
+                    }
+                }
+            },
+            favorite: state => {
+                if (state.player.playedSound) {
+                    const sound = state.sound.sounds.filter(
+                        sound => sound.id === state.player.playedSound.soundId
+                    )[0]
+                    if (sound) {
+                        return state.sound.favoriteSoundIds.includes(sound.id)
                     }
                 }
                 return 'Crickets are zirping.mp3'
@@ -166,6 +195,9 @@ export default {
         },
     },
     methods: {
+        onFavoriteToggle: async function (id) {
+            await this.$store.dispatch('sound/toggleFavoriteSound', { id })
+        },
         formatSecondsToString(seconds) {
             const date = new Date(0)
             date.setSeconds(seconds) // specify value for SECONDS here
