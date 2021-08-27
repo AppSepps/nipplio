@@ -23,10 +23,11 @@
                         <q-separator spaced />
                     </q-list>
                 </div>
-                <div class="row q-pb-sm">
+                <div v-if="isOwner" class="row q-pb-sm">
                     <q-list class="col-6">
                         <q-item-label header
                             >API Keys
+
                             <q-btn
                                 flat
                                 round
@@ -36,6 +37,16 @@
                         /></q-item-label>
                         <q-item v-for="apiKey in apiKeys" :key="apiKey">
                             <q-item-label>{{ apiKey }}</q-item-label>
+                            <q-btn
+                                color="secondary"
+                                icon="assignment"
+                                @click="copyToClipboard(apiKey)"
+                            />
+                            <q-btn
+                                color="secondary"
+                                icon="delete"
+                                @click="deleteApiKey(apiKey)"
+                            />
                         </q-item>
                         <q-separator spaced />
                     </q-list>
@@ -96,19 +107,28 @@ import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
 import { mapActions, mapGetters } from 'vuex'
 import RemoteDevice from '../components/RemoteDevice.vue'
+import { copyToClipboard } from 'quasar'
 
 export default {
     name: 'Settings',
     components: { RemoteDevice },
+    created() {
+        this.copyToClipboard = copyToClipboard
+    },
     computed: {
         ...mapGetters('settings', [
             'filteredDiscoveredDevices',
+            'isOwner',
             'remoteDevices',
             'apiKeys',
         ]),
     },
     methods: {
-        ...mapActions('settings', ['bleButtonScanClicked', 'addApiKey']),
+        ...mapActions('settings', [
+            'bleButtonScanClicked',
+            'addApiKey',
+            'deleteApiKey',
+        ]),
         openSlotMappingDialog: function() {
             this.$emit('openSlotMappingDialog')
         },

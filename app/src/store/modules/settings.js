@@ -12,6 +12,12 @@ function initialState() {
 }
 
 const getters = {
+    isOwner: function(state, getters, rootState) {
+        return (
+            rootState.board.activeBoard.owner ===
+            firebase.auth().currentUser.uid
+        )
+    },
     apiKeys: function(state, getters, rootState) {
         return rootState.board.apiKeys
     },
@@ -44,6 +50,12 @@ const actions = {
             .database()
             .ref(`/apiKeys/${rootState.board.activeBoard.id}/${uuidv4()}`)
             .set(true)
+    },
+    async deleteApiKey({ rootState }, apiKey) {
+        await firebase
+            .database()
+            .ref(`/apiKeys/${rootState.board.activeBoard.id}/${apiKey}`)
+            .set(null)
     },
     async bleButtonScanClicked({ dispatch }) {
         try {
