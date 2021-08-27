@@ -9,9 +9,9 @@ function initialState() {
 }
 
 const getters = {
-    filteredSounds: (state) =>
-        state.sounds
-            .map((sound) =>
+    filteredSounds: function(state) {
+        const sounds = state.sounds
+            .map(sound =>
                 state.favoriteSoundIds.includes(sound.id)
                     ? { ...sound, favorite: true }
                     : { ...sound, favorite: false }
@@ -20,11 +20,17 @@ const getters = {
                 a.name.toLowerCase().localeCompare(b.name.toLowerCase())
             )
             .sort((a, b) => b.favorite - a.favorite)
-            .filter((sound) =>
+            .filter(sound =>
                 sound.name
                     .toLowerCase()
                     .includes(state.searchText.toLowerCase())
-            ),
+            )
+
+        sounds.forEach((sound, index) => {
+            sound.index = index
+        })
+        return sounds
+    },
 }
 
 const actions = {
@@ -36,7 +42,7 @@ const actions = {
         commit('clearSounds')
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
-        soundsRef.on('child_added', async (snapshot) => {
+        soundsRef.on('child_added', async snapshot => {
             const soundUrl = await firebase
                 .storage()
                 .ref(`boards/${activeBoard.id}/${snapshot.key}`)
@@ -48,7 +54,7 @@ const actions = {
             })
         })
 
-        soundsRef.on('child_changed', async (snapshot) => {
+        soundsRef.on('child_changed', async snapshot => {
             const soundUrl = await firebase
                 .storage()
                 .ref(`boards/${activeBoard.id}/${snapshot.key}`)
@@ -60,7 +66,7 @@ const actions = {
             })
         })
 
-        soundsRef.on('child_removed', (snapshot) => {
+        soundsRef.on('child_removed', snapshot => {
             commit('removeSound', {
                 id: snapshot.key,
             })
@@ -141,21 +147,21 @@ const mutations = {
         state.searchText = text
     },
     changeSound(state, sound) {
-        state.sounds = state.sounds.map((s) => {
+        state.sounds = state.sounds.map(s => {
             return s.id === sound.id ? sound : s
         })
     },
     removeSound(state, { id }) {
-        state.sounds = state.sounds.filter((sound) => sound.id !== id)
+        state.sounds = state.sounds.filter(sound => sound.id !== id)
     },
     toggleFavoriteSound(state, { id }) {
         state.favoriteSoundIds = state.favoriteSoundIds.includes(id)
-            ? state.favoriteSoundIds.filter((i) => i !== id)
+            ? state.favoriteSoundIds.filter(i => i !== id)
             : [...state.favoriteSoundIds, id]
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

@@ -1,39 +1,29 @@
 <template>
-    <q-item clickable class="q-py-md">
-        <q-item-section side>
-            <q-item-label :style="index > 9 ? 'visibility: hidden' : ''">{{
-                getFormattedIndex
-            }}</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
+    <q-tr :props="props">
+        <q-td>
             <q-btn
                 unelevated
                 round
                 icon="play_arrow"
                 color="primary"
-                @click="onSoundPlay(sound.id)"
+                @click="onSoundPlay(props.row.id)"
             />
-        </q-item-section>
-        <q-item-section>
-            <q-item-label>{{ sound.name }}</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-            <q-icon
-                :name="sound.type.includes('video') ? 'videocam' : ''"
-                color="grey"
-            />
-        </q-item-section>
-        <q-item-section avatar>
+        </q-td>
+        <q-td key="name" :props="props">
+            {{ props.row.name }}
+        </q-td>
+        <q-td key="createdAt" :props="props">
+            {{ getFormattedDate(props.row.createdAt) }}
+        </q-td>
+        <q-td auto-width>
             <q-btn
                 unelevated
                 flat
                 round
-                :icon="sound.favorite ? 'favorite' : 'favorite_border'"
+                :icon="props.row.favorite ? 'favorite' : 'favorite_border'"
                 color="red"
-                @click="onFavoriteToggle(sound.id)"
+                @click="onFavoriteToggle(props.row.id)"
             />
-        </q-item-section>
-        <q-item-section avatar>
             <q-btn unelevated flat round icon="more_horiz" color="white">
                 <q-menu>
                     <q-list style="min-width: 100px">
@@ -72,36 +62,47 @@
                     </q-list>
                 </q-menu>
             </q-btn>
-        </q-item-section>
-    </q-item>
+        </q-td>
+    </q-tr>
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
     name: 'Sound',
-    props: ['sound', 'user', 'index'],
-    computed: {
-        getFormattedIndex: function () {
-            return this.index <= 9 ? this.index : '–'
-        },
+    props: ['sound', 'user', 'props'],
+    created() {
+        this.moment = moment
     },
     components: {},
     methods: {
-        onSoundPlay: async function (id) {
+        getFormattedIndex: function(index) {
+            return index <= 9 ? index : '–'
+        },
+        getFormattedDate: function(timestamp) {
+            const createdAtMoment = moment(timestamp)
+            if (moment().diff(createdAtMoment, 'd') > 30) {
+                return createdAtMoment.format('MMM D, YYYY')
+            } else {
+                return createdAtMoment.fromNow()
+            }
+        },
+        onSoundPlay: async function(id) {
             await this.$store.dispatch('player/playRemoteSound', { id })
         },
-        onFavoriteToggle: async function (id) {
+        onFavoriteToggle: async function(id) {
             await this.$store.dispatch('sound/toggleFavoriteSound', { id })
         },
-        onEditClick: async function (sound) {
+        onEditClick: async function(sound) {
             this.$emit('openEditDialog')
             this.bus.emit('onSoundEditClick', sound)
         },
-        onInfoClick: async function (sound, user) {
+        onInfoClick: async function(sound, user) {
             this.$emit('openInfoDialog')
             this.bus.emit('onSoundInfoClick', { sound, user })
         },
-        onRemoveClick: async function (id) {
+        onRemoveClick: async function(id) {
             this.$emit('openRemoveDialog')
             this.bus.emit('onSoundRemoveClick', id)
         },

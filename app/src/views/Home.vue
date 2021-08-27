@@ -34,7 +34,52 @@
                 </div>
                 <div v-else>
                     <div class="q-pr-md">
-                        <q-list dark v-if="sounds && sounds.length > 0">
+                        <q-table
+                            title="Sounds"
+                            virtual-scroll
+                            separator="none"
+                            :rows-per-page-options="[0]"
+                            :rows="filteredSounds"
+                            :columns="columns"
+                            row-key="id"
+                        >
+                            <template v-slot:header="props">
+                                <q-tr :props="props">
+                                    <q-th auto-width />
+                                    <q-th
+                                        v-for="col in props.cols"
+                                        :key="col.name"
+                                        :props="props"
+                                    >
+                                        {{ col.label }}
+                                    </q-th>
+                                    <q-th auto-width />
+                                </q-tr>
+                            </template>
+
+                            <template v-slot:body="props">
+                                <sound
+                                    :key="props.row.id"
+                                    :props="props"
+                                    :sound="props.row"
+                                    :user="
+                                        boardUsers.filter(
+                                            u => u.id === props.row.createdBy
+                                        )[0]
+                                    "
+                                    v-on:openRemoveDialog="
+                                        showRemoveSoundDialog = true
+                                    "
+                                    v-on:openEditDialog="
+                                        showEditSoundDialog = true
+                                    "
+                                    v-on:openInfoDialog="
+                                        showSoundInfoDialog = true
+                                    "
+                                />
+                            </template>
+                        </q-table>
+                        <!--q-list dark v-if="sounds && sounds.length > 0">
                             <q-item-label header class="text-uppercase"
                                 >Sounds -
                                 {{ filteredSounds.length }}</q-item-label
@@ -60,7 +105,7 @@
                                     >No sounds found.</q-item-label
                                 >
                             </q-item>
-                        </q-list>
+                        </q-list-->
                     </div>
                 </div>
             </q-page>
@@ -102,6 +147,24 @@ import ManageBoardButton from '../components/ManageBoardButton.vue'
 import UserDrawer from '../components/UserDrawer.vue'
 import SlotMappingDialog from '../components/SlotMappingDialog.vue'
 
+const columns = [
+    {
+        name: 'name',
+        required: true,
+        label: 'Name',
+        align: 'left',
+        field: row => row.name,
+        sortable: true,
+    },
+    {
+        name: 'createdAt',
+        required: true,
+        label: 'Created at',
+        field: row => row.createdAt,
+        sortable: true,
+    },
+]
+
 export default {
     name: 'Home',
     components: {
@@ -130,6 +193,7 @@ export default {
             showEditSoundDialog: false,
             showSoundInfoDialog: false,
             showSlotMappingDialog: false,
+            columns,
         }
     },
     computed: {
