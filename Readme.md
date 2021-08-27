@@ -1,3 +1,21 @@
+# API Requests
+
+The Nipplio application has the ability to play sounds through an api.
+
+#### URL
+
+`https://us-central1-nipplio.cloudfunctions.net/playApiSound`
+
+#### Request (POST)
+
+```
+{
+    "boardId": "BOARD_ID",
+    "apiKey": "API_KEY",
+    "soundId": "SOUND_ID"
+}
+```
+
 # Firebase Database structure
 
 ```
