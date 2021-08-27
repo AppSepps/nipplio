@@ -1,5 +1,6 @@
 import firebase from 'firebase'
 import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
 
 function initialState() {
     return {
@@ -11,6 +12,9 @@ function initialState() {
 }
 
 const getters = {
+    apiKeys: function(state, getters, rootState) {
+        return rootState.board.apiKeys
+    },
     remoteDevices: function(state) {
         return state.remoteDevices.map(remoteDevice => {
             let ipAddress
@@ -35,14 +39,22 @@ const getters = {
 }
 
 const actions = {
+    async addApiKey({ rootState }) {
+        await firebase
+            .database()
+            .ref(`/apiKeys/${rootState.board.activeBoard.id}/${uuidv4()}`)
+            .set(true)
+    },
     async bleButtonScanClicked({ dispatch }) {
         try {
             console.log('Requesting any Bluetooth Device...')
             this.bluetoothDevice = await navigator.bluetooth.requestDevice({
                 optionalServices: ['b06396cd-dfc3-495e-b33e-4a4c3b86389d'],
-                filters: [{
-                    namePrefix: 'Nipplio'
-                }]
+                filters: [
+                    {
+                        namePrefix: 'Nipplio',
+                    },
+                ],
                 // filters: [...] <- Prefer filters to save energy & show relevant devices.
             })
             //commit('setBluetoothDevice', bluetoothDevice)
@@ -55,7 +67,7 @@ const actions = {
     async autoConnect({ dispatch }) {
         const devices = await navigator.bluetooth.getDevices()
         console.log(devices)
-        if(devices !== undefined && devices.length > 0) {
+        if (devices !== undefined && devices.length > 0) {
             this.bluetoothDevice = devices[0]
         }
         if (this.bluetoothDevice === undefined) {

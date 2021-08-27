@@ -5,12 +5,13 @@ import hotkeys from 'hotkeys-js'
 function initialState() {
     return {
         activeBoard: undefined,
+        apiKeys: [],
         boards: [],
     }
 }
 
 const getters = {
-    sortedBoards: (state) =>
+    sortedBoards: state =>
         state.boards.sort(
             (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()) // TODO: Write activeBoard to position 0
         ),
@@ -27,7 +28,7 @@ const actions = {
         }
     },
     registerShortcuts({ dispatch, rootGetters }, focusCallback) {
-        hotkeys('*', async function (event) {
+        hotkeys('*', async function(event) {
             if (event.key.match(/^[1-9]$/)) {
                 const id = rootGetters['sound/filteredSounds'][event.key - 1].id
                 dispatch('player/playRemoteSound', { id }, { root: true })
@@ -41,16 +42,30 @@ const actions = {
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName })
     },
+    async getApiKeys({ commit, rootState }) {
+        firebase
+            .database()
+            .ref(`/apiKeys/${rootState.board.activeBoard.id}/`)
+            .on('value', snapshot => {
+                let apiKeys = []
+                snapshot.forEach(apiKey => {
+                    console.log(apiKey)
+                    apiKeys.push(apiKey.key)
+                })
+                console.log('setApiKeys', apiKeys)
+                commit('setApiKeys', apiKeys)
+            })
+    },
     async getBoards({ commit }) {
         const boardsRef = firebase
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', (snapshot) => {
+        boardsRef.on('child_added', snapshot => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
+                .on('value', snapshot => {
                     commit('addBoard', {
                         id: snapshot.key,
                         ...snapshot.val(),
@@ -93,7 +108,7 @@ const actions = {
     selectBoard({ commit, state, dispatch }, params) {
         const { boards } = state
         const { id } = params
-        const activeBoard = boards.filter((board) => board.id === id)[0]
+        const activeBoard = boards.filter(board => board.id === id)[0]
 
         if (!activeBoard) return
 
@@ -102,6 +117,7 @@ const actions = {
         dispatch('user/getBoardUsers', null, { root: true })
         dispatch('sound/getSounds', null, { root: true })
         dispatch('player/unsubscribeToPlayer', null, { root: true })
+        dispatch('board/getApiKeys', null, { root: true })
         dispatch(
             'player/subscribeToPlayer',
             { skipInitial: false },
@@ -111,6 +127,9 @@ const actions = {
 }
 
 const mutations = {
+    setApiKeys(state, apiKeys) {
+        state.apiKeys = apiKeys
+    },
     addBoard(state, board) {
         state.boards = [...state.boards, board]
     },
@@ -119,7 +138,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach((key) => {
+        Object.keys(s).forEach(key => {
             state[key] = s[key]
         })
     },

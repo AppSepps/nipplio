@@ -25,6 +25,23 @@
                 </div>
                 <div class="row q-pb-sm">
                     <q-list class="col-6">
+                        <q-item-label header
+                            >API Keys
+                            <q-btn
+                                flat
+                                round
+                                @click="addApiKey"
+                                color="secondary"
+                                icon="add"
+                        /></q-item-label>
+                        <q-item v-for="apiKey in apiKeys" :key="apiKey">
+                            <q-item-label>{{ apiKey }}</q-item-label>
+                        </q-item>
+                        <q-separator spaced />
+                    </q-list>
+                </div>
+                <div class="row q-pb-sm">
+                    <q-list class="col-6">
                         <q-item-label header v-if="remoteDevices.length > 0"
                             >Linked Devices -
                             {{ remoteDevices.length }}</q-item-label
@@ -87,10 +104,11 @@ export default {
         ...mapGetters('settings', [
             'filteredDiscoveredDevices',
             'remoteDevices',
+            'apiKeys',
         ]),
     },
     methods: {
-        ...mapActions('settings', ['bleButtonScanClicked']),
+        ...mapActions('settings', ['bleButtonScanClicked', 'addApiKey']),
         openSlotMappingDialog: function() {
             this.$emit('openSlotMappingDialog')
         },

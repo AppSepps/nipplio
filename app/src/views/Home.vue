@@ -260,6 +260,7 @@ export default {
         await this.$store.dispatch('player/subscribeToPlayer')
         await this.$store.dispatch('player/subscribeToRemotePlayer')
         await this.$store.dispatch('settings/subscribeToRemoteDevices')
+        await this.$store.dispatch('board/getApiKeys')
     },
 }
 </script>

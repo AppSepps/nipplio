@@ -1,6 +1,7 @@
 const onauth = require("./onauth");
 const board = require("./board");
 const invite = require("./invite");
+const api = require("./api");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
@@ -18,3 +19,4 @@ exports.createAndReturnAuthToken = onauth.createAndReturnAuthToken;
 exports.createBoard = board.createBoard;
 exports.addUserByInvite = invite.addUserByInvite;
 exports.getUserIdForIdToken = onauth.getUserIdForIdToken;
+exports.playApiSound = api.playApiSound;

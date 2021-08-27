@@ -19,13 +19,13 @@
             <div class="column justify-center">
                 <q-btn
                     v-if="soundId !== undefined"
-                unelevated
-                flat
-                round
-                :icon="favorite ? 'favorite' : 'favorite_border'"
-                color="red"
-                @click="onFavoriteToggle(soundId)"
-            />
+                    unelevated
+                    flat
+                    round
+                    :icon="favorite ? 'favorite' : 'favorite_border'"
+                    color="red"
+                    @click="onFavoriteToggle(soundId)"
+                />
             </div>
         </div>
         <div class="col row flex-center">
@@ -122,11 +122,20 @@ export default {
                 return moment().format('LTS')
             },
             playedBy: state => {
-                return state.player.playedSound
-                    ? state.user.boardUsers.filter(
-                          u => u.id === state.player.playedSound.playedBy
-                      )[0]
-                    : '*chirp*'
+                if (state.player.playedSound) {
+                    const playerFilter = state.user.boardUsers.filter(
+                        u => u.id === state.player.playedSound.playedBy
+                    )
+                    if (playerFilter.length > 0) {
+                        return playerFilter[0]
+                    } else {
+                        return {
+                            displayName: 'API',
+                        }
+                    }
+                } else {
+                    return { displayName: '*chirp*' }
+                }
             },
             sourceIcon: function(state) {
                 if (!state.player.playedSound) return ''
@@ -198,7 +207,7 @@ export default {
         },
     },
     methods: {
-        onFavoriteToggle: async function (id) {
+        onFavoriteToggle: async function(id) {
             await this.$store.dispatch('sound/toggleFavoriteSound', { id })
         },
         formatSecondsToString(seconds) {

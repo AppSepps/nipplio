@@ -47,6 +47,12 @@
           ".write": "$userId === auth.uid"
         }
       }
+    },
+    "apiKeys": {
+      "$boardId": {
+        ".read": "root.child('boards').child($boardId).child('owner').val() === auth.uid",
+        ".write": "root.child('boards').child($boardId).child('owner').val() === auth.uid"
+      }
     }
   }
 }
