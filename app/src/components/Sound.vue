@@ -11,6 +11,14 @@
         </q-td>
         <q-td key="name" :props="props">
             {{ props.row.name }}
+            <q-chip
+                v-for="tag in getTags(props.row.tags)"
+                :key="tag"
+                size="sm"
+                color="primary"
+            >
+                {{ tag }}
+            </q-chip>
         </q-td>
         <q-td key="createdAt" :props="props">
             {{ getFormattedDate(props.row.createdAt) }}
@@ -77,6 +85,9 @@ export default {
     },
     components: {},
     methods: {
+        getTags: function(tag) {
+            return tag ? tag.split(',') : []
+        },
         getFormattedIndex: function(index) {
             return index <= 9 ? index : '–'
         },

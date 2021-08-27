@@ -34,8 +34,23 @@
                 </div>
                 <div v-else>
                     <div class="q-pr-md">
+                        <q-item-label header class="text-uppercase"
+                            >Sounds - {{ filteredSounds.length }}</q-item-label
+                        >
+                        <q-item v-if="availableTags.length > 0">
+                            <q-chip
+                                v-for="tag in availableTags"
+                                clickable
+                                :key="tag"
+                                :selected="isSelected(tag)"
+                                @click="onClickTag(tag)"
+                                color="primary"
+                                text-color="white"
+                            >
+                                {{ tag }}
+                            </q-chip>
+                        </q-item>
                         <q-table
-                            title="Sounds"
                             virtual-scroll
                             separator="none"
                             :rows-per-page-options="[0]"
@@ -196,8 +211,32 @@ export default {
             columns,
         }
     },
+    methods: {
+        onUpdateTag: function(state) {
+            console.log('onUpdateTag', state)
+        },
+        onClickTag: function(tagName) {
+            console.log('onClickTag', tagName)
+            return this.$store.dispatch('sound/onTagClicked', {
+                tagName,
+            })
+        },
+        isSelected: function(tagName) {
+            return this.$store.state.sound.selectedTags.includes(tagName)
+        },
+    },
     computed: {
-        ...mapGetters('sound', ['filteredSounds']),
+        selectedTags: {
+            get() {
+                console.log(this.$store.state.sound.selectedTags)
+                return this.$store.state.sound.selectedTags
+            },
+            set(value) {
+                console.log(value)
+                return value
+            },
+        },
+        ...mapGetters('sound', ['filteredSounds', 'availableTags']),
         ...mapState({
             activeBoard: state => state.board.activeBoard,
             boardUsers: state => state.user.boardUsers,

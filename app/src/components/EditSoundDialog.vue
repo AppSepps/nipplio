@@ -15,6 +15,20 @@
                         placeholder="Awesome sound"
                     />
                 </q-card-section>
+                <q-card-section v-if="sound">
+                    <q-select
+                        filled
+                        label="Tags"
+                        v-model="tags"
+                        use-input
+                        use-chips
+                        multiple
+                        input-debounce="0"
+                        @new-value="createValue"
+                        :options="filterOptions"
+                        @filter="filterFn"
+                    />
+                </q-card-section>
                 <q-card-actions align="right">
                     <q-btn
                         no-caps
@@ -30,6 +44,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
     name: 'EditSoundDialog',
     components: {},
@@ -37,19 +53,48 @@ export default {
         return {
             sound: undefined,
             name: '',
+            tags: [],
+            filterOptions: [],
         }
     },
+    computed: {
+        ...mapGetters('sound', ['availableTags']),
+    },
     mounted() {
-        this.bus.on('onSoundEditClick', (sound) => {
+        this.bus.on('onSoundEditClick', sound => {
             this.sound = sound
             this.name = sound.name
+            this.tags = sound.tags ? sound.tags.split(',') : []
+            this.filterOptions = this.availableTags
         })
     },
     methods: {
+        filterFn(val, update) {
+            update(() => {
+                console.log(val)
+                if (val === '') {
+                    this.filterOptions = this.availableTags
+                } else {
+                    const needle = val.toLowerCase()
+                    this.filterOptions = this.availableTags.filter(
+                        v => v.toLowerCase().indexOf(needle) > -1
+                    )
+                }
+            })
+        },
+        createValue(val, done) {
+            if (val.length > 0) {
+                if (!this.availableTags.includes(val)) {
+                    this.availableTags.push(val)
+                }
+                done(val, 'toggle')
+            }
+        },
         onSubmit() {
             this.$store.dispatch('sound/onSoundEdit', {
                 ...this.sound,
                 name: this.name,
+                tags: this.tags.join(','),
             })
         },
     },

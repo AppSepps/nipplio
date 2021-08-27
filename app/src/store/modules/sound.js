@@ -3,14 +3,30 @@ import firebase from 'firebase'
 function initialState() {
     return {
         searchText: '',
+        selectedTags: [],
         sounds: [],
         favoriteSoundIds: [],
     }
 }
 
 const getters = {
-    filteredSounds: function(state) {
+    availableTags: function(state) {
         const sounds = state.sounds
+        const tagSet = new Set()
+        sounds.forEach(sound => {
+            if (!sound.tags) return
+            const tags = sound.tags.split(',')
+            tags.forEach(tag => {
+                tagSet.add(tag)
+            })
+        })
+
+        return Array.from(tagSet).sort((a, b) =>
+            a.toLowerCase().localeCompare(b.toLowerCase())
+        )
+    },
+    filteredSounds: function(state) {
+        let sounds = state.sounds
             .map(sound =>
                 state.favoriteSoundIds.includes(sound.id)
                     ? { ...sound, favorite: true }
@@ -25,6 +41,18 @@ const getters = {
                     .toLowerCase()
                     .includes(state.searchText.toLowerCase())
             )
+        // filter for tags
+        if (state.selectedTags.length > 0) {
+            sounds = sounds.filter(s => {
+                if (!s.tags) return false
+                let soundHasSelectedFilter = false
+                s.tags.split(',').forEach(soundTag => {
+                    if (state.selectedTags.includes(soundTag))
+                        soundHasSelectedFilter = true
+                })
+                return soundHasSelectedFilter
+            })
+        }
 
         sounds.forEach((sound, index) => {
             sound.index = index
@@ -34,6 +62,9 @@ const getters = {
 }
 
 const actions = {
+    onTagClicked({ commit }, { tagName }) {
+        commit('toggleSelectedTag', { tagName })
+    },
     getSounds({ commit, rootState }) {
         const { activeBoard } = rootState.board
 
@@ -82,6 +113,7 @@ const actions = {
             .ref(`/sounds/${rootState.board.activeBoard.id}/${sound.id}`)
             .update({
                 name: sound.name,
+                tags: sound.tags,
             })
     },
     async removeSound(context, params) {
@@ -158,6 +190,11 @@ const mutations = {
         state.favoriteSoundIds = state.favoriteSoundIds.includes(id)
             ? state.favoriteSoundIds.filter(i => i !== id)
             : [...state.favoriteSoundIds, id]
+    },
+    toggleSelectedTag(state, { tagName }) {
+        state.selectedTags = state.selectedTags.includes(tagName)
+            ? state.selectedTags.filter(i => i !== tagName)
+            : [...state.selectedTags, tagName]
     },
     reset(state) {
         const s = initialState()
