@@ -44,7 +44,7 @@
                                 :key="tag"
                                 :selected="isSelected(tag)"
                                 @click="onClickTag(tag)"
-                                color="primary"
+                                color="secondary"
                                 text-color="white"
                             >
                                 {{ tag }}

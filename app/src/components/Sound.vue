@@ -15,7 +15,7 @@
                 v-for="tag in getTags(props.row.tags)"
                 :key="tag"
                 size="sm"
-                color="primary"
+                color="secondary"
             >
                 {{ tag }}
             </q-chip>
