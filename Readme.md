@@ -1,3 +1,12 @@
+# Development
+
+## Requirements
+- NodeJS (LTS Version recommended)
+
+## Steps to build locally
+- run `npm i` inside the `app` directory
+- run `npm run serve` to serve the website only or `npm run electron:serve` to run the electron version
+
 # API Requests
 
 The Nipplio application has the ability to play sounds through an api.
