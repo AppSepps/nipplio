@@ -116,7 +116,7 @@ export default {
             soundDate: state => {
                 if (state.player.playedSound) {
                     return moment(state.player.playedSound.timestamp).format(
-                        'hh:mm:ss'
+                        'LTS'
                     )
                 }
                 return moment().format('LTS')
