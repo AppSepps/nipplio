@@ -7,6 +7,10 @@ import store from './store'
 import router from './router'
 import App from './App.vue'
 import config from './config'
+import moment from 'moment'
+import 'moment/min/locales'
+var locale = window.navigator.userLanguage || window.navigator.language
+moment.locale(locale)
 
 firebase.initializeApp(config)
 if (location.hostname === 'localhost') {
