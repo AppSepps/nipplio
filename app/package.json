@@ -25,6 +25,7 @@
         "bonjour": "^3.5.0",
         "bonjour-service": "^1.0.8",
         "core-js": "^3.6.5",
+        "custom-electron-titlebar": "^3.2.7",
         "dns": "^0.2.2",
         "electron-updater": "^4.3.9",
         "element-plus": "^1.0.2-beta.48",

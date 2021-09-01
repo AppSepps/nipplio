@@ -42,7 +42,7 @@ void setup()
   pinMode(switchLeft, INPUT_PULLUP);
   pinMode(switchRight, INPUT_PULLUP);
 
-  nipplio.setup();
+  nipplio.setup(6);
   String slotNames[] = {"Mode1-1", "Mode1-2", "Mode1-3", "Mode1-4", "Mode1-5", "Mode1-6", "Mode2-1", "Mode2-2", "Mode2-3", "Mode2-4", "Mode2-5", "Mode2-6", "Mode3-1", "Mode3-2", "Mode3-3", "Mode3-4", "Mode3-5", "Mode3-6"};
   nipplio.setSlotNames(slotNames, NUMBER_BUTTONS * NUMBER_MODES);
   //Serial.println("connected...yeey :)");
@@ -50,12 +50,12 @@ void setup()
 
 void setButtonDown(int button)
 {
-  nipplio.triggerSlotWithNumber((button + (buttonMode * NUMBER_BUTTONS)));
+  nipplio.slotPressed((button + (buttonMode * NUMBER_BUTTONS)));
 }
 
 void setButtonUp(int button)
 {
-  //setButton(false, button);
+  nipplio.slotReleased((button + (buttonMode * NUMBER_BUTTONS)));
 }
 
 void checkButton(int buttonNumner, int &oldState, int newState, boolean reversed)
