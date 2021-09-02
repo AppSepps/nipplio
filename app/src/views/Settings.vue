@@ -81,6 +81,16 @@
                                 >
                             </q-item-section>
                         </q-item>
+                        <q-item-label header
+                            >Gamepads
+                            {{ detectedGamepads.length }}</q-item-label
+                        >
+                        <gamepad-device
+                            v-for="(gamepad, index) in detectedGamepads"
+                            :key="index"
+                            :gamepad="gamepad"
+                            :linked="false"
+                        />
                     </q-list>
                 </div>
                 <q-btn
@@ -107,11 +117,13 @@ import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
 import { mapActions, mapGetters } from 'vuex'
 import RemoteDevice from '../components/RemoteDevice.vue'
+import GamepadDevice from '../components/GamepadDevice.vue'
 import { copyToClipboard } from 'quasar'
+import 'joypad.js'
 
 export default {
     name: 'Settings',
-    components: { RemoteDevice },
+    components: { RemoteDevice, GamepadDevice },
     created() {
         this.copyToClipboard = copyToClipboard
     },
@@ -121,6 +133,7 @@ export default {
             'isOwner',
             'remoteDevices',
             'apiKeys',
+            'detectedGamepads',
         ]),
     },
     methods: {
@@ -138,10 +151,47 @@ export default {
             this.$store.dispatch('clearAll')
             this.$router.push('/welcome')
         },
+        gamepadConnectionHandler(event) {
+            console.log('Gamepad Connected: ' + event.gamepad.id)
+            this.$store.dispatch('settings/gamepadConnected', event)
+        },
+        gamepadDisconnectionHandler(event) {
+            console.log('Gamepad Disconnected: ' + event.gamepad.id)
+            this.$store.dispatch('settings/gamepadDisconnected', event)
+        },
+        gamepadButtonPressed(gamepad, index) {
+            this.$store.dispatch('settings/gamepadButtonPressed', {
+                gamepad,
+                index,
+            })
+        },
     },
     async mounted() {
         sendToIPCRenderer('startScanForDevices')
-        await this.$store.dispatch('settings/autoConnect')
+        window.joypad.on('connect', e => {
+            this.gamepadConnectionHandler(e)
+        })
+        window.joypad.on('disconnect', e => {
+            this.gamepadDisconnectionHandler(e)
+        })
+        window.joypad.on('button_press', e => {
+            const { gamepad, buttonName, index } = e.detail
+            console.log(e)
+
+            console.log(`${buttonName} was pressed!`)
+            this.gamepadButtonPressed(gamepad, index)
+        })
+        /*window.addEventListener(
+            'gamepadconnected',
+            this.gamepadConnectionHandler
+        )
+        window.addEventListener(
+            'gamepaddisconnected',
+            this.gamepadDisconnectionHandler
+        )
+        this.cycle()
+        */
+        //await this.$store.dispatch('settings/autoConnect')
     },
     unmounted() {
         sendToIPCRenderer('stopScanForDevices')

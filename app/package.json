@@ -35,6 +35,7 @@
         "hotkeys-js": "^3.8.7",
         "howler": "^2.2.3",
         "is-electron": "^2.2.0",
+        "joypad.js": "^2.2.5",
         "mitt": "^3.0.0",
         "moment": "^2.29.1",
         "path": "^0.12.7",

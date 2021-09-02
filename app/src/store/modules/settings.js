@@ -8,6 +8,7 @@ function initialState() {
         discoveredDevices: [],
         remoteDevices: [],
         bluetoothDevice: null,
+        detectedGamepads: [],
     }
 }
 
@@ -20,6 +21,9 @@ const getters = {
     },
     apiKeys: function(state, getters, rootState) {
         return rootState.board.apiKeys
+    },
+    detectedGamepads: function(state) {
+        return state.detectedGamepads
     },
     remoteDevices: function(state) {
         return state.remoteDevices.map(remoteDevice => {
@@ -45,6 +49,34 @@ const getters = {
 }
 
 const actions = {
+    async gamepadButtonPressed({ dispatch }, { gamepad, index }) {
+        console.log(gamepad, index)
+        dispatch(
+            'player/triggerRemotePlaySound',
+            { deviceId: gamepad.id, slotId: index },
+            { root: true }
+        )
+    },
+    async gamepadDisconnected({ commit }, event) {
+        commit('removeDetectedGamepad', event.gamepad)
+    },
+    async gamepadConnected({ commit }, event) {
+        commit('addDetectedGamepad', event.gamepad)
+    },
+    async registerGamepad(context, gamepad) {
+        let slots = {}
+        gamepad.buttons.forEach((button, index) => {
+            slots[index] = `Button ${index}`
+        })
+        await firebase
+            .database()
+            .ref(
+                `users/${firebase.auth().currentUser.uid}/remoteDevices/${
+                    gamepad.id
+                }/slots`
+            )
+            .set(slots)
+    },
     async addApiKey({ rootState }) {
         await firebase
             .database()
@@ -263,10 +295,16 @@ const actions = {
         console.log(device)
         commit('setRemoteDeviceLoadingStatus', { device, isLoading: true })
         const idToken = await firebase.auth().currentUser.getIdToken()
-        const url =
-            'http://' + device.ipAddress + '/unpairDevice?idToken=' + idToken
         try {
-            await axios.get(url)
+            const url =
+                'http://' +
+                device.ipAddress +
+                '/unpairDevice?idToken=' +
+                idToken
+            if (device.ipAddress !== undefined) {
+                // is HTTP Client. Otherwise it is probably a gamepad
+                await axios.get(url)
+            }
             const user = firebase.auth().currentUser
             await firebase
                 .database()
@@ -280,6 +318,15 @@ const actions = {
 }
 
 const mutations = {
+    addDetectedGamepad(state, gamepad) {
+        state.detectedGamepads.push(gamepad)
+    },
+    removeDetectedGamepad(state, gamepad) {
+        state.detectedGamepads.splice(
+            state.detectedGamepads.indexOf(gamepad),
+            1
+        )
+    },
     setBluetoothDevice(state, bluetoothDevice) {
         state.bluetoothDevice = bluetoothDevice
     },

@@ -118,7 +118,6 @@ async function createWindow() {
         icon: __dirname + '/icon.png',
         nativeWindowOpen: true,
         autoHideMenuBar: true,
-        titleBarStyle: "hidden", // add this line
         webPreferences: {
             experimentalFeatures: true,
             nodeIntegration: true,
@@ -177,7 +176,7 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) { }
+    } catch (error) {}
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
@@ -215,7 +214,7 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function (
+        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function(
             service
         ) {
             console.log('Found an Nipplio server:', service)

@@ -33,35 +33,6 @@
                     board with the button above or join a new board.
                 </div>
                 <div v-else>
-                    <div
-                        class="gamepad"
-                        v-for="gamepad in gamepads"
-                        :key="gamepad.id"
-                    >
-                        <h3>{{ gamepad.index }}: {{ gamepad.id }}</h3>
-                        <ul>
-                            <li
-                                v-for="(axis, index) in gamepad.axes"
-                                :key="index"
-                                v-bind:style="{
-                                    opacity: 0.2 + (axis < 0 ? -axis : axis),
-                                }"
-                            >
-                                <div>B{{ index }}</div>
-                                <div>{{ axis.toFixed(2) }}</div>
-                            </li>
-                        </ul>
-                        <ul>
-                            <li
-                                v-for="(button, index) in gamepad.buttons"
-                                :key="index"
-                                v-bind:style="{ opacity: 0.2 + button.value }"
-                            >
-                                <div>B{{ index }}</div>
-                                <div>{{ button.value.toFixed(2) }}</div>
-                            </li>
-                        </ul>
-                    </div>
                     <div class="q-pr-md">
                         <q-item-label header class="text-uppercase"
                             >Sounds - {{ filteredSounds.length }}</q-item-label
@@ -108,7 +79,7 @@
                                     :sound="props.row"
                                     :user="
                                         boardUsers.filter(
-                                            (u) => u.id === props.row.createdBy
+                                            u => u.id === props.row.createdBy
                                         )[0]
                                     "
                                     v-on:openRemoveDialog="
@@ -197,14 +168,14 @@ const columns = [
         required: true,
         label: 'Name',
         align: 'left',
-        field: (row) => row.name,
+        field: row => row.name,
         sortable: true,
     },
     {
         name: 'createdAt',
         required: true,
         label: 'Created at',
-        field: (row) => row.createdAt,
+        field: row => row.createdAt,
         sortable: true,
     },
 ]
@@ -238,44 +209,20 @@ export default {
             showSoundInfoDialog: false,
             showSlotMappingDialog: false,
             columns,
-            gamepads: [],
         }
     },
     methods: {
-        onUpdateTag: function (state) {
+        onUpdateTag: function(state) {
             console.log('onUpdateTag', state)
         },
-        onClickTag: function (tagName) {
+        onClickTag: function(tagName) {
             console.log('onClickTag', tagName)
             return this.$store.dispatch('sound/onTagClicked', {
                 tagName,
             })
         },
-        isSelected: function (tagName) {
+        isSelected: function(tagName) {
             return this.$store.state.sound.selectedTags.includes(tagName)
-        },
-        cycle: function () {
-            this.gamepads = this.scanGamepads()
-            requestAnimationFrame(this.cycle)
-        },
-        scanGamepads: function () {
-            return navigator.getGamepads
-                ? Array.from(navigator.getGamepads()).filter(
-                      (gp) => gp !== null
-                  )
-                : navigator.webkitGetGamepads
-                ? Array.from(navigator.webkitGetGamepads()).filter(
-                      (gp) => gp !== null
-                  )
-                : []
-        },
-        gamepadConnectionHandler: function (event) {
-            this.gamepads.push(event.gamepad)
-            console.log('Gamepad Connected: ' + event.gamepad.id)
-        },
-        gamepadDisconnectionHandler: function (event) {
-            this.gamepads.splice(this.gamepads.indexOf(event.gamepad), 1)
-            console.log('Gamepad Disconnected: ' + event.gamepad.id)
         },
     },
     computed: {
@@ -291,24 +238,16 @@ export default {
         },
         ...mapGetters('sound', ['filteredSounds', 'availableTags']),
         ...mapState({
-            activeBoard: (state) => state.board.activeBoard,
-            boardUsers: (state) => state.user.boardUsers,
-            sounds: (state) => state.sound.sounds,
-            user: (state) => state.user.user,
+            activeBoard: state => state.board.activeBoard,
+            boardUsers: state => state.user.boardUsers,
+            sounds: state => state.sound.sounds,
+            user: state => state.user.user,
         }),
     },
     async mounted() {
         const that = this
-        window.addEventListener(
-            'gamepadconnected',
-            this.gamepadConnectionHandler
-        )
-        window.addEventListener(
-            'gamepaddisconnected',
-            this.gamepadDisconnectionHandler
-        )
-        this.cycle()
-        this.$store.dispatch('board/registerShortcuts', function () {
+
+        this.$store.dispatch('board/registerShortcuts', function() {
             console.log('should focus')
             that.$refs.searchBar.focus()
         })
