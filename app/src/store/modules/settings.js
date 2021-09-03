@@ -1,13 +1,15 @@
 import firebase from 'firebase'
 import axios from 'axios'
+import serial from '../../helpers/serial'
+import { USB } from 'webusb'
 import { v4 as uuidv4 } from 'uuid'
 
+const usb = new USB()
 function initialState() {
     return {
         availableSlotSounds: [],
         discoveredDevices: [],
         remoteDevices: [],
-        bluetoothDevice: null,
         detectedGamepads: [],
     }
 }
@@ -63,16 +65,21 @@ const actions = {
     async gamepadConnected({ commit }, event) {
         commit('addDetectedGamepad', event.gamepad)
     },
-    async registerGamepad(context, gamepad) {
-        let slots = {}
-        gamepad.buttons.forEach((button, index) => {
-            slots[index] = `Button ${index}`
-        })
+    async registerUSBDevice(context, usbDevice) {
+        let slots = {
+            '0': 'Button 1',
+            '1': 'Button 2',
+            '2': 'Button 3',
+            '3': 'Button 4',
+            '4': 'Button 5',
+            '5': 'Button 6',
+            '6': 'Button 7',
+        }
         await firebase
             .database()
             .ref(
                 `users/${firebase.auth().currentUser.uid}/remoteDevices/${
-                    gamepad.id
+                    usbDevice.serialNumber
                 }/slots`
             )
             .set(slots)
@@ -91,77 +98,53 @@ const actions = {
     },
     async bleButtonScanClicked({ dispatch }) {
         try {
-            console.log('Requesting any Bluetooth Device...')
-            this.bluetoothDevice = await navigator.bluetooth.requestDevice({
+            console.log('Requesting USB Devices')
+            const usbDevice = await usb.requestDevice({
                 optionalServices: ['b06396cd-dfc3-495e-b33e-4a4c3b86389d'],
                 filters: [
                     {
-                        namePrefix: 'Nipplio',
+                        vendorId: '9025',
                     },
                 ],
                 // filters: [...] <- Prefer filters to save energy & show relevant devices.
             })
-            //commit('setBluetoothDevice', bluetoothDevice)
-            dispatch('autoConnect')
+            console.log(usbDevice)
+            await dispatch('connectToUSBDevice', usbDevice)
+            //commit('setUsbDevice', usbDevice)
+            //dispatch('autoConnect')
             //connect()
         } catch (error) {
             console.log('Argh! ' + error)
         }
     },
+    async connectToUSBDevice({ dispatch }, usbDevice) {
+        const port = new serial.Port(usbDevice)
+        port.connect().then(() => {
+            port.onReceive = async data => {
+                const slotId = new TextDecoder().decode(data)
+                console.log(slotId)
+                await dispatch(
+                    'player/triggerRemotePlaySound',
+                    {
+                        deviceId: usbDevice.serialNumber,
+                        slotId,
+                    },
+                    { root: true }
+                )
+            }
+        })
+    },
     async autoConnect({ dispatch }) {
-        const devices = await navigator.bluetooth.getDevices()
-        console.log(devices)
-        if (devices !== undefined && devices.length > 0) {
-            this.bluetoothDevice = devices[0]
+        usb.addEventListener('connect', async event => {
+            // Add event.device to the UI.
+            console.log('connected device: ', event)
+            await dispatch('connectToUSBDevice', event.device)
+        })
+        const devices = await usb.getDevices()
+        console.log('usb.getDevices()', devices)
+        if (devices.length > 0) {
+            await dispatch('connectToUSBDevice', devices[0])
         }
-        if (this.bluetoothDevice === undefined) {
-            console.log('bluetooth device not found')
-            return
-        }
-        this.bluetoothDevice.addEventListener(
-            'gattserverdisconnected',
-            function onDisconect() {
-                dispatch('onDisconnected')
-            }
-        )
-        console.log('Connecting to GATT Server...')
-        const server = await this.bluetoothDevice.gatt.connect()
-        console.log(server)
-        console.log('Getting Service...')
-        const service = await server.getPrimaryService(
-            'b06396cd-dfc3-495e-b33e-4a4c3b86389d'
-        )
-
-        console.log('Getting Characteristic...')
-        const myCharacteristic = await service.getCharacteristic(
-            '4be2fa7d-5c30-409d-b042-87466d4127d2'
-        )
-
-        const slotCharacteristic = await service.getCharacteristic(
-            'db7612a8-737d-4ca3-8d5f-8a56ce58b7ad'
-        )
-        const slotsRaw = await slotCharacteristic.readValue()
-        const slots = JSON.parse(new TextDecoder().decode(slotsRaw))
-        console.log(slots)
-        // Write Slot mapping to firebase
-        await firebase
-            .database()
-            .ref(
-                `users/${firebase.auth().currentUser.uid}/remoteDevices/${
-                    this.bluetoothDevice.name
-                }/slots`
-            )
-            .set(slots)
-
-        await myCharacteristic.startNotifications()
-
-        console.log('> Notifications started')
-        myCharacteristic.addEventListener(
-            'characteristicvaluechanged',
-            function(event) {
-                dispatch('handleNotifications', event)
-            }
-        )
     },
     handleNotifications({ dispatch }, event) {
         let value = event.target.value
@@ -327,8 +310,8 @@ const mutations = {
             1
         )
     },
-    setBluetoothDevice(state, bluetoothDevice) {
-        state.bluetoothDevice = bluetoothDevice
+    setUsbDevice(state, usbDevice) {
+        state.usbDevice = usbDevice
     },
     addAvailableSlotSounds(state, sounds) {
         let availableSounds = []

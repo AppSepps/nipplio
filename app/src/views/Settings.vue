@@ -119,7 +119,6 @@ import { mapActions, mapGetters } from 'vuex'
 import RemoteDevice from '../components/RemoteDevice.vue'
 import GamepadDevice from '../components/GamepadDevice.vue'
 import { copyToClipboard } from 'quasar'
-import 'joypad.js'
 
 export default {
     name: 'Settings',
@@ -168,30 +167,7 @@ export default {
     },
     async mounted() {
         sendToIPCRenderer('startScanForDevices')
-        window.joypad.on('connect', e => {
-            this.gamepadConnectionHandler(e)
-        })
-        window.joypad.on('disconnect', e => {
-            this.gamepadDisconnectionHandler(e)
-        })
-        window.joypad.on('button_press', e => {
-            const { gamepad, buttonName, index } = e.detail
-            console.log(e)
-
-            console.log(`${buttonName} was pressed!`)
-            this.gamepadButtonPressed(gamepad, index)
-        })
-        /*window.addEventListener(
-            'gamepadconnected',
-            this.gamepadConnectionHandler
-        )
-        window.addEventListener(
-            'gamepaddisconnected',
-            this.gamepadDisconnectionHandler
-        )
-        this.cycle()
-        */
-        //await this.$store.dispatch('settings/autoConnect')
+        await this.$store.dispatch('settings/autoConnect')
     },
     unmounted() {
         sendToIPCRenderer('stopScanForDevices')
