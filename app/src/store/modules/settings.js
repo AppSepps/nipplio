@@ -1,10 +1,12 @@
 import firebase from 'firebase'
 import axios from 'axios'
-import serial from '../../helpers/serial'
-import { USB } from 'webusb'
+import {
+    requestDevice,
+    connectToDeviceAndReceiveUpdates,
+} from '../../helpers/webusbHelper'
 import { v4 as uuidv4 } from 'uuid'
+import { sendToIPCRenderer } from '../../helpers/electron.helper'
 
-const usb = new USB()
 function initialState() {
     return {
         availableSlotSounds: [],
@@ -99,16 +101,9 @@ const actions = {
     async bleButtonScanClicked({ dispatch }) {
         try {
             console.log('Requesting USB Devices')
-            const usbDevice = await usb.requestDevice({
-                optionalServices: ['b06396cd-dfc3-495e-b33e-4a4c3b86389d'],
-                filters: [
-                    {
-                        vendorId: '9025',
-                    },
-                ],
-                // filters: [...] <- Prefer filters to save energy & show relevant devices.
-            })
+            const usbDevice = await requestDevice()
             console.log(usbDevice)
+            await dispatch('registerUSBDevice', usbDevice)
             await dispatch('connectToUSBDevice', usbDevice)
             //commit('setUsbDevice', usbDevice)
             //dispatch('autoConnect')
@@ -118,29 +113,27 @@ const actions = {
         }
     },
     async connectToUSBDevice({ dispatch }, usbDevice) {
-        const port = new serial.Port(usbDevice)
-        port.connect().then(() => {
-            port.onReceive = async data => {
-                const slotId = new TextDecoder().decode(data)
-                console.log(slotId)
-                await dispatch(
-                    'player/triggerRemotePlaySound',
-                    {
-                        deviceId: usbDevice.serialNumber,
-                        slotId,
-                    },
-                    { root: true }
-                )
-            }
+        connectToDeviceAndReceiveUpdates(usbDevice, async data => {
+            await dispatch('player/triggerRemotePlaySound', data, {
+                root: true,
+            })
         })
     },
     async autoConnect({ dispatch }) {
-        usb.addEventListener('connect', async event => {
+        //sendToIPCRenderer('autoConnectDeviceAndListenForChanges')
+        window.ipcRenderer.on('usbDeviceTriggeredSlot', async (event, data) => {
+            await dispatch('player/triggerRemotePlaySound', data, {
+                root: true,
+            })
+        })
+        sendToIPCRenderer('onConnect')
+        sendToIPCRenderer('onDisconnect')
+        navigator.usb.addEventListener('connect', async event => {
             // Add event.device to the UI.
             console.log('connected device: ', event)
             await dispatch('connectToUSBDevice', event.device)
         })
-        const devices = await usb.getDevices()
+        const devices = await navigator.usb.getDevices()
         console.log('usb.getDevices()', devices)
         if (devices.length > 0) {
             await dispatch('connectToUSBDevice', devices[0])

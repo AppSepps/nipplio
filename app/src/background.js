@@ -17,6 +17,8 @@ import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import bonjour from 'bonjour'
+import { usb } from 'webusb'
+import serial from './serial'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -224,6 +226,42 @@ app.on('ready', async () => {
     ipcMain.on('stopScanForDevices', () => {
         console.log('stop bonjourService')
         bonjourService.stop()
+    })
+
+    ipcMain.on('onConnect', async () => {
+        usb.addEventListener('connect', event => {
+            // Add event.device to the UI.
+            console.log('connected device: ', event.device)
+        })
+    })
+
+    ipcMain.on('onDisconnect', async () => {
+        usb.addEventListener('disconnect', event => {
+            // Add event.device to the UI.
+            console.log('disconnected device: ', event.device)
+        })
+    })
+
+    ipcMain.on('autoConnectDeviceAndListenForChanges', async () => {
+        console.log('requestDevice in electron')
+        const device = await usb.requestDevice({
+            filters: [{ vendorId: 0x2341 }],
+        })
+        console.log('device', device)
+        const port = new serial.Port(device)
+        port.connect().then(() => {
+            win.webContents.send('connectedToDevice', device)
+            port.onReceive = async data => {
+                const slotId = new TextDecoder().decode(data)
+                console.log(slotId)
+                win.webContents.send('usbDeviceTriggeredSlot', {
+                    deviceId: device.serialNumber,
+                    slotId,
+                })
+            }
+        })
+
+        //win.webContents.send('requestDevice', device)
     })
 
     if (!isDevelopment) {
