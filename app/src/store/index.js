@@ -5,6 +5,7 @@ import board from './modules/board'
 import player from './modules/player'
 import settings from './modules/settings'
 import sound from './modules/sound'
+import theme from './modules/theme'
 import user from './modules/user'
 
 const persistedAppState = createPersistedState({
@@ -12,6 +13,7 @@ const persistedAppState = createPersistedState({
         'board.activeBoard',
         'player.volume',
         'sound.favoriteSoundIds',
+        'theme.currentThemeId',
         'user.mutedUsers',
         'user.speaker',
         'user.user',
@@ -25,6 +27,7 @@ const store = createStore({
         player,
         settings,
         sound,
+        theme,
         user,
     },
     actions: {

@@ -41,6 +41,14 @@
                     @click="openAddBoardDialog"
                     icon="add"
                 />
+                <q-btn
+                    round
+                    class="board-select-btn"
+                    color="grey-9"
+                    text-color="primary"
+                    @click="openCustomizeDialog"
+                    icon="palette"
+                />
             </div>
         </q-scroll-area>
     </q-drawer>

@@ -116,6 +116,7 @@
         <edit-sound-dialog v-model="showEditSoundDialog" />
         <sound-info-dialog v-model="showSoundInfoDialog" />
         <slot-mapping-dialog v-model="showSlotMappingDialog" />
+        <customize-dialog v-model="showCustomizeDialog" />
     </q-layout>
 </template>
 
@@ -136,6 +137,7 @@ import ManageBoardButton from '../components/ManageBoardButton.vue'
 import UserDrawer from '../components/UserDrawer.vue'
 import SlotMappingDialog from '../components/SlotMappingDialog.vue'
 import BoardSelect from '../components/BoardSelect.vue'
+import CustomizeDialog from '../components/CustomizeDialog.vue'
 
 const columns = [
     {
@@ -177,6 +179,7 @@ export default {
         UserDrawer,
         SlotMappingDialog,
         BoardSelect,
+        CustomizeDialog,
     },
     data() {
         return {
