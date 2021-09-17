@@ -3,7 +3,7 @@
         <q-scroll-area class="fit">
             <div class="q-pa-sm">
                 <div
-                    class="q-mb-sm"
+                    class="q-my-sm"
                     v-for="board in sortedBoards"
                     :key="board.id"
                 >
@@ -32,9 +32,10 @@
                         >
                     </q-btn>
                 </div>
+                <q-separator />
                 <q-btn
                     round
-                    class="board-select-btn"
+                    class="board-select-btn q-my-sm"
                     color="grey-9"
                     text-color="primary"
                     @click="openAddBoardDialog"
@@ -64,7 +65,10 @@ export default {
             }
         },
         openAddBoardDialog: function () {
-            this.$emit('openDialog')
+            this.$emit('openAddBoardDialog')
+        },
+        openCustomizeDialog: function () {
+            this.$emit('openCustomizeDialog')
         },
     },
 }

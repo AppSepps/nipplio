@@ -8,7 +8,6 @@
                     class="q-mx-sm"
                     v-on:openDialog="showBoardInviteDialog = true"
                 />
-
                 <q-space />
                 <search-bar ref="searchBar" v-if="activeBoard" />
                 <q-space />
@@ -24,7 +23,10 @@
                 />
             </q-toolbar>
         </q-header>
-        <board-select v-on:openDialog="showAddBoardDialog = true" />
+        <board-select
+            v-on:openAddBoardDialog="showAddBoardDialog = true"
+            v-on:openCustomizeDialog="showCustomizeDialog = true"
+        />
         <user-drawer v-if="activeBoard" />
         <q-page-container>
             <q-page padding>
@@ -185,6 +187,7 @@ export default {
             showEditSoundDialog: false,
             showSoundInfoDialog: false,
             showSlotMappingDialog: false,
+            showCustomizeDialog: false,
             columns,
         }
     },
