@@ -11,15 +11,22 @@
                         round
                         class="board-select-btn"
                         :color="
-                            activeBoard.id === board.id ? 'primary' : 'grey-9'
+                            activeBoard && activeBoard.id === board.id
+                                ? 'primary'
+                                : 'grey-9'
                         "
                         @click="
-                            onBoardClick(board.id, activeBoard.id === board.id)
+                            onBoardClick(
+                                board.id,
+                                activeBoard && activeBoard.id === board.id
+                            )
                         "
                     >
                         <span
                             :class="
-                                activeBoard.id === board.id ? 'text-bold' : ''
+                                activeBoard && activeBoard.id === board.id
+                                    ? 'text-bold'
+                                    : ''
                             "
                             >{{ board.name[0] }}</span
                         >

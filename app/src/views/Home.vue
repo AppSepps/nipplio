@@ -32,7 +32,7 @@
             <q-page padding>
                 <div v-if="!activeBoard">
                     You are currently not connected with any board. Select a
-                    board with the button above or join a new board.
+                    board on the left side or create a new board.
                 </div>
                 <div v-else>
                     <!-- TODO: Extract sound table in extra component -->
