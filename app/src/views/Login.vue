@@ -27,7 +27,7 @@ export default {
     },
     components: {},
     mounted() {
-        var that = this
+        let that = this
         this.ui =
             firebaseui.auth.AuthUI.getInstance() ||
             new firebaseui.auth.AuthUI(firebase.auth())

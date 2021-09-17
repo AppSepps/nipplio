@@ -10,13 +10,13 @@ function initialState() {
 }
 
 const getters = {
-    availableTags: function(state) {
+    availableTags: function (state) {
         const sounds = state.sounds
         const tagSet = new Set()
-        sounds.forEach(sound => {
+        sounds.forEach((sound) => {
             if (!sound.tags) return
             const tags = sound.tags.split(',')
-            tags.forEach(tag => {
+            tags.forEach((tag) => {
                 tagSet.add(tag)
             })
         })
@@ -25,9 +25,9 @@ const getters = {
             a.toLowerCase().localeCompare(b.toLowerCase())
         )
     },
-    filteredSounds: function(state) {
+    filteredSounds: function (state) {
         let sounds = state.sounds
-            .map(sound =>
+            .map((sound) =>
                 state.favoriteSoundIds.includes(sound.id)
                     ? { ...sound, favorite: true }
                     : { ...sound, favorite: false }
@@ -36,17 +36,17 @@ const getters = {
                 a.name.toLowerCase().localeCompare(b.name.toLowerCase())
             )
             .sort((a, b) => b.favorite - a.favorite)
-            .filter(sound =>
+            .filter((sound) =>
                 sound.name
                     .toLowerCase()
                     .includes(state.searchText.toLowerCase())
             )
         // filter for tags
         if (state.selectedTags.length > 0) {
-            sounds = sounds.filter(s => {
+            sounds = sounds.filter((s) => {
                 if (!s.tags) return false
                 let soundHasSelectedFilter = false
-                s.tags.split(',').forEach(soundTag => {
+                s.tags.split(',').forEach((soundTag) => {
                     if (state.selectedTags.includes(soundTag))
                         soundHasSelectedFilter = true
                 })
@@ -73,7 +73,7 @@ const actions = {
         commit('clearSounds')
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
-        soundsRef.on('child_added', async snapshot => {
+        soundsRef.on('child_added', async (snapshot) => {
             const soundUrl = await firebase
                 .storage()
                 .ref(`boards/${activeBoard.id}/${snapshot.key}`)
@@ -85,7 +85,7 @@ const actions = {
             })
         })
 
-        soundsRef.on('child_changed', async snapshot => {
+        soundsRef.on('child_changed', async (snapshot) => {
             const soundUrl = await firebase
                 .storage()
                 .ref(`boards/${activeBoard.id}/${snapshot.key}`)
@@ -97,7 +97,7 @@ const actions = {
             })
         })
 
-        soundsRef.on('child_removed', snapshot => {
+        soundsRef.on('child_removed', (snapshot) => {
             commit('removeSound', {
                 id: snapshot.key,
             })
@@ -128,6 +128,10 @@ const actions = {
             .storage()
             .ref(`/boards/${activeBoard.id}/${soundId}`)
             .delete()
+    },
+    resetSoundsAndTags({ commit }) {
+        commit('resetSounds')
+        commit('resetTags')
     },
     async toggleFavoriteSound(action, params) {
         const { id } = params
@@ -179,26 +183,32 @@ const mutations = {
         state.searchText = text
     },
     changeSound(state, sound) {
-        state.sounds = state.sounds.map(s => {
+        state.sounds = state.sounds.map((s) => {
             return s.id === sound.id ? sound : s
         })
     },
     removeSound(state, { id }) {
-        state.sounds = state.sounds.filter(sound => sound.id !== id)
+        state.sounds = state.sounds.filter((sound) => sound.id !== id)
+    },
+    resetSounds(state) {
+        state.sounds = []
+    },
+    resetTags(state) {
+        state.selectedTags = []
     },
     toggleFavoriteSound(state, { id }) {
         state.favoriteSoundIds = state.favoriteSoundIds.includes(id)
-            ? state.favoriteSoundIds.filter(i => i !== id)
+            ? state.favoriteSoundIds.filter((i) => i !== id)
             : [...state.favoriteSoundIds, id]
     },
     toggleSelectedTag(state, { tagName }) {
         state.selectedTags = state.selectedTags.includes(tagName)
-            ? state.selectedTags.filter(i => i !== tagName)
+            ? state.selectedTags.filter((i) => i !== tagName)
             : [...state.selectedTags, tagName]
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach(key => {
+        Object.keys(s).forEach((key) => {
             state[key] = s[key]
         })
     },

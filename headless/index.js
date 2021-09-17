@@ -1,8 +1,8 @@
 const commandLineArgs = require("command-line-args");
 const fs = require("fs");
-var player = require("play-sound")((opts = {}));
+const player = require("play-sound")((opts = {}));
 
-var firebase = require("firebase");
+const firebase = require("firebase");
 firebase.initializeApp({
   apiKey: "AIzaSyArf5iDUeHvR4CzyNuO-73nESEsXuUQAFM",
   authDomain: "nipplio.firebaseapp.com",
@@ -30,7 +30,7 @@ const options = commandLineArgs(optionDefinitions);
 const storageHost = options.debug
   ? "http://127.0.0.1:9199"
   : "https://firebasestorage.googleapis.com";
-var https = options.debug ? require("http") : require("https");
+const https = options.debug ? require("http") : require("https");
 if (options.debug) {
   firebase.auth().useEmulator("http://localhost:9099");
   firebase.database().useEmulator("localhost", 9000);
@@ -98,7 +98,7 @@ async function start() {
       console.log(error);
     }
   } else {
-    var loginOnHeadlessWithIdToken = firebase
+    const loginOnHeadlessWithIdToken = firebase
       .functions()
       .httpsCallable("loginOnHeadlessWithIdToken");
     let customToken;
@@ -140,10 +140,10 @@ async function start() {
     }
   });
 
-  var userRef = firebase
+  const userRef = firebase
     .database()
     .ref(`/boardUsers/${boardId}/${firebase.auth().currentUser.uid}`);
-  var connectedRef = firebase.database().ref(".info/connected");
+  const connectedRef = firebase.database().ref(".info/connected");
   connectedRef.on("value", function (snap) {
     if (snap.val() === true) {
       userRef.update({
