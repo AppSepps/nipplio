@@ -17,6 +17,7 @@ import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import bonjour from 'bonjour'
+import HID from 'node-hid'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -109,11 +110,11 @@ async function createWindow() {
         backgroundColor: '#121212',
         height: windowBounds.height,
         width: windowBounds.width,
-        fullscreenable: false,
-        skipTaskbar: true,
-        show: false,
-        maximizable: false,
-        minimizable: false,
+        fullscreenable: true,
+        skipTaskbar: false,
+        show: true,
+        maximizable: true,
+        minimizable: true,
         hasShadow: false,
         icon: __dirname + '/icon.png',
         nativeWindowOpen: true,
@@ -126,8 +127,8 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     })
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
-    win.setAlwaysOnTop(true, 'floating')
+    //win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+    //win.setAlwaysOnTop(true, 'floating')
 
     win.webContents.on(
         'select-bluetooth-device',
@@ -142,7 +143,7 @@ async function createWindow() {
             }
         }
     )
-    win.on('close', (e) => {
+    win.on('close', e => {
         console.log(win.getBounds())
         windowBounds = win.getBounds()
         if (willQuitApp) {
@@ -214,18 +215,33 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find(
-            { type: 'nipplio' },
-            function (service) {
-                console.log('Found an Nipplio server:', service)
-                win.webContents.send('discoveredNipplioDevice', service)
-            }
-        )
+        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function(
+            service
+        ) {
+            console.log('Found an Nipplio server:', service)
+            win.webContents.send('discoveredNipplioDevice', service)
+        })
     })
     ipcMain.on('stopScanForDevices', () => {
         console.log('stop bonjourService')
         bonjourService.stop()
     })
+
+    var devices = HID.devices()
+    var deviceInfo = devices.find(function(d) {
+        var isNipplioBoard = d.vendorId === 0x2341 && d.productId === 0x8037
+        return isNipplioBoard
+    })
+    if (deviceInfo) {
+        console.log(deviceInfo)
+        var device = new HID.HID(deviceInfo.path)
+        console.log(device)
+        device.on('data', data => {
+            console.log(data)
+        })
+        var buf = device.getFeatureReport(3, 255)
+        console.log('buf', buf)
+    }
 
     if (!isDevelopment) {
         app.setLoginItemSettings({
@@ -245,7 +261,7 @@ app.on('before-quit', () => (willQuitApp = true))
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
-        process.on('message', (data) => {
+        process.on('message', data => {
             if (data === 'graceful-exit') {
                 app.quit()
             }

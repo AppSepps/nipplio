@@ -1,0 +1,36 @@
+{
+    "vendorID": 9025,
+    "productID": 32823,
+    "buttons": [
+        {
+            "value": "1",
+            "pin": 1,
+            "name": "Button 1"
+        },
+        {
+            "value": "2",
+            "pin": 2,
+            "name": "Button 2"
+        },
+        {
+            "value": "3",
+            "pin": 3,
+            "name": "Button 3"
+        },
+        {
+            "value": "4",
+            "pin": 4,
+            "name": "Button 4"
+        },
+        {
+            "value": "5",
+            "pin": 5,
+            "name": "Button 5"
+        },
+        {
+            "value": "6",
+            "pin": 6,
+            "name": "Button 6"
+        }
+    ]
+}
