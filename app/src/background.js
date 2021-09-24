@@ -31,7 +31,7 @@ let tray = null
 let win = null
 
 const bonjourInstance = new bonjour()
-var bonjourService
+let bonjourService
 
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
 app.commandLine.appendSwitch('enable-web-bluetooth', true)
@@ -142,7 +142,7 @@ async function createWindow() {
             }
         }
     )
-    win.on('close', e => {
+    win.on('close', (e) => {
         console.log(win.getBounds())
         windowBounds = win.getBounds()
         if (willQuitApp) {
@@ -214,12 +214,13 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find({ type: 'nipplio' }, function(
-            service
-        ) {
-            console.log('Found an Nipplio server:', service)
-            win.webContents.send('discoveredNipplioDevice', service)
-        })
+        bonjourService = bonjourInstance.find(
+            { type: 'nipplio' },
+            function (service) {
+                console.log('Found an Nipplio server:', service)
+                win.webContents.send('discoveredNipplioDevice', service)
+            }
+        )
     })
     ipcMain.on('stopScanForDevices', () => {
         console.log('stop bonjourService')
@@ -244,7 +245,7 @@ app.on('before-quit', () => (willQuitApp = true))
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
-        process.on('message', data => {
+        process.on('message', (data) => {
             if (data === 'graceful-exit') {
                 app.quit()
             }

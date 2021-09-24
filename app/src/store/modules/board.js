@@ -11,9 +11,9 @@ function initialState() {
 }
 
 const getters = {
-    sortedBoards: state =>
-        state.boards.sort(
-            (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()) // TODO: Write activeBoard to position 0
+    sortedBoards: (state) =>
+        state.boards.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         ),
 }
 
@@ -28,7 +28,7 @@ const actions = {
         }
     },
     registerShortcuts({ dispatch, rootGetters }, focusCallback) {
-        hotkeys('*', async function(event) {
+        hotkeys('*', async function (event) {
             if (event.key.match(/^[1-9]$/)) {
                 const id = rootGetters['sound/filteredSounds'][event.key - 1].id
                 dispatch('player/playRemoteSound', { id }, { root: true })
@@ -46,9 +46,9 @@ const actions = {
         firebase
             .database()
             .ref(`/apiKeys/${rootState.board.activeBoard.id}/`)
-            .on('value', snapshot => {
+            .on('value', (snapshot) => {
                 let apiKeys = []
-                snapshot.forEach(apiKey => {
+                snapshot.forEach((apiKey) => {
                     console.log(apiKey)
                     apiKeys.push(apiKey.key)
                 })
@@ -61,11 +61,11 @@ const actions = {
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', snapshot => {
+        boardsRef.on('child_added', (snapshot) => {
             firebase
                 .database()
                 .ref('/boards/' + snapshot.key + '/')
-                .on('value', snapshot => {
+                .on('value', (snapshot) => {
                     commit('addBoard', {
                         id: snapshot.key,
                         ...snapshot.val(),
@@ -108,21 +108,22 @@ const actions = {
     selectBoard({ commit, state, dispatch }, params) {
         const { boards } = state
         const { id } = params
-        const activeBoard = boards.filter(board => board.id === id)[0]
+        const activeBoard = boards.filter((board) => board.id === id)[0]
 
         if (!activeBoard) return
 
         commit('selectBoard', activeBoard)
         dispatch('user/updateConnectionStatus', null, { root: true }) // TODO: Mark previous board as disconnected
         dispatch('user/getBoardUsers', null, { root: true })
+        dispatch('sound/resetSoundsAndTags', null, { root: true })
         dispatch('sound/getSounds', null, { root: true })
         dispatch('player/unsubscribeToPlayer', null, { root: true })
-        dispatch('board/getApiKeys', null, { root: true })
         dispatch(
             'player/subscribeToPlayer',
             { skipInitial: false },
             { root: true }
         )
+        dispatch('board/getApiKeys', null, { root: true })
     },
 }
 
@@ -138,7 +139,7 @@ const mutations = {
     },
     reset(state) {
         const s = initialState()
-        Object.keys(s).forEach(key => {
+        Object.keys(s).forEach((key) => {
             state[key] = s[key]
         })
     },

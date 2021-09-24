@@ -11,6 +11,8 @@
         </q-td>
         <q-td key="name" :props="props">
             {{ props.row.name }}
+        </q-td>
+        <q-td>
             <q-chip
                 v-for="tag in getTags(props.row.tags)"
                 :key="tag"
@@ -85,13 +87,13 @@ export default {
     },
     components: {},
     methods: {
-        getTags: function(tag) {
+        getTags: function (tag) {
             return tag ? tag.split(',') : []
         },
-        getFormattedIndex: function(index) {
+        getFormattedIndex: function (index) {
             return index <= 9 ? index : '–'
         },
-        getFormattedDate: function(timestamp) {
+        getFormattedDate: function (timestamp) {
             const createdAtMoment = moment(timestamp)
             if (moment().diff(createdAtMoment, 'd') > 30) {
                 return createdAtMoment.format('MMM D, YYYY')
@@ -99,21 +101,21 @@ export default {
                 return createdAtMoment.fromNow()
             }
         },
-        onSoundPlay: async function(id) {
+        onSoundPlay: async function (id) {
             await this.$store.dispatch('player/playRemoteSound', { id })
         },
-        onFavoriteToggle: async function(id) {
+        onFavoriteToggle: async function (id) {
             await this.$store.dispatch('sound/toggleFavoriteSound', { id })
         },
-        onEditClick: async function(sound) {
+        onEditClick: async function (sound) {
             this.$emit('openEditDialog')
             this.bus.emit('onSoundEditClick', sound)
         },
-        onInfoClick: async function(sound, user) {
+        onInfoClick: async function (sound, user) {
             this.$emit('openInfoDialog')
             this.bus.emit('onSoundInfoClick', { sound, user })
         },
-        onRemoveClick: async function(id) {
+        onRemoveClick: async function (id) {
             this.$emit('openRemoveDialog')
             this.bus.emit('onSoundRemoveClick', id)
         },

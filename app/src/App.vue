@@ -18,6 +18,7 @@ export default {
         }
     },
     created() {
+        this.$store.dispatch('theme/setTheme', { id: null })
         this.$q.dark.set(true)
         this.unsubscribeAuth = firebase.auth().onAuthStateChanged((user) => {
             if (user) {

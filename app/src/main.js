@@ -9,7 +9,7 @@ import App from './App.vue'
 import config from './config'
 import moment from 'moment'
 import 'moment/min/locales'
-var locale = window.navigator.userLanguage || window.navigator.language
+const locale = window.navigator.userLanguage || window.navigator.language
 moment.locale(locale)
 
 firebase.initializeApp(config)

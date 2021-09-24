@@ -1,6 +1,13 @@
 @import './quasar.scss';
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap');
 
-::-webkit-scrollbar { width: 0px; }
+* {
+    font-family: 'Oxygen', sans-serif;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+}
 
 body.body--dark {
     background: #1c1c1d;
@@ -36,6 +43,13 @@ body.body--dark {
     -webkit-animation: rotation 2s infinite linear;
     -moz-animation: rotation 2s infinite linear;
     animation: rotation 2s infinite linear;
+}
+
+.sound-table {
+}
+
+.board-select-btn {
+    font-size: 16px;
 }
 
 @-webkit-keyframes rotation {
