@@ -36,7 +36,7 @@
                     playedSound && playedSound.random ? 'purple' : 'primary'
                 "
                 class="q-mx-sm"
-                style="max-width: 350px;"
+                style="max-width: 350px"
             />
             <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
         </div>
@@ -48,7 +48,11 @@
             color="purple"
             icon="casino"
             @click="onPlayRandomSoundClicked"
-        />
+        >
+            <q-tooltip class="bg-grey-9" :delay="500" :offset="[0, 10]"
+                >Play random sound</q-tooltip
+            >
+        </q-btn>
         <volume-control />
     </q-toolbar>
 </template>
@@ -79,12 +83,12 @@ export default {
     computed: {
         ...mapGetters('user', ['selfMute']),
         ...mapState({
-            isSoundLoading: state => state.player.isSoundLoading,
-            volume: state => state.player.volume / 100,
-            soundName: state => {
+            isSoundLoading: (state) => state.player.isSoundLoading,
+            volume: (state) => state.player.volume / 100,
+            soundName: (state) => {
                 if (state.player.playedSound) {
                     const sound = state.sound.sounds.filter(
-                        sound => sound.id === state.player.playedSound.soundId
+                        (sound) => sound.id === state.player.playedSound.soundId
                     )[0]
                     if (sound) {
                         return sound.name
@@ -92,20 +96,20 @@ export default {
                 }
                 return 'Crickets are zirping.mp3'
             },
-            soundId: state => {
+            soundId: (state) => {
                 if (state.player.playedSound) {
                     const sound = state.sound.sounds.filter(
-                        sound => sound.id === state.player.playedSound.soundId
+                        (sound) => sound.id === state.player.playedSound.soundId
                     )[0]
                     if (sound) {
                         return sound.id
                     }
                 }
             },
-            favorite: state => {
+            favorite: (state) => {
                 if (state.player.playedSound) {
                     const sound = state.sound.sounds.filter(
-                        sound => sound.id === state.player.playedSound.soundId
+                        (sound) => sound.id === state.player.playedSound.soundId
                     )[0]
                     if (sound) {
                         return state.sound.favoriteSoundIds.includes(sound.id)
@@ -113,7 +117,7 @@ export default {
                 }
                 return 'Crickets are zirping.mp3'
             },
-            soundDate: state => {
+            soundDate: (state) => {
                 if (state.player.playedSound) {
                     return moment(state.player.playedSound.timestamp).format(
                         'LTS'
@@ -121,10 +125,10 @@ export default {
                 }
                 return moment().format('LTS')
             },
-            playedBy: state => {
+            playedBy: (state) => {
                 if (state.player.playedSound) {
                     const playerFilter = state.user.boardUsers.filter(
-                        u => u.id === state.player.playedSound.playedBy
+                        (u) => u.id === state.player.playedSound.playedBy
                     )
                     if (playerFilter.length > 0) {
                         return playerFilter[0]
@@ -137,7 +141,7 @@ export default {
                     return { displayName: '*chirp*' }
                 }
             },
-            sourceIcon: function(state) {
+            sourceIcon: function (state) {
                 if (!state.player.playedSound) return ''
                 switch (state.player.playedSound.source) {
                     case 'web':
@@ -152,14 +156,14 @@ export default {
                         return ''
                 }
             },
-            playedSound: state => state.player.playedSound,
-            playingColor: function(state) {
+            playedSound: (state) => state.player.playedSound,
+            playingColor: function (state) {
                 if (!this.playing) {
                     return 'grey'
                 }
                 return state.player.playedSound.random ? 'purple' : 'primary'
             },
-            playingIcon: state =>
+            playingIcon: (state) =>
                 state.player.playedSound && state.player.playedSound.random
                     ? 'casino'
                     : 'graphic_eq',
@@ -207,7 +211,7 @@ export default {
         },
     },
     methods: {
-        onFavoriteToggle: async function(id) {
+        onFavoriteToggle: async function (id) {
             await this.$store.dispatch('sound/toggleFavoriteSound', { id })
         },
         formatSecondsToString(seconds) {
