@@ -16,7 +16,6 @@ import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import bonjour from 'bonjour'
 import { usb } from 'webusb'
 import serial from './serial'
 
@@ -32,8 +31,22 @@ let willQuitApp = false
 let tray = null
 let win = null
 
-const bonjourInstance = new bonjour()
-let bonjourService
+/*const deviceConnected = event => {
+    console.log(
+        `Device '${event.device.productName ||
+            event.device.serialNumber}' connected`
+    )
+    if (event.device.url) openUrl(event.device.url)
+}
+
+usb.onconnect = deviceConnected
+
+usb.ondisconnect = event => {
+    console.log(
+        `Device '${event.device.productName ||
+            event.device.serialNumber}' disconnected`
+    )
+}*/
 
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
 app.commandLine.appendSwitch('enable-web-bluetooth', true)
@@ -144,7 +157,7 @@ async function createWindow() {
             }
         }
     )
-    win.on('close', (e) => {
+    win.on('close', e => {
         console.log(win.getBounds())
         windowBounds = win.getBounds()
         if (willQuitApp) {
@@ -215,52 +228,46 @@ app.on('ready', async () => {
         )
         tray.setImage(trayImage)
     })
-    ipcMain.on('startScanForDevices', () => {
-        bonjourService = bonjourInstance.find(
-            { type: 'nipplio' },
-            function (service) {
-                console.log('Found an Nipplio server:', service)
-                win.webContents.send('discoveredNipplioDevice', service)
-            }
-        )
+    ipcMain.on('onConnect', async () => {})
+    ipcMain.on('onDisconnect', async () => {})
+
+    const device = await usb.requestDevice({
+        filters: [{ vendorId: 0x2341 }],
     })
-    ipcMain.on('stopScanForDevices', () => {
-        console.log('stop bonjourService')
-        bonjourService.stop()
+    console.log(device)
+    /*usb.addEventListener('connect', event => {
+        // Add event.device to the UI.
+        console.log('connected device: ', event.device)
     })
 
-    ipcMain.on('onConnect', async () => {
-        usb.addEventListener('connect', event => {
-            // Add event.device to the UI.
-            console.log('connected device: ', event.device)
-        })
+    usb.addEventListener('disconnect', event => {
+        // Add event.device to the UI.
+        console.log('disconnected device: ', event.device)
     })
-
-    ipcMain.on('onDisconnect', async () => {
-        usb.addEventListener('disconnect', event => {
-            // Add event.device to the UI.
-            console.log('disconnected device: ', event.device)
-        })
-    })
+    */
 
     ipcMain.on('autoConnectDeviceAndListenForChanges', async () => {
         console.log('requestDevice in electron')
-        const device = await usb.requestDevice({
-            filters: [{ vendorId: 0x2341 }],
-        })
-        console.log('device', device)
-        const port = new serial.Port(device)
-        port.connect().then(() => {
-            win.webContents.send('connectedToDevice', device)
-            port.onReceive = async data => {
-                const slotId = new TextDecoder().decode(data)
-                console.log(slotId)
-                win.webContents.send('usbDeviceTriggeredSlot', {
-                    deviceId: device.serialNumber,
-                    slotId,
-                })
-            }
-        })
+        try {
+            const device = await usb.requestDevice({
+                filters: [{ vendorId: 0x2341 }],
+            })
+            console.log('device', device)
+            const port = new serial.Port(device)
+            port.connect().then(() => {
+                win.webContents.send('connectedToDevice', device)
+                port.onReceive = async data => {
+                    const slotId = new TextDecoder().decode(data)
+                    console.log(slotId)
+                    win.webContents.send('usbDeviceTriggeredSlot', {
+                        deviceId: device.serialNumber,
+                        slotId,
+                    })
+                }
+            })
+        } catch (error) {
+            console.log(error)
+        }
 
         //win.webContents.send('requestDevice', device)
     })
@@ -283,7 +290,7 @@ app.on('before-quit', () => (willQuitApp = true))
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
     if (process.platform === 'win32') {
-        process.on('message', (data) => {
+        process.on('message', data => {
             if (data === 'graceful-exit') {
                 app.quit()
             }

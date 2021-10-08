@@ -7,6 +7,7 @@ import settings from './modules/settings'
 import sound from './modules/sound'
 import theme from './modules/theme'
 import user from './modules/user'
+import remoteDevices from './modules/remoteDevices'
 
 const persistedAppState = createPersistedState({
     paths: [
@@ -18,6 +19,7 @@ const persistedAppState = createPersistedState({
         'user.speaker',
         'user.user',
         'settings.bluetoothDevice',
+        'remoteDevices.remoteDevices',
     ],
 })
 
@@ -29,11 +31,12 @@ const store = createStore({
         sound,
         theme,
         user,
+        remoteDevices,
     },
     actions: {
         clearAll({ commit }) {
             commit('board/reset')
-            commit('playr/reset')
+            commit('player/reset')
             commit('settings/reset')
             commit('sound/reset')
             commit('user/reset')

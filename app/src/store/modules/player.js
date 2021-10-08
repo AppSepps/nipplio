@@ -37,11 +37,12 @@ const actions = {
     },
     triggerRemotePlaySound({ rootState, dispatch }, params) {
         const { activeBoard } = rootState.board
-        const { remoteDevices } = rootState.settings
+        const { remoteDevices } = rootState.remoteDevices
         const device = remoteDevices.filter(
             device => device.id === params.deviceId
         )[0]
-        if (!device && !activeBoard) return
+        console.log(device)
+        if (!device || !activeBoard) return
         const soundId = device[activeBoard.id].slots[params.slotId]
 
         if (!soundId) return

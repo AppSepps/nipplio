@@ -9,6 +9,7 @@ import App from './App.vue'
 import config from './config'
 import moment from 'moment'
 import 'moment/min/locales'
+import { isElectron, sendToIPCRenderer } from './helpers/electron.helper'
 const locale = window.navigator.userLanguage || window.navigator.language
 moment.locale(locale)
 
@@ -43,6 +44,15 @@ try {
         console.log('discoveredNipplioDevice service', service)
         await store.dispatch('settings/discoveredNipplioDevice', service)
     })
+    window.ipcRenderer.on('usbDeviceTriggeredSlot', async (event, data) => {
+        await store.dispatch('player/triggerRemotePlaySound', data, {
+            root: true,
+        })
+    })
+    if (isElectron) {
+        // this is the autoconnect part of the hardware board so that on application start the connected board will be synced
+        sendToIPCRenderer('autoConnectDeviceAndListenForChanges')
+    }
 } catch (error) {
     // Is Web instance
 }

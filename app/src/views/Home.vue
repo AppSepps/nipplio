@@ -86,7 +86,7 @@
                                 :sound="props.row"
                                 :user="
                                     boardUsers.filter(
-                                        (u) => u.id === props.row.createdBy
+                                        u => u.id === props.row.createdBy
                                     )[0]
                                 "
                                 v-on:openRemoveDialog="
@@ -145,7 +145,7 @@ const columns = [
         required: true,
         label: 'Name',
         align: 'left',
-        field: (row) => row.name,
+        field: row => row.name,
         sortable: true,
     },
     {
@@ -156,7 +156,7 @@ const columns = [
         name: 'createdAt',
         required: true,
         label: 'Created at',
-        field: (row) => row.createdAt,
+        field: row => row.createdAt,
         sortable: true,
     },
 ]
@@ -195,15 +195,15 @@ export default {
         }
     },
     methods: {
-        onUpdateTag: function (state) {
+        onUpdateTag: function(state) {
             console.log('onUpdateTag', state)
         },
-        onClickTag: function (tagName) {
+        onClickTag: function(tagName) {
             return this.$store.dispatch('sound/onTagClicked', {
                 tagName,
             })
         },
-        isSelected: function (tagName) {
+        isSelected: function(tagName) {
             return this.$store.state.sound.selectedTags.includes(tagName)
         },
     },
@@ -218,15 +218,15 @@ export default {
         },
         ...mapGetters('sound', ['filteredSounds', 'availableTags']),
         ...mapState({
-            activeBoard: (state) => state.board.activeBoard,
-            boardUsers: (state) => state.user.boardUsers,
-            sounds: (state) => state.sound.sounds,
-            user: (state) => state.user.user,
+            activeBoard: state => state.board.activeBoard,
+            boardUsers: state => state.user.boardUsers,
+            sounds: state => state.sound.sounds,
+            user: state => state.user.user,
         }),
     },
     async mounted() {
         const that = this
-        this.$store.dispatch('board/registerShortcuts', function () {
+        this.$store.dispatch('board/registerShortcuts', function() {
             console.log('should focus')
             that.$refs.searchBar.focus()
         })
