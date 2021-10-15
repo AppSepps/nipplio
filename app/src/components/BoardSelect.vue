@@ -49,7 +49,7 @@
                 <q-btn
                     round
                     class="board-select-btn q-mt-sm"
-                    color="grey-9"
+                    color="grey-2"
                     text-color="primary"
                     @click="openAddBoardDialog"
                     icon="add"
@@ -57,7 +57,7 @@
                 <q-btn
                     round
                     class="board-select-btn q-my-sm"
-                    color="grey-9"
+                    color="grey-2"
                     text-color="primary"
                     @click="openCustomizeDialog"
                     icon="palette"
@@ -66,7 +66,7 @@
                     round
                     class="board-select-btn"
                     color="grey-9"
-                    text-color="white"
+                    text-color="grey-2"
                     @click="openSettingsDialog"
                     icon="settings"
                 />

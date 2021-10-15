@@ -8,7 +8,7 @@
         ref="input"
         class="q-mx-sm row"
         placeholder="Search..."
-        style="width: 300px !important"
+        style="width: 500px !important"
     >
         <template v-slot:append>
             <q-icon v-if="searchText === ''" name="search" />
@@ -26,7 +26,7 @@
 export default {
     name: 'SearchBar',
     methods: {
-        focus: function() {
+        focus: function () {
             this.$refs.input.focus()
         },
     },

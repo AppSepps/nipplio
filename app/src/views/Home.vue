@@ -9,6 +9,15 @@
                 />
                 <q-space />
                 <search-bar ref="searchBar" v-if="activeBoard" />
+                <q-space />
+                <q-btn
+                    flat
+                    @click="drawerLeft = !drawerLeft"
+                    round
+                    dense
+                    class="q-ml-sm"
+                    icon="group"
+                />
             </q-toolbar>
         </q-header>
         <board-select
@@ -16,7 +25,7 @@
             v-on:openCustomizeDialog="showCustomizeDialog = true"
             v-on:openSettingsDialog="showSettingsModal = true"
         />
-        <user-drawer v-if="activeBoard" />
+        <user-drawer v-if="activeBoard" v-model="drawerLeft" />
         <q-page-container>
             <q-page padding>
                 <div v-if="!activeBoard">
@@ -41,7 +50,7 @@
                                 Sounds ({{ filteredSounds.length }})
                             </div>
                             <q-space />
-                            <q-item v-if="availableTags.length > 0">
+                            <div v-if="availableTags.length > 0">
                                 <q-chip
                                     v-for="tag in availableTags"
                                     clickable
@@ -53,7 +62,7 @@
                                 >
                                     {{ tag }}
                                 </q-chip>
-                            </q-item>
+                            </div>
                         </template>
                         <template v-slot:header="props">
                             <q-tr :props="props">
@@ -112,6 +121,7 @@
 </template>
 
 <script>
+import { ref } from 'vue'
 import { mapState, mapGetters } from 'vuex'
 import Settings from './Settings.vue'
 import Sound from '../components/Sound.vue'
@@ -185,6 +195,7 @@ export default {
             showLeaveBoardDialog: false,
             showManageBoardDialog: false,
             columns,
+            drawerLeft: ref(true),
         }
     },
     methods: {
