@@ -7,14 +7,11 @@ import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 import bonjour from 'bonjour'
 import Store from 'electron-store'
+import windowStateKeeper from "electron-window-state";
+
+let mainWindowState
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
-
-const WINDOW_WIDTH = 1400
-const WINDOW_HEIGHT = 960
-let x, y
-
-let windowBounds = {x, y, width: WINDOW_WIDTH, height: WINDOW_HEIGHT}
 
 let willQuitApp = false
 let tray = null
@@ -83,13 +80,13 @@ const show = () => {
         screen.getCursorScreenPoint()
     )
     let bounds = currentScreen.bounds
-    let x = Math.ceil(bounds.x + (bounds.width - windowBounds.width) / 2)
-    let y = Math.ceil(bounds.y + (bounds.height - windowBounds.height) / 2)
+    let x = Math.ceil(bounds.x + (bounds.width - mainWindowState.width))
+    let y = Math.ceil(bounds.y + (bounds.height - mainWindowState.height))
     const newBounds = {
         x,
         y,
-        width: windowBounds.width,
-        height: windowBounds.height,
+        width: mainWindowState.width,
+        height: mainWindowState.height,
     }
     win.setBounds(newBounds)
     win.show()
@@ -99,12 +96,19 @@ async function createWindow() {
     if (!tray) {
         createTray()
     }
+    // Load the previous state with fallback to defaults
+    mainWindowState = windowStateKeeper({
+        defaultWidth: 1400,
+        defaultHeight: 960
+    });
     // Create the browser window.
     win = new BrowserWindow({
         userAgent: 'Chrome',
         backgroundColor: '#121212',
-        height: windowBounds.height,
-        width: windowBounds.width,
+        x: mainWindowState.x,
+        y: mainWindowState.y,
+        width: mainWindowState.width,
+        height: mainWindowState.height,
         fullscreenable: true,
         skipTaskbar: true,
         show: false,
@@ -113,7 +117,7 @@ async function createWindow() {
         hasShadow: false,
         icon: __dirname + '/icon.png',
         nativeWindowOpen: true,
-        autoHideMenuBar: false,
+        autoHideMenuBar: true,
         webPreferences: {
             experimentalFeatures: true,
             nodeIntegration: true,
@@ -122,6 +126,7 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     })
+    mainWindowState.manage(win);
     win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true})
 
     win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
@@ -138,7 +143,6 @@ async function createWindow() {
     })
     win.on('close', (e) => {
         console.log(win.getBounds())
-        windowBounds = win.getBounds()
         if (willQuitApp) {
             /* the user tried to quit the app */
             win = null
@@ -267,8 +271,7 @@ const reregisterOpenShortcut = () => {
 }
 
 const onToggleWindowShortCut = () => {
-    if (win.isVisible()) {
-        windowBounds = win.getBounds()
+    if (!win.isMinimized() && win.isVisible()) {
         win.hide()
     } else {
         show()
