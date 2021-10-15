@@ -22,7 +22,7 @@
           <q-list class="col-12">
             <q-item>
               <q-item-section>
-                <q-item-label header>Bluetooth Board</q-item-label>
+                <q-item-label header>Bluetooth Boards ({{ remoteDevices.length }})</q-item-label>
               </q-item-section>
               <q-item-section avatar>
                 <q-btn
@@ -34,6 +34,13 @@
                 />
               </q-item-section>
             </q-item>
+            <remote-device
+                v-for="(device, index) in remoteDevices"
+                :key="index"
+                :device="device"
+                :linked="true"
+                v-on:openDialog="openSlotMappingDialog()"
+            />
             <q-separator spaced/>
           </q-list>
         </div>
@@ -128,13 +135,13 @@
 import {isElectron, sendToIPCRenderer} from '../helpers/electron.helper'
 import firebase from 'firebase'
 import {mapActions, mapGetters} from 'vuex'
-// import RemoteDevice from '../components/RemoteDevice.vue'
+import RemoteDevice from '../components/RemoteDevice.vue'
 import {copyToClipboard} from 'quasar'
 
 export default {
   name: 'Settings',
   components: {
-    /*RemoteDevice*/
+    RemoteDevice
   },
   created() {
     this.copyToClipboard = copyToClipboard
