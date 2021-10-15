@@ -7,7 +7,8 @@
       <q-input disable readonly filled :dense="true" v-model="openShortcutText"/>
     </q-item-section>
     <q-item-section avatar>
-      <q-btn color="primary" @click="toggleOpenShortcutRecording"
+      <q-btn :color="openShortcutRecording ? 'secondary' : 'primary'" @click="toggleOpenShortcutRecording"
+             no-caps
              :label="openShortcutRecording ? 'Stop recording' : 'Record shortcut'"/>
     </q-item-section>
   </q-item>
