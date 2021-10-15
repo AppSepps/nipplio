@@ -1,12 +1,12 @@
 <template>
     <q-dialog @hide="onHide">
-        <q-card>
+        <q-card style="width: 450px; max-width: 80vw">
             <q-card-section class="row items-center">
                 <div class="text-h6">New board</div>
                 <q-space />
                 <q-btn icon="close" flat round dense v-close-popup />
             </q-card-section>
-            <q-card-section class="q-p-none">
+            <q-card-section v-if="!isCreateBoardLoading" class="q-p-none">
                 <q-list class="q-pb-md">
                     <q-item clickable v-ripple @click="onAddBoardClick">
                         <q-item-section avatar>
@@ -28,14 +28,14 @@
                             <q-avatar
                                 color="secondary"
                                 text-color="white"
-                                icon="dashboard_customize"
+                                icon="link"
                             />
                         </q-item-section>
                         <q-item-section>
                             <q-item-label>Join board</q-item-label>
                             <q-item-label caption
                                 >Click here to join an existing
-                                board.</q-item-label
+                                board</q-item-label
                             >
                         </q-item-section>
                     </q-item>
@@ -95,11 +95,16 @@
                     </q-input>
                 </q-form>
             </q-card-section>
+            <q-card-section v-else class="q-p-none text-center">
+                <q-spinner color="primary" size="4em" />
+                <div class="text-body1 q-my-md">Board is created...</div>
+            </q-card-section>
         </q-card>
     </q-dialog>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
     name: 'AddBoardDialog',
     data() {
@@ -109,6 +114,11 @@ export default {
             showJoinBoardInput: false,
             showCreateBoardInput: false,
         }
+    },
+    computed: {
+        ...mapState({
+            isCreateBoardLoading: (state) => state.board.isCreateBoardLoading,
+        }),
     },
     methods: {
         onHide: function () {
@@ -126,8 +136,10 @@ export default {
             }
             await this.$store.dispatch('board/createBoard', {
                 boardName: this.boardName,
+                cb: () => {
+                    this.$emit('closeDialog')
+                },
             })
-            this.$emit('closeDialog')
         },
         onJoinBoardClick: function () {
             this.showJoinBoardInput = true

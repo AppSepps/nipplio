@@ -7,6 +7,7 @@ function initialState() {
         activeBoard: undefined,
         apiKeys: [],
         boards: [],
+        isCreateBoardLoading: false,
     }
 }
 
@@ -35,10 +36,14 @@ const actions = {
             name: boardName,
         })
     },
-    async createBoard(context, params) {
-        const { boardName } = params
+    async createBoard({ commit }, params) {
+        const { boardName, cb } = params
+        commit('setCreateBoardLoading', true)
         const createBoard = firebase.functions().httpsCallable('createBoard')
         await createBoard({ boardName })
+        cb()
+        commit('setCreateBoardLoading', false)
+        // TODO: selectBoard (Do we get board id from response?)
     },
     async getApiKeys({ commit, state }) {
         firebase
@@ -176,6 +181,9 @@ const mutations = {
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard
+    },
+    setCreateBoardLoading(state, loading) {
+        state.isCreateBoardLoading = loading
     },
     reset(state) {
         const s = initialState()
