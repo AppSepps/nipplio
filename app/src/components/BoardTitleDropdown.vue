@@ -11,10 +11,12 @@
             <q-list style="min-width: 100px">
                 <q-item clickable v-close-popup @click="$refs.file.click()">
                     <q-item-section avatar>
-                        <q-icon name="publish" />
+                        <q-icon name="publish" color="primary" />
                     </q-item-section>
                     <q-item-section>
-                        <q-item-label>Upload Sound</q-item-label>
+                        <q-item-label class="text-primary"
+                            >Upload Sound</q-item-label
+                        >
                     </q-item-section>
                     <input
                         type="file"

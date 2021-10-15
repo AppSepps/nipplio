@@ -53,32 +53,31 @@ const actions = {
             })
     },
     async getBoards({ commit }) {
-        const boardsRef = firebase
+        const userBoardsRef = firebase
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
 
-        boardsRef.on('child_added', (snapshot) => {
-            firebase
-                .database()
-                .ref('/boards/' + snapshot.key + '/')
-                .on('value', (snapshot) => {
-                    commit('addBoard', {
-                        id: snapshot.key,
-                        ...snapshot.val(),
+        userBoardsRef.on('child_added', (snapshot) => {
+            const boardRef = firebase.database().ref('/boards/' + snapshot.key)
+
+            boardRef.once('value').then((boardSnapshot) => {
+                commit('addBoard', {
+                    id: boardSnapshot.key,
+                    ...boardSnapshot.val(),
+                })
+
+                boardRef.on('child_changed', (snapshot) => {
+                    commit('changeBoard', {
+                        id: boardSnapshot.key,
+                        [snapshot.key]: snapshot.val(),
                     })
                 })
-        })
 
-        boardsRef.on('child_changed', (snapshot) => {
-            commit('changeBoard', {
-                id: snapshot.key,
-                ...snapshot.val(),
-            })
-        })
-
-        boardsRef.on('child_removed', (snapshot) => {
-            commit('removeBoard', {
-                id: snapshot.key,
+                boardRef.on('child_removed', (snapshot) => {
+                    commit('removeBoard', {
+                        id: snapshot.key,
+                    })
+                })
             })
         })
     },
@@ -167,6 +166,9 @@ const mutations = {
         state.boards = state.boards.map((b) => {
             return b.id === board.id ? board : b
         })
+        if (board.id === state.activeBoard.id) {
+            state.activeBoard = board
+        }
     },
     removeBoard(state, { id }) {
         state.boards = state.boards.filter((board) => board.id !== id)
