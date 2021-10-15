@@ -69,6 +69,7 @@ const actions = {
                 boardRef.on('child_changed', (snapshot) => {
                     commit('changeBoard', {
                         id: boardSnapshot.key,
+                        ...boardSnapshot.val(),
                         [snapshot.key]: snapshot.val(),
                     })
                 })
