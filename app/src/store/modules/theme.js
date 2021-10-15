@@ -33,6 +33,18 @@ function initialState() {
                 secondary: '#7952b3',
                 name: 'Retro',
             },
+            {
+                id: 4,
+                primary: '#9e0059',
+                secondary: '#ee5622',
+                name: 'Halloween',
+            },
+            {
+                id: 5,
+                primary: '#c52233',
+                secondary: '#23856d',
+                name: 'Christmas',
+            },
         ],
         currentThemeId: -1,
     }
