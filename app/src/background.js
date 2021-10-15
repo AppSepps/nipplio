@@ -76,19 +76,6 @@ const createTray = () => {
 }
 
 const show = () => {
-    const currentScreen = screen.getDisplayNearestPoint(
-        screen.getCursorScreenPoint()
-    )
-    let bounds = currentScreen.bounds
-    let x = Math.ceil(bounds.x + (bounds.width - mainWindowState.width))
-    let y = Math.ceil(bounds.y + (bounds.height - mainWindowState.height))
-    const newBounds = {
-        x,
-        y,
-        width: mainWindowState.width,
-        height: mainWindowState.height,
-    }
-    win.setBounds(newBounds)
     win.show()
 }
 
