@@ -8,7 +8,8 @@
     },
     "boards": {
       "$boardId": {
-        ".read": "data.child('users').child(auth.uid).val() !== null"
+        ".read": "data.child('users').child(auth.uid).val() !== null",
+        ".write": "root.child('boards').child($boardId).child('owner').val() === auth.uid"
       }
     },
     "users": {
