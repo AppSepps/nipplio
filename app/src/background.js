@@ -6,6 +6,7 @@ import path from 'path'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 import bonjour from 'bonjour'
+import Store from 'electron-store'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -21,6 +22,12 @@ let win = null
 
 const bonjourInstance = new bonjour()
 let bonjourService
+
+const store = new Store();
+const OPEN_SHORTCUT = 'openShortcut'
+if (!store.get(OPEN_SHORTCUT)) {
+    store.set(OPEN_SHORTCUT, "CommandOrControl+Shift+P")
+}
 
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
 app.commandLine.appendSwitch('enable-web-bluetooth')
@@ -165,10 +172,7 @@ app.on('ready', async () => {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
     } catch (error) {
     }
-    globalShortcut.register('CommandOrControl+P', () => {
-        onToggleWindowShortCut()
-    })
-
+    reregisterOpenShortcut()
     globalShortcut.register('CommandOrControl+Shift+S', () => {
         onToggleSelfMuteShortCut()
     })
@@ -183,6 +187,14 @@ app.on('ready', async () => {
     createWindow()
     autoUpdater.checkForUpdatesAndNotify()
 
+    ipcMain.on('changeOpenShortcut', (event, data) => {
+        globalShortcut.unregister(store.get(OPEN_SHORTCUT))
+        store.set(OPEN_SHORTCUT, data)
+        reregisterOpenShortcut();
+    })
+    ipcMain.on('sendOpenShortcutToRenderer', () => {
+        win.webContents.send('openShortcutRegistered', store.get(OPEN_SHORTCUT))
+    })
     ipcMain.on('fromWebToElectron', () => {
         console.log('fromWebToElectron')
     })
@@ -242,6 +254,15 @@ if (isDevelopment) {
         process.on('SIGTERM', () => {
             app.quit()
         })
+    }
+}
+
+const reregisterOpenShortcut = () => {
+    globalShortcut.register(store.get(OPEN_SHORTCUT), () => {
+        onToggleWindowShortCut()
+    })
+    if (win != null) {
+        win.webContents.send('openShortcutRegistered', store.get(OPEN_SHORTCUT))
     }
 }
 

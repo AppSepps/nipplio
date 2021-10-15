@@ -1,6 +1,6 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import firebase from 'firebase'
-import { Quasar } from 'quasar'
+import {Quasar} from 'quasar'
 import mitt from 'mitt'
 import quasarConfig from './quasar.conf'
 import store from './store'
@@ -9,6 +9,7 @@ import App from './App.vue'
 import config from './config'
 import moment from 'moment'
 import 'moment/min/locales'
+
 const locale = window.navigator.userLanguage || window.navigator.language
 moment.locale(locale)
 
@@ -36,12 +37,17 @@ firebase.auth().onAuthStateChanged(() => {
 
 try {
     window.ipcRenderer.on('mute', async () => {
-        await store.dispatch('user/toggleUserMute', { selfMute: true })
+        await store.dispatch('user/toggleUserMute', {selfMute: true})
     })
     window.ipcRenderer.on('discoveredNipplioDevice', async (event, service) => {
         console.log('discoveredNipplioDevice event', event)
         console.log('discoveredNipplioDevice service', service)
         await store.dispatch('settings/discoveredNipplioDevice', service)
+    })
+    window.ipcRenderer.on('openShortcutRegistered', async (event, shortcutString) => {
+        await store.dispatch('settings/openShortcutTextChanged', {
+            text: shortcutString.replaceAll('+', ' + '),
+        })
     })
 } catch (error) {
     // Is Web instance

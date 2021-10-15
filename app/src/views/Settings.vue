@@ -7,17 +7,15 @@
         <q-btn icon="close" flat round dense v-close-popup/>
       </q-card-section>
       <q-card-section>
-        <!--<div class="row q-pb-sm">
-            <q-list class="col-6">
-                <q-item-label header>Desktop App Settings</q-item-label>
-                <q-item clickable>
-                    <q-item-section>
-                        <q-item-label>Nothing here yet</q-item-label>
-                    </q-item-section>
-                </q-item>
-                <q-separator spaced />
-            </q-list>
-        </div>-->
+        <div v-if="isElectron" class="row q-pb-sm">
+          <q-list class="col-12">
+            <q-item-label header>Desktop App Settings</q-item-label>
+            <open-shortcut-item/>
+          </q-list>
+          <q-list class="col-12">
+            <q-separator spaced/>
+          </q-list>
+        </div>
         <div v-if="!isElectron" class="row q-pb-sm">
           <q-list class="col-12">
             <q-item>
@@ -135,12 +133,14 @@
 import {isElectron, sendToIPCRenderer} from '../helpers/electron.helper'
 import firebase from 'firebase'
 import {mapActions, mapGetters} from 'vuex'
-import RemoteDevice from '../components/RemoteDevice.vue'
+import RemoteDevice from '@/components/RemoteDevice.vue'
 import {copyToClipboard} from 'quasar'
+import OpenShortcutItem from "@/components/OpenShortcutItem";
 
 export default {
   name: 'Settings',
   components: {
+    OpenShortcutItem,
     RemoteDevice
   },
   created() {
@@ -175,6 +175,7 @@ export default {
   },
   async mounted() {
     sendToIPCRenderer('startScanForDevices')
+    sendToIPCRenderer('sendOpenShortcutToRenderer')
     await this.$store.dispatch('settings/autoConnect')
   },
   unmounted() {

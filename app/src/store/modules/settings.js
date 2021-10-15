@@ -1,9 +1,13 @@
 import firebase from 'firebase'
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
+import {v4 as uuidv4} from 'uuid'
+import hotkeys from "hotkeys-js";
+import {sendToIPCRenderer} from "@/helpers/electron.helper";
 
 function initialState() {
     return {
+        openShortcutText: "",
+        openShortcutRecording: false,
         availableSlotSounds: [],
         discoveredDevices: [],
         remoteDevices: [],
@@ -12,16 +16,19 @@ function initialState() {
 }
 
 const getters = {
-    isOwner: function(state, getters, rootState) {
+    openShortcutRecording: function (state) {
+        return state.openShortcutRecording
+    },
+    isOwner: function (state, getters, rootState) {
         return (
             rootState.board.activeBoard.owner ===
             firebase.auth().currentUser.uid
         )
     },
-    apiKeys: function(state, getters, rootState) {
+    apiKeys: function (state, getters, rootState) {
         return rootState.board.apiKeys
     },
-    remoteDevices: function(state) {
+    remoteDevices: function (state) {
         return state.remoteDevices.map(remoteDevice => {
             let ipAddress
             state.discoveredDevices.forEach(discoveredDevice => {
@@ -45,19 +52,67 @@ const getters = {
 }
 
 const actions = {
-    async addApiKey({ rootState }) {
+    toggleOpenShortcutRecording({commit, state, dispatch}) {
+        if (state.openShortcutRecording) {
+            // unregister the hotkey
+            hotkeys.unbind('*', 'openShortcut')
+            hotkeys.setScope('all')
+            sendToIPCRenderer('sendOpenShortcutToRenderer')
+        } else {
+            // register hotkeys
+            hotkeys('*', 'openShortcut', async function (event) {
+                console.log(event)
+                let electronArray = [];
+                let containsModifierKey = false
+                let containsKey = false
+                if (event.metaKey) {
+                    electronArray.push("Meta")
+                    containsModifierKey = true
+                }
+                if (event.ctrlKey) {
+                    electronArray.push("Ctrl")
+                    containsModifierKey = true
+                }
+                if (event.shiftKey) {
+                    electronArray.push("Shift")
+                    containsModifierKey = true
+                }
+                if (event.altKey) {
+                    electronArray.push("Alt")
+                    containsModifierKey = true
+                }
+                if (event.key.match(/^[a-zA-Z]$/)) {
+                    electronArray.push(event.key.toUpperCase())
+                    containsKey = true
+                }
+                dispatch('openShortcutTextChanged', {
+                    text: electronArray.join(' + '),
+                })
+                if (containsModifierKey && containsKey) {
+                    sendToIPCRenderer('changeOpenShortcut', electronArray.join('+'))
+                }
+            })
+            hotkeys.setScope('openShortcut')
+        }
+        commit('setOpenShortcutRecording', !state.openShortcutRecording)
+    },
+    openShortcutTextChanged({commit}, params) {
+        const {text} = params
+        commit('changeOpenShortcutText', {text})
+    },
+    async addApiKey({rootState}) {
         await firebase
             .database()
             .ref(`/apiKeys/${rootState.board.activeBoard.id}/${uuidv4()}`)
             .set(true)
     },
-    async deleteApiKey({ rootState }, apiKey) {
+    async deleteApiKey({rootState}, apiKey) {
         await firebase
             .database()
             .ref(`/apiKeys/${rootState.board.activeBoard.id}/${apiKey}`)
             .set(null)
     },
-    async bleButtonScanClicked({ dispatch }) {
+    async bleButtonScanClicked({dispatch}) {
         try {
             console.log('Requesting any Bluetooth Device...')
             this.bluetoothDevice = await navigator.bluetooth.requestDevice({
@@ -76,7 +131,7 @@ const actions = {
             console.log('Argh! ' + error)
         }
     },
-    async autoConnect({ dispatch }) {
+    async autoConnect({dispatch}) {
         const devices = await navigator.bluetooth.getDevices()
         console.log(devices)
         if (devices !== undefined && devices.length > 0) {
@@ -126,12 +181,12 @@ const actions = {
         console.log('> Notifications started')
         myCharacteristic.addEventListener(
             'characteristicvaluechanged',
-            function(event) {
+            function (event) {
                 dispatch('handleNotifications', event)
             }
         )
     },
-    handleNotifications({ dispatch }, event) {
+    handleNotifications({dispatch}, event) {
         let value = event.target.value
         console.log(event.currentTarget.service.device.name)
         console.log(event.currentTarget.service.device.id)
@@ -146,20 +201,21 @@ const actions = {
                 slotId: slotPressed,
                 deviceId: event.currentTarget.service.device.name,
             },
-            { root: true }
+            {root: true}
         )
     },
-    async triggerRemotePlaySoundBySlotIdAndBoardId() {},
+    async triggerRemotePlaySoundBySlotIdAndBoardId() {
+    },
     async onDisconnect() {
         console.log('onDisconnect')
     },
-    async addSoundMappingToDevice({ dispatch, rootState }, ipAddress) {
+    async addSoundMappingToDevice({dispatch, rootState}, ipAddress) {
         const url = 'http://' + ipAddress + '/setSlotSoundMapping'
         const soundsIdsArray = rootState.sound.sounds.map(sound => sound.id)
         await axios.post(url, soundsIdsArray.slice(0, 5))
         await dispatch('getDeviceConfig', ipAddress)
     },
-    async getAvailableSlotSounds({ commit }, { boardId }) {
+    async getAvailableSlotSounds({commit}, {boardId}) {
         try {
             const sounds = await firebase
                 .database()
@@ -170,7 +226,7 @@ const actions = {
             console.log(error)
         }
     },
-    async registerRemoteDevice({ dispatch, commit }, ipAddress) {
+    async registerRemoteDevice({dispatch, commit}, ipAddress) {
         commit('setDeviceLoading', ipAddress)
         try {
             const idToken = await firebase.auth().currentUser.getIdToken()
@@ -200,20 +256,20 @@ const actions = {
         const configResponse = await axios.get(configUrl)
         console.log(configResponse.data)
     },
-    async discoveredNipplioDevice({ dispatch, commit, state }, device) {
+    async discoveredNipplioDevice({dispatch, commit, state}, device) {
         if (device) {
             const discoveredDevice = state.discoveredDevices.filter(
                 d => d.addresses[0] === device.addresses[0]
             )[0]
             if (!discoveredDevice) {
-                commit('addDiscoveredDevice', { device })
+                commit('addDiscoveredDevice', {device})
             } else {
                 // Do we need this?
                 await dispatch('getDeviceConfig', device.addresses[0])
             }
         }
     },
-    async saveSlotMapping(context, { device, boardId, selectedSounds }) {
+    async saveSlotMapping(context, {device, boardId, selectedSounds}) {
         const slotMappingRef = firebase
             .database()
             .ref(
@@ -233,7 +289,7 @@ const actions = {
             console.log(error)
         }
     },
-    subscribeToRemoteDevices({ commit }) {
+    subscribeToRemoteDevices({commit}) {
         const user = firebase.auth().currentUser
         const deviceRef = firebase
             .database()
@@ -259,9 +315,9 @@ const actions = {
             })
         })
     },
-    async unlinkRemoteDevice({ commit }, device) {
+    async unlinkRemoteDevice({commit}, device) {
         console.log(device)
-        commit('setRemoteDeviceLoadingStatus', { device, isLoading: true })
+        commit('setRemoteDeviceLoadingStatus', {device, isLoading: true})
         const idToken = await firebase.auth().currentUser.getIdToken()
         const url =
             'http://' + device.ipAddress + '/unpairDevice?idToken=' + idToken
@@ -275,18 +331,24 @@ const actions = {
         } catch (error) {
             console.log(error)
         }
-        commit('setRemoteDeviceLoadingStatus', { device, isLoading: false })
+        commit('setRemoteDeviceLoadingStatus', {device, isLoading: false})
     },
 }
 
 const mutations = {
+    setOpenShortcutRecording(state, newState) {
+        state.openShortcutRecording = newState;
+    },
+    changeOpenShortcutText(state, {text}) {
+        state.openShortcutText = text;
+    },
     setBluetoothDevice(state, bluetoothDevice) {
         state.bluetoothDevice = bluetoothDevice
     },
     addAvailableSlotSounds(state, sounds) {
         let availableSounds = []
         for (let [key, value] of Object.entries(sounds)) {
-            availableSounds.push({ id: key, ...value })
+            availableSounds.push({id: key, ...value})
         }
         availableSounds = availableSounds.sort((a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -301,12 +363,12 @@ const mutations = {
             return d.id === device.id ? device : d
         })
     },
-    removeRemoteDevice(state, { id }) {
+    removeRemoteDevice(state, {id}) {
         state.remoteDevices = state.remoteDevices.filter(
             device => device.id !== id
         )
     },
-    setRemoteDeviceLoadingStatus(state, { device, isLoading }) {
+    setRemoteDeviceLoadingStatus(state, {device, isLoading}) {
         state.remoteDevices.forEach(remoteDevice => {
             if (device.id === remoteDevice.id) {
                 remoteDevice.loading = isLoading
@@ -327,7 +389,7 @@ const mutations = {
             }
         })
     },
-    addDiscoveredDevice(state, { device }) {
+    addDiscoveredDevice(state, {device}) {
         state.discoveredDevices.push(device)
     },
     reset(state) {

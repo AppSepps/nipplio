@@ -1,6 +1,6 @@
 {
   "name": "nipplio",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "The best Nippleboard of the World!",
   "author": "AppSepps",
   "repository": "https://github.com/AppSepps/nipplio.git",
@@ -26,6 +26,7 @@
     "bonjour-service": "^1.0.8",
     "core-js": "^3.6.5",
     "dns": "^0.2.2",
+    "electron-store": "^8.0.1",
     "electron-updater": "^4.3.9",
     "element-plus": "^1.0.2-beta.48",
     "fetch": "^1.1.0",
