@@ -2,30 +2,18 @@
     <q-layout view="lHh LpR lFf" container style="height: 100vh">
         <q-header class="shadow-1">
             <q-toolbar class="bg-dark text-white">
-                <sound-upload class="q-ml-sm" v-if="activeBoard" />
-                <board-invite
-                    v-if="activeBoard && user && activeBoard.owner === user.uid"
-                    class="q-mx-sm"
-                    v-on:openDialog="showBoardInviteDialog = true"
+                <board-title-dropdown
+                    v-on:openInviteDialog="showBoardInviteDialog = true"
+                    v-on:openLeaveBoardDialog="showLeaveBoardDialog = true"
                 />
                 <q-space />
                 <search-bar ref="searchBar" v-if="activeBoard" />
-                <q-space />
-                <manage-board-button
-                    v-if="activeBoard && user && activeBoard.owner === user.uid"
-                />
-                <q-btn
-                    unelevated
-                    icon="settings"
-                    color="grey-9"
-                    class="q-ml-sm"
-                    @click="showSettingsModal = true"
-                />
             </q-toolbar>
         </q-header>
         <board-select
             v-on:openAddBoardDialog="showAddBoardDialog = true"
             v-on:openCustomizeDialog="showCustomizeDialog = true"
+            v-on:openSettingsDialog="showSettingsModal = true"
         />
         <user-drawer v-if="activeBoard" />
         <q-page-container>
@@ -117,6 +105,7 @@
         <sound-info-dialog v-model="showSoundInfoDialog" />
         <slot-mapping-dialog v-model="showSlotMappingDialog" />
         <customize-dialog v-model="showCustomizeDialog" />
+        <leave-board-dialog v-model="showLeaveBoardDialog" />
     </q-layout>
 </template>
 
@@ -124,8 +113,6 @@
 import { mapState, mapGetters } from 'vuex'
 import Settings from './Settings.vue'
 import Sound from '../components/Sound.vue'
-import SoundUpload from '../components/SoundUpload.vue'
-import BoardInvite from '../components/BoardInvite.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
 import AudioPlayer from '../components/AudioPlayer.vue'
 import BoardInviteDialog from '../components/BoardInviteDialog.vue'
@@ -133,11 +120,12 @@ import SearchBar from '../components/SearchBar.vue'
 import RemoveSoundDialog from '../components/RemoveSoundDialog.vue'
 import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
-import ManageBoardButton from '../components/ManageBoardButton.vue'
 import UserDrawer from '../components/UserDrawer.vue'
 import SlotMappingDialog from '../components/SlotMappingDialog.vue'
 import BoardSelect from '../components/BoardSelect.vue'
 import CustomizeDialog from '../components/CustomizeDialog.vue'
+import BoardTitleDropdown from '../components/BoardTitleDropdown.vue'
+import LeaveBoardDialog from '../components/LeaveBoardDialog.vue'
 
 const columns = [
     {
@@ -166,8 +154,6 @@ export default {
     components: {
         Settings,
         Sound,
-        SoundUpload,
-        BoardInvite,
         AddBoardDialog,
         AudioPlayer,
         BoardInviteDialog,
@@ -175,11 +161,12 @@ export default {
         SearchBar,
         EditSoundDialog,
         SoundInfoDialog,
-        ManageBoardButton,
         UserDrawer,
         SlotMappingDialog,
         BoardSelect,
         CustomizeDialog,
+        BoardTitleDropdown,
+        LeaveBoardDialog,
     },
     data() {
         return {
@@ -191,6 +178,7 @@ export default {
             showSoundInfoDialog: false,
             showSlotMappingDialog: false,
             showCustomizeDialog: false,
+            showLeaveBoardDialog: false,
             columns,
         }
     },

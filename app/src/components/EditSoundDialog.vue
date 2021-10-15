@@ -1,6 +1,6 @@
 <template>
     <q-dialog>
-        <q-card style="width: 300px; max-width: 80vw">
+        <q-card style="width: 500px; max-width: 80vw">
             <q-form @submit="onSubmit">
                 <q-card-section class="row items-center">
                     <div class="text-h6">Edit Sound</div>
@@ -61,7 +61,7 @@ export default {
         ...mapGetters('sound', ['availableTags']),
     },
     mounted() {
-        this.bus.on('onSoundEditClick', sound => {
+        this.bus.on('onSoundEditClick', (sound) => {
             this.sound = sound
             this.name = sound.name
             this.tags = sound.tags ? sound.tags.split(',') : []
@@ -77,7 +77,7 @@ export default {
                 } else {
                     const needle = val.toLowerCase()
                     this.filterOptions = this.availableTags.filter(
-                        v => v.toLowerCase().indexOf(needle) > -1
+                        (v) => v.toLowerCase().indexOf(needle) > -1
                     )
                 }
             })

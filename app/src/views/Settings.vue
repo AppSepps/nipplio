@@ -1,11 +1,6 @@
 <template>
-    <q-dialog
-        transition-show="slide-up"
-        transition-hide="slide-down"
-        full-width
-        full-height
-    >
-        <q-card>
+    <q-dialog>
+        <q-card style="width: 450px; max-width: 80vw">
             <q-card-section class="row items-center">
                 <div class="text-h6">Settings</div>
                 <q-space />
@@ -27,7 +22,6 @@
                     <q-list class="col-6">
                         <q-item-label header
                             >API Keys
-
                             <q-btn
                                 flat
                                 round
@@ -129,10 +123,10 @@ export default {
             'addApiKey',
             'deleteApiKey',
         ]),
-        openSlotMappingDialog: function() {
+        openSlotMappingDialog: function () {
             this.$emit('openSlotMappingDialog')
         },
-        signOut: async function() {
+        signOut: async function () {
             await firebase.auth().signOut()
             this.$store.dispatch('player/unsubscribeToPlayer')
             this.$store.dispatch('clearAll')

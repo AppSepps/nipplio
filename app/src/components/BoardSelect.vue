@@ -1,5 +1,11 @@
 <template>
-    <q-drawer side="left" show-if-above :width="65" class="bg-grey-10">
+    <q-drawer
+        side="left"
+        show-if-above
+        :width="65"
+        class="bg-grey-10"
+        :breakpoint="300"
+    >
         <q-scroll-area class="fit">
             <div class="q-pa-sm">
                 <div
@@ -42,7 +48,7 @@
                 <q-separator />
                 <q-btn
                     round
-                    class="board-select-btn q-my-sm"
+                    class="board-select-btn q-mt-sm"
                     color="grey-9"
                     text-color="primary"
                     @click="openAddBoardDialog"
@@ -50,11 +56,19 @@
                 />
                 <q-btn
                     round
-                    class="board-select-btn"
+                    class="board-select-btn q-my-sm"
                     color="grey-9"
                     text-color="primary"
                     @click="openCustomizeDialog"
                     icon="palette"
+                />
+                <q-btn
+                    round
+                    class="board-select-btn"
+                    color="grey-9"
+                    text-color="white"
+                    @click="openSettingsDialog"
+                    icon="settings"
                 />
             </div>
         </q-scroll-area>
@@ -84,6 +98,9 @@ export default {
         },
         openCustomizeDialog: function () {
             this.$emit('openCustomizeDialog')
+        },
+        openSettingsDialog: function () {
+            this.$emit('openSettingsDialog')
         },
     },
 }
