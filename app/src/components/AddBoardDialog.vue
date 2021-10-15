@@ -47,6 +47,7 @@
                 >
                     <q-input
                         filled
+                        dense
                         v-model="inviteUrlText"
                         label="Invite Link"
                         placeholder="Paste in your invite link..."
@@ -56,12 +57,9 @@
                                 'Please type something',
                         ]"
                     >
-                        <template v-slot:append>
+                        <template v-slot:after>
                             <q-btn
                                 :disabled="inviteUrlText.trim().length == 0"
-                                round
-                                dense
-                                flat
                                 color="primary"
                                 icon="send"
                                 @click="onInviteUrlSend"
@@ -76,21 +74,19 @@
                 >
                     <q-input
                         filled
+                        dense
                         v-model="boardName"
                         label="Board Name"
-                        placeholder="My fancy board name"
+                        placeholder="BraveBoardBuddies"
                         :rules="[
                             (val) =>
                                 (val && val.length > 0) ||
                                 'Please type something',
                         ]"
                     >
-                        <template v-slot:append>
+                        <template v-slot:after>
                             <q-btn
                                 :disabled="boardName.trim().length == 0"
-                                round
-                                dense
-                                flat
                                 color="primary"
                                 icon="send"
                                 @click="onAddBoardSend"

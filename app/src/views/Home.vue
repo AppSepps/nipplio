@@ -5,6 +5,7 @@
                 <board-title-dropdown
                     v-on:openInviteDialog="showBoardInviteDialog = true"
                     v-on:openLeaveBoardDialog="showLeaveBoardDialog = true"
+                    v-on:openManageBoardDialog="showManageBoardDialog = true"
                 />
                 <q-space />
                 <search-bar ref="searchBar" v-if="activeBoard" />
@@ -106,6 +107,7 @@
         <slot-mapping-dialog v-model="showSlotMappingDialog" />
         <customize-dialog v-model="showCustomizeDialog" />
         <leave-board-dialog v-model="showLeaveBoardDialog" />
+        <manage-board-dialog v-model="showManageBoardDialog" />
     </q-layout>
 </template>
 
@@ -126,6 +128,7 @@ import BoardSelect from '../components/BoardSelect.vue'
 import CustomizeDialog from '../components/CustomizeDialog.vue'
 import BoardTitleDropdown from '../components/BoardTitleDropdown.vue'
 import LeaveBoardDialog from '../components/LeaveBoardDialog.vue'
+import ManageBoardDialog from '../components/ManageBoardDialog.vue'
 
 const columns = [
     {
@@ -167,6 +170,7 @@ export default {
         CustomizeDialog,
         BoardTitleDropdown,
         LeaveBoardDialog,
+        ManageBoardDialog,
     },
     data() {
         return {
@@ -179,6 +183,7 @@ export default {
             showSlotMappingDialog: false,
             showCustomizeDialog: false,
             showLeaveBoardDialog: false,
+            showManageBoardDialog: false,
             columns,
         }
     },

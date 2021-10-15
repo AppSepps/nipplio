@@ -38,7 +38,12 @@
                         <q-item-label>Invite Users</q-item-label>
                     </q-item-section>
                 </q-item>
-                <q-item v-if="owner" clickable v-close-popup>
+                <q-item
+                    v-if="owner"
+                    clickable
+                    v-close-popup
+                    @click="onManageBoardClicked"
+                >
                     <q-item-section avatar>
                         <q-icon name="edit_note" />
                     </q-item-section>
@@ -96,6 +101,9 @@ export default {
                     this.bus.emit('onInviteUrlGenerate', url)
                 },
             })
+        },
+        onManageBoardClicked: function () {
+            this.$emit('openManageBoardDialog')
         },
         onLeaveClicked: function () {
             this.$emit('openLeaveBoardDialog')
