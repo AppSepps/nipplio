@@ -75,14 +75,12 @@
                     <q-item>
                         <q-item-section avatar>
                             <q-btn
-                                type="a"
-                                :href="sound.downloadUrl"
-                                target="_blank"
                                 unelevated
                                 round
                                 dense
                                 icon="download"
                                 color="secondary"
+                                @click="onGenerateDownloadUrl(sound.id)"
                             />
                         </q-item-section>
                         <q-item-section>
@@ -119,6 +117,14 @@ export default {
     methods: {
         onSoundPlay: async function (id) {
             await this.$store.dispatch('player/playRemoteSound', { id })
+        },
+        onGenerateDownloadUrl: async function (id) {
+            await this.$store.dispatch('sound/generateDownloadUrl', {
+                id,
+                cb: (url) => {
+                    window.open(url, '_blank')
+                },
+            })
         },
     },
 }

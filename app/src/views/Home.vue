@@ -23,7 +23,7 @@
                     You are currently not connected with any board. Select a
                     board on the left side or create a new board.
                 </div>
-                <div v-else>
+                <div v-else-if="!areSoundsLoading">
                     <!-- TODO: Extract sound table in extra component -->
                     <q-table
                         class="sound-table"
@@ -212,6 +212,7 @@ export default {
         ...mapGetters('sound', ['filteredSounds', 'availableTags']),
         ...mapState({
             activeBoard: (state) => state.board.activeBoard,
+            areSoundsLoading: (state) => state.sound.areSoundsLoading,
             boardUsers: (state) => state.user.boardUsers,
             sounds: (state) => state.sound.sounds,
             user: (state) => state.user.user,

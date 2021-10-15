@@ -2,10 +2,11 @@ import firebase from 'firebase'
 
 function initialState() {
     return {
+        areSoundsLoading: false,
+        favoriteSoundIds: [],
         searchText: '',
         selectedTags: [],
         sounds: [],
-        favoriteSoundIds: [],
     }
 }
 
@@ -62,8 +63,12 @@ const getters = {
 }
 
 const actions = {
-    onTagClicked({ commit }, { tagName }) {
-        commit('toggleSelectedTag', { tagName })
+    async generateDownloadUrl({ rootState }, { id, cb }) {
+        const soundUrl = await firebase
+            .storage()
+            .ref(`boards/${rootState.board.activeBoard.id}/${id}`)
+            .getDownloadURL()
+        cb(soundUrl)
     },
     getSounds({ commit, rootState }) {
         const { activeBoard } = rootState.board
@@ -73,33 +78,38 @@ const actions = {
         commit('clearSounds')
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
 
-        soundsRef.on('child_added', async (snapshot) => {
-            const soundUrl = await firebase
-                .storage()
-                .ref(`boards/${activeBoard.id}/${snapshot.key}`)
-                .getDownloadURL()
-            commit('addSound', {
-                id: snapshot.key,
-                ...snapshot.val(),
-                downloadUrl: soundUrl,
+        commit('setAreSoundsLoading', true)
+        soundsRef.once('value').then(async (snapshot) => {
+            const sounds = []
+            snapshot.forEach((s) => {
+                sounds.push({ id: s.key, ...s.val() })
             })
-        })
 
-        soundsRef.on('child_changed', async (snapshot) => {
-            const soundUrl = await firebase
-                .storage()
-                .ref(`boards/${activeBoard.id}/${snapshot.key}`)
-                .getDownloadURL()
-            commit('changeSound', {
-                id: snapshot.key,
-                ...snapshot.val(),
-                downloadUrl: soundUrl,
+            commit('addSounds', sounds)
+            commit('setAreSoundsLoading', false)
+
+            soundsRef
+                .limitToLast(1)
+                .orderByChild('createdAt')
+                .startAt(Date.now())
+                .on('child_added', async (snapshot) => {
+                    commit('addSound', {
+                        id: snapshot.key,
+                        ...snapshot.val(),
+                    })
+                })
+
+            soundsRef.on('child_changed', async (snapshot) => {
+                commit('changeSound', {
+                    id: snapshot.key,
+                    ...snapshot.val(),
+                })
             })
-        })
 
-        soundsRef.on('child_removed', (snapshot) => {
-            commit('removeSound', {
-                id: snapshot.key,
+            soundsRef.on('child_removed', (snapshot) => {
+                commit('removeSound', {
+                    id: snapshot.key,
+                })
             })
         })
     },
@@ -115,6 +125,9 @@ const actions = {
                 name: sound.name,
                 tags: sound.tags,
             })
+    },
+    onTagClicked({ commit }, { tagName }) {
+        commit('toggleSelectedTag', { tagName })
     },
     async removeSound(context, params) {
         const { activeBoard } = context.rootState.board
@@ -179,6 +192,9 @@ const mutations = {
     addSound(state, sound) {
         state.sounds = [...state.sounds, sound]
     },
+    addSounds(state, sounds) {
+        state.sounds = sounds
+    },
     changeSearch(state, { text }) {
         state.searchText = text
     },
@@ -195,6 +211,9 @@ const mutations = {
     },
     resetTags(state) {
         state.selectedTags = []
+    },
+    setAreSoundsLoading(state, loading) {
+        state.areSoundsLoading = loading
     },
     toggleFavoriteSound(state, { id }) {
         state.favoriteSoundIds = state.favoriteSoundIds.includes(id)
