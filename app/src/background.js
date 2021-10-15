@@ -1,21 +1,10 @@
 'use strict'
 
-import {
-    app,
-    protocol,
-    BrowserWindow,
-    Menu,
-    nativeImage,
-    Tray,
-    globalShortcut,
-    screen,
-    ipcMain,
-    shell,
-} from 'electron'
-import { autoUpdater } from 'electron-updater'
+import {app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, screen, shell, Tray,} from 'electron'
+import {autoUpdater} from 'electron-updater'
 import path from 'path'
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 import bonjour from 'bonjour'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -24,7 +13,7 @@ const WINDOW_WIDTH = 1400
 const WINDOW_HEIGHT = 960
 let x, y
 
-let windowBounds = { x, y, width: WINDOW_WIDTH, height: WINDOW_HEIGHT }
+let windowBounds = {x, y, width: WINDOW_WIDTH, height: WINDOW_HEIGHT}
 
 let willQuitApp = false
 let tray = null
@@ -34,10 +23,10 @@ const bonjourInstance = new bonjour()
 let bonjourService
 
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
-app.commandLine.appendSwitch('enable-web-bluetooth', true)
+app.commandLine.appendSwitch('enable-web-bluetooth')
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-    { scheme: 'app', privileges: { secure: true, standard: true } },
+    {scheme: 'app', privileges: {secure: true, standard: true}},
 ])
 
 const createTray = () => {
@@ -126,22 +115,21 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     })
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+    win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true})
     win.setAlwaysOnTop(true, 'floating')
 
-    win.webContents.on(
-        'select-bluetooth-device',
-        (event, deviceList, callback) => {
-            event.preventDefault()
-            console.log('Device list:', deviceList)
-            let result = deviceList[0]
-            if (!result) {
-                callback('')
-            } else {
-                callback(result.deviceId)
-            }
+    win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+        console.log("select-bluetooth-device")
+        event.preventDefault()
+        const result = deviceList.find((device) => {
+            return device.deviceName === 'test'
+        })
+        if (!result) {
+            callback('')
+        } else {
+            callback(result.deviceId)
         }
-    )
+    })
     win.on('close', (e) => {
         console.log(win.getBounds())
         windowBounds = win.getBounds()
@@ -176,7 +164,8 @@ async function createWindow() {
 app.on('ready', async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
-    } catch (error) {}
+    } catch (error) {
+    }
     globalShortcut.register('CommandOrControl+P', () => {
         onToggleWindowShortCut()
     })
@@ -215,7 +204,7 @@ app.on('ready', async () => {
     })
     ipcMain.on('startScanForDevices', () => {
         bonjourService = bonjourInstance.find(
-            { type: 'nipplio' },
+            {type: 'nipplio'},
             function (service) {
                 console.log('Found an Nipplio server:', service)
                 win.webContents.send('discoveredNipplioDevice', service)

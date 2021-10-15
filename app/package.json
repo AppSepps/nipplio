@@ -1,83 +1,83 @@
 {
-    "name": "nipplio",
-    "version": "0.1.16",
-    "description": "The best Nippleboard of the World!",
-    "author": "AppSepps",
-    "repository": "https://github.com/AppSepps/nipplio.git",
-    "private": true,
-    "scripts": {
-        "serve": "vue-cli-service serve",
-        "buildForFirebase": "vue-cli-service build --dest ../firebase/public/",
-        "build": "vue-cli-service build",
-        "copyToFirebase": "cp -R dist/ ../firebase/public/",
-        "lint": "vue-cli-service lint",
-        "electron:build": "vue-cli-service electron:build",
-        "electron:serve": "vue-cli-service electron:serve",
-        "postinstall": "electron-builder install-app-deps",
-        "postuninstall": "electron-builder install-app-deps",
-        "pack": "electron-builder --dir",
-        "dist": "electron-builder"
+  "name": "nipplio",
+  "version": "0.1.16",
+  "description": "The best Nippleboard of the World!",
+  "author": "AppSepps",
+  "repository": "https://github.com/AppSepps/nipplio.git",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "buildForFirebase": "vue-cli-service build --dest ../firebase/public/",
+    "build": "vue-cli-service build",
+    "copyToFirebase": "cp -R dist/ ../firebase/public/",
+    "lint": "vue-cli-service lint",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "main": "background.js",
+  "dependencies": {
+    "@quasar/extras": "^1.0.0",
+    "axios": "^0.21.1",
+    "bonjour": "^3.5.0",
+    "bonjour-service": "^1.0.8",
+    "core-js": "^3.6.5",
+    "dns": "^0.2.2",
+    "electron-updater": "^4.3.9",
+    "element-plus": "^1.0.2-beta.48",
+    "fetch": "^1.1.0",
+    "firebase": "^8.7.0",
+    "firebaseui": "^4.8.0",
+    "hotkeys-js": "^3.8.7",
+    "howler": "^2.2.3",
+    "is-electron": "^2.2.0",
+    "mitt": "^3.0.0",
+    "moment": "^2.29.1",
+    "path": "^0.12.7",
+    "quasar": "^2.0.0-beta.1",
+    "uuid": "^8.3.2",
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.8",
+    "vuex": "^4.0.2",
+    "vuex-persistedstate": "^4.0.0-beta.3"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "electron": "^12.0.0",
+    "electron-builder": "^22.11.7",
+    "electron-devtools-installer": "^3.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0",
+    "postcss-rtl": "^1.2.3",
+    "sass": "^1.35.1",
+    "sass-loader": "^10.1.1",
+    "vue-cli-plugin-electron-builder": "~2.0.0",
+    "vue-cli-plugin-quasar": "^4.0.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
     },
-    "main": "background.js",
-    "dependencies": {
-        "@quasar/extras": "^1.0.0",
-        "axios": "^0.21.1",
-        "bonjour": "^3.5.0",
-        "bonjour-service": "^1.0.8",
-        "core-js": "^3.6.5",
-        "dns": "^0.2.2",
-        "electron-updater": "^4.3.9",
-        "element-plus": "^1.0.2-beta.48",
-        "fetch": "^1.1.0",
-        "firebase": "^8.7.0",
-        "firebaseui": "^4.8.0",
-        "hotkeys-js": "^3.8.7",
-        "howler": "^2.2.3",
-        "is-electron": "^2.2.0",
-        "mitt": "^3.0.0",
-        "moment": "^2.29.1",
-        "path": "^0.12.7",
-        "quasar": "^2.0.0-beta.1",
-        "uuid": "^8.3.2",
-        "vue": "^3.0.0",
-        "vue-router": "^4.0.8",
-        "vuex": "^4.0.2",
-        "vuex-persistedstate": "^4.0.0-beta.3"
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
     },
-    "devDependencies": {
-        "@vue/cli-plugin-babel": "~4.5.0",
-        "@vue/cli-plugin-eslint": "~4.5.0",
-        "@vue/cli-service": "~4.5.0",
-        "@vue/compiler-sfc": "^3.0.0",
-        "babel-eslint": "^10.1.0",
-        "electron": "^12.0.0",
-        "electron-builder": "^22.11.7",
-        "electron-devtools-installer": "^3.1.0",
-        "eslint": "^6.7.2",
-        "eslint-plugin-vue": "^7.0.0",
-        "postcss-rtl": "^1.2.3",
-        "sass": "^1.35.1",
-        "sass-loader": "^10.1.1",
-        "vue-cli-plugin-electron-builder": "~2.0.0",
-        "vue-cli-plugin-quasar": "^4.0.0"
-    },
-    "eslintConfig": {
-        "root": true,
-        "env": {
-            "node": true
-        },
-        "extends": [
-            "plugin:vue/vue3-essential",
-            "eslint:recommended"
-        ],
-        "parserOptions": {
-            "parser": "babel-eslint"
-        },
-        "rules": {}
-    },
-    "browserslist": [
-        "> 1%",
-        "last 2 versions",
-        "not dead"
-    ]
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }
