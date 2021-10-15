@@ -1,13 +1,13 @@
 <template>
     <q-dialog>
-        <q-card style="width: 450px; max-width: 80vw">
+        <q-card style="width: 800px; max-width: 80vw">
             <q-card-section class="row items-center">
                 <div class="text-h6">Settings</div>
                 <q-space />
                 <q-btn icon="close" flat round dense v-close-popup />
             </q-card-section>
             <q-card-section>
-                <div class="row q-pb-sm">
+                <!--<div class="row q-pb-sm">
                     <q-list class="col-6">
                         <q-item-label header>Desktop App Settings</q-item-label>
                         <q-item clickable>
@@ -17,35 +17,50 @@
                         </q-item>
                         <q-separator spaced />
                     </q-list>
-                </div>
+                </div>-->
                 <div v-if="isOwner" class="row q-pb-sm">
-                    <q-list class="col-6">
-                        <q-item-label header
-                            >API Keys
-                            <q-btn
-                                flat
-                                round
-                                @click="addApiKey"
-                                color="secondary"
-                                icon="add"
-                        /></q-item-label>
+                    <q-list class="col-12">
+                        <q-item>
+                            <q-item-section>
+                                <q-item-label header>API Keys </q-item-label>
+                            </q-item-section>
+                            <q-item-section avatar>
+                                <q-btn
+                                    no-caps
+                                    @click="addApiKey"
+                                    color="primary"
+                                    icon="add"
+                                    label="New"
+                                />
+                            </q-item-section>
+                        </q-item>
                         <q-item v-for="apiKey in apiKeys" :key="apiKey">
-                            <q-item-label>{{ apiKey }}</q-item-label>
-                            <q-btn
-                                color="secondary"
-                                icon="assignment"
-                                @click="copyToClipboard(apiKey)"
-                            />
-                            <q-btn
-                                color="secondary"
-                                icon="delete"
-                                @click="deleteApiKey(apiKey)"
-                            />
+                            <q-item-section>
+                                <q-item-label>{{ apiKey }}</q-item-label>
+                            </q-item-section>
+                            <q-item-section avatar>
+                                <q-btn
+                                    flat
+                                    round
+                                    color="secondary"
+                                    icon="assignment"
+                                    @click="copyToClipboard(apiKey)"
+                                />
+                            </q-item-section>
+                            <q-item-section avatar>
+                                <q-btn
+                                    flat
+                                    round
+                                    color="red"
+                                    icon="delete"
+                                    @click="deleteApiKey(apiKey)"
+                                />
+                            </q-item-section>
                         </q-item>
                         <q-separator spaced />
                     </q-list>
                 </div>
-                <div class="row q-pb-sm">
+                <!--<div class="row q-pb-sm">
                     <q-list class="col-6">
                         <q-item-label header v-if="remoteDevices.length > 0"
                             >Linked Devices -
@@ -83,11 +98,11 @@
                     color="primary"
                     label="Pair Bluetooth Board"
                     @click="bleButtonScanClicked"
-                />
+                />-->
                 <q-btn
                     no-caps
                     unelevated
-                    color="negative"
+                    color="red"
                     label="Sign out"
                     @click="signOut"
                 />
@@ -100,12 +115,14 @@
 import { sendToIPCRenderer } from '../helpers/electron.helper'
 import firebase from 'firebase'
 import { mapActions, mapGetters } from 'vuex'
-import RemoteDevice from '../components/RemoteDevice.vue'
+// import RemoteDevice from '../components/RemoteDevice.vue'
 import { copyToClipboard } from 'quasar'
 
 export default {
     name: 'Settings',
-    components: { RemoteDevice },
+    components: {
+        /*RemoteDevice*/
+    },
     created() {
         this.copyToClipboard = copyToClipboard
     },
