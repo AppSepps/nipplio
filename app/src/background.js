@@ -98,15 +98,15 @@ async function createWindow() {
         backgroundColor: '#121212',
         height: windowBounds.height,
         width: windowBounds.width,
-        fullscreenable: false,
+        fullscreenable: true,
         skipTaskbar: true,
         show: false,
-        maximizable: false,
-        minimizable: false,
+        maximizable: true,
+        minimizable: true,
         hasShadow: false,
         icon: __dirname + '/icon.png',
         nativeWindowOpen: true,
-        autoHideMenuBar: true,
+        autoHideMenuBar: false,
         webPreferences: {
             experimentalFeatures: true,
             nodeIntegration: true,
@@ -116,7 +116,6 @@ async function createWindow() {
         },
     })
     win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true})
-    win.setAlwaysOnTop(true, 'floating')
 
     win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
         console.log("select-bluetooth-device")
@@ -250,14 +249,8 @@ const onToggleWindowShortCut = () => {
     if (win.isVisible()) {
         windowBounds = win.getBounds()
         win.hide()
-        globalShortcut.unregister('Esc')
     } else {
         show()
-        globalShortcut.register('Esc', () => {
-            windowBounds = win.getBounds()
-            win.hide()
-            globalShortcut.unregister('Esc')
-        })
     }
 }
 
