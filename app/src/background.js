@@ -97,7 +97,7 @@ async function createWindow() {
         width: mainWindowState.width,
         height: mainWindowState.height,
         fullscreenable: true,
-        skipTaskbar: true,
+        skipTaskbar: false,
         show: false,
         maximizable: true,
         minimizable: true,
