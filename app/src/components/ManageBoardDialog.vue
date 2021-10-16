@@ -52,7 +52,7 @@ export default {
         }),
     },
     mounted() {
-        this.boardName = this.activeBoard.name
+        this.boardName = this.activeBoard !== undefined ? this.activeBoard.name :  "No Board"
     },
     components: {},
     methods: {

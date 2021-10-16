@@ -1,5 +1,6 @@
 import {createApp} from 'vue'
 import firebase from 'firebase'
+import "firebase/analytics";
 import {Quasar} from 'quasar'
 import mitt from 'mitt'
 import quasarConfig from './quasar.conf'
@@ -20,7 +21,7 @@ if (location.hostname === 'localhost') {
     //firebase.storage().useEmulator('localhost', 9199)
     //firebase.functions().useEmulator('localhost', 5001)
 }
-
+firebase.analytics();
 let app
 firebase.auth().onAuthStateChanged(() => {
     if (!app) {
