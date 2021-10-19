@@ -57,7 +57,7 @@
                                     :key="tag"
                                     :selected="isSelected(tag)"
                                     @click="onClickTag(tag)"
-                                    color="secondary"
+                                    :color="isSelected(tag) ? 'primary' : 'secondary'"
                                     text-color="white"
                                 >
                                     {{ tag }}
