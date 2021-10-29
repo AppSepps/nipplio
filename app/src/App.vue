@@ -1,6 +1,11 @@
 <template>
     <q-layout class="bg-dark">
         <q-page-container>
+          <board-select
+              v-on:openAddBoardDialog="showAddBoardDialog = true"
+              v-on:openCustomizeDialog="showCustomizeDialog = true"
+              v-on:openSettingsDialog="showSettingsModal = true"
+          />
             <router-view></router-view>
         </q-page-container>
     </q-layout>
@@ -8,10 +13,11 @@
 
 <script>
 import firebase from 'firebase'
+import BoardSelect from './components/BoardSelect.vue'
 
 export default {
     name: 'App',
-    components: {},
+    components: {BoardSelect},
     data() {
         return {
             unsubscribeAuth: undefined,

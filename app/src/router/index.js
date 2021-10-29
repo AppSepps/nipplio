@@ -1,12 +1,14 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import firebase from 'firebase'
 
 import Home from '../views/Home.vue'
 import Welcome from '../views/Welcome.vue'
 import Login from '../views/Login.vue'
+import PublicDashboard from "../views/PublicDashboard";
 
 const routes = [
     { path: '/', component: Home, meta: { auth: true } },
+    { path: '/library', component: PublicDashboard, meta: { auth: true } },
     { path: '/welcome', component: Welcome },
     { path: '/auth', component: Login },
 ]

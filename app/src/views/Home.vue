@@ -20,11 +20,7 @@
                 />
             </q-toolbar>
         </q-header>
-        <board-select
-            v-on:openAddBoardDialog="showAddBoardDialog = true"
-            v-on:openCustomizeDialog="showCustomizeDialog = true"
-            v-on:openSettingsDialog="showSettingsModal = true"
-        />
+
         <user-drawer v-if="activeBoard" v-model="drawerLeft" />
         <q-page-container>
             <q-page padding>
@@ -134,7 +130,6 @@ import EditSoundDialog from '../components/EditSoundDialog.vue'
 import SoundInfoDialog from '../components/SoundInfoDialog.vue'
 import UserDrawer from '../components/UserDrawer.vue'
 import SlotMappingDialog from '../components/SlotMappingDialog.vue'
-import BoardSelect from '../components/BoardSelect.vue'
 import CustomizeDialog from '../components/CustomizeDialog.vue'
 import BoardTitleDropdown from '../components/BoardTitleDropdown.vue'
 import LeaveBoardDialog from '../components/LeaveBoardDialog.vue'
@@ -176,7 +171,6 @@ export default {
         SoundInfoDialog,
         UserDrawer,
         SlotMappingDialog,
-        BoardSelect,
         CustomizeDialog,
         BoardTitleDropdown,
         LeaveBoardDialog,

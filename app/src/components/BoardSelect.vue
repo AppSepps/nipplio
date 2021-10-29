@@ -46,7 +46,16 @@
                     </q-btn>
                 </div>
                 <q-separator />
-                <q-btn
+              <q-btn
+                  round
+                  class="board-select-btn q-mt-sm q-mb-sm"
+                  color="grey-2"
+                  text-color="primary"
+                  @click="openPublicDashboard"
+                  icon="library_music"
+              />
+              <q-separator />
+              <q-btn
                     round
                     class="board-select-btn q-mt-sm"
                     color="grey-2"
@@ -76,7 +85,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import {mapGetters, mapState} from 'vuex'
 
 export default {
     name: 'BoardSelect',
@@ -90,18 +99,25 @@ export default {
     methods: {
         onBoardClick: async function (id, active) {
             if (!active) {
-                this.$store.dispatch('board/selectBoard', { id })
+              this.$router.push('/')
+              this.$store.dispatch('board/selectBoard', { id })
             }
         },
         openAddBoardDialog: function () {
-            this.$emit('openAddBoardDialog')
+          this.$router.push('/')
+          this.$emit('openAddBoardDialog')
         },
         openCustomizeDialog: function () {
-            this.$emit('openCustomizeDialog')
+          this.$router.push('/')
+          this.$emit('openCustomizeDialog')
         },
         openSettingsDialog: function () {
-            this.$emit('openSettingsDialog')
+          this.$router.push('/')
+          this.$emit('openSettingsDialog')
         },
+        openPublicDashboard: function () {
+          this.$router.push('library')
+        }
     },
 }
 </script>
