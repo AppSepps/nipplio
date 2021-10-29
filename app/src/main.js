@@ -50,6 +50,12 @@ try {
             text: shortcutString.replaceAll('+', ' + '),
         })
     })
+    window.ipcRenderer.on('clearSearchbarText', async () => {
+        await store.dispatch('sound/onSearchChange',
+            {
+                text: '',
+            })
+    })
 } catch (error) {
     // Is Web instance
 }
