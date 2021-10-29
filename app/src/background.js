@@ -1,6 +1,6 @@
 'use strict'
 
-import {app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, screen, shell, Tray,} from 'electron'
+import {app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, shell, Tray,} from 'electron'
 import {autoUpdater} from 'electron-updater'
 import path from 'path'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
@@ -261,6 +261,7 @@ const onToggleWindowShortCut = () => {
     if (!win.isMinimized() && win.isVisible()) {
         win.hide()
     } else {
+        win.webContents.send('clearSearchbarText')
         show()
     }
 }
