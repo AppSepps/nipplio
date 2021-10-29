@@ -125,6 +125,7 @@ const actions = {
                 name: sound.name,
                 tags: sound.tags,
             })
+        await firebase.analytics().logEvent('sound_edit', sound)
     },
     onTagClicked({ commit }, { tagName }) {
         commit('toggleSelectedTag', { tagName })
@@ -141,14 +142,18 @@ const actions = {
             .storage()
             .ref(`/boards/${activeBoard.id}/${soundId}`)
             .delete()
+        await firebase.analytics().logEvent('sound_delete', { soundId })
     },
     resetSoundsAndTags({ commit }) {
         commit('resetSounds')
         commit('resetTags')
     },
-    async toggleFavoriteSound(action, params) {
+    async toggleFavoriteSound({commit, rootState}, params) {
         const { id } = params
-        action.commit('toggleFavoriteSound', { id })
+        commit('toggleFavoriteSound', { id })
+        firebase.analytics().logEvent(rootState.sound.favoriteSoundIds.includes(id) ? 'add_favorite' : 'remove_favorite', {
+            favoriteId: id
+        })
     },
     async uploadSoundFile({ rootState }, params) {
         const { files, cbSuccess } = params

@@ -34,6 +34,7 @@ export default {
         onClick(id) {
             this.$store.dispatch('theme/setTheme', {
                 id,
+                manuallyClicked: true
             })
         },
     },

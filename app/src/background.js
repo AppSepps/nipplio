@@ -218,6 +218,10 @@ app.on('ready', async () => {
         bonjourService.stop()
     })
 
+    ipcMain.on('escPressed', () => {
+        win.hide()
+    })
+
     if (!isDevelopment) {
         app.setLoginItemSettings({
             openAtLogin: true,

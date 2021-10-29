@@ -1,5 +1,5 @@
 import firebase from 'firebase'
-import { v4 as uuidv4 } from 'uuid'
+import {v4 as uuidv4} from 'uuid'
 
 function initialState() {
     return {
@@ -119,6 +119,14 @@ const actions = {
                 random,
                 source,
             })
+
+        const soundName = rootState.sound.sounds.filter(sound => sound.id === id)[0].name
+        await firebase.analytics().logEvent('play_sound', {
+            soundId: id,
+            soundName,
+            boardId: activeBoard.id,
+            source,
+        })
     },
     toggleSoundLoading({ commit }, value) {
         commit('toggleSoundLoading', value)
