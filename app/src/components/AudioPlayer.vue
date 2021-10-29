@@ -1,10 +1,26 @@
 <template>
     <q-toolbar class="bg-dark row footer shadow-1 q-py-md">
         <div class="col-auto row">
-            <q-avatar :color="playingColor">
-                <q-spinner v-if="isSoundLoading" color="white" size="1em" />
-                <q-spinner-audio v-else-if="playing" color="white" size="1em" />
-                <q-icon v-else name="mode_night" />
+            <q-avatar
+                :color="playingColor"
+                @click="onPlayedSoundIconClicked"
+                style="cursor: pointer"
+            >
+                <q-spinner
+                    v-if="isSoundLoading"
+                    :color="playingTextColor"
+                    size="1em"
+                />
+                <q-spinner-audio
+                    v-else-if="playing"
+                    :color="playingTextColor"
+                    size="1em"
+                />
+                <q-icon
+                    v-else
+                    :name="notPlayingIcon"
+                    :color="playingTextColor"
+                />
             </q-avatar>
             <div class="column q-mx-md">
                 <div class="text-bold audio-player-sound-name">
@@ -28,18 +44,7 @@
                 />
             </div>
         </div>
-        <div class="col row flex-center">
-            <div class="text-caption">{{ audioLengthCurrentFormatted }}</div>
-            <q-linear-progress
-                :value="progress"
-                :color="
-                    playedSound && playedSound.random ? 'purple' : 'primary'
-                "
-                class="q-mx-sm"
-                style="max-width: 350px"
-            />
-            <div class="text-caption">{{ audioLengthSecondsFormatted }}</div>
-        </div>
+        <q-space />
         <recently-played />
         <q-btn
             round
@@ -74,10 +79,6 @@ export default {
         return {
             audio: undefined,
             playing: false,
-            progress: 0.0,
-            audioLengthCurrentFormatted: '--:--',
-            audioLengthSecondsFormatted: '--:--',
-            progressInterval: undefined,
         }
     },
     computed: {
@@ -94,7 +95,7 @@ export default {
                         return sound.name
                     }
                 }
-                return 'Crickets are zirping.mp3'
+                return 'Crickets are zirping'
             },
             soundId: (state) => {
                 if (state.player.playedSound) {
@@ -115,7 +116,7 @@ export default {
                         return state.sound.favoriteSoundIds.includes(sound.id)
                     }
                 }
-                return 'Crickets are zirping.mp3'
+                return false
             },
             soundDate: (state) => {
                 if (state.player.playedSound) {
@@ -138,7 +139,7 @@ export default {
                         }
                     }
                 } else {
-                    return { displayName: '*chirp*' }
+                    return { displayName: 'Mr. Cricket' }
                 }
             },
             sourceIcon: function (state) {
@@ -159,14 +160,22 @@ export default {
             playedSound: (state) => state.player.playedSound,
             playingColor: function (state) {
                 if (!this.playing) {
-                    return 'grey'
+                    return 'white'
                 }
                 return state.player.playedSound.random ? 'purple' : 'primary'
+            },
+            playingTextColor: function () {
+                if (!this.playing) {
+                    return 'primary'
+                }
+                return 'white'
             },
             playingIcon: (state) =>
                 state.player.playedSound && state.player.playedSound.random
                     ? 'casino'
                     : 'graphic_eq',
+            notPlayingIcon: (state) =>
+                state.player.playedSound ? 'play_arrow' : 'casino',
         }),
     },
     watch: {
@@ -192,19 +201,12 @@ export default {
                 onplay: () => {
                     this.$store.dispatch('player/toggleSoundLoading', false)
                     this.playing = true
-                    this.progressInterval = setInterval(() => {
-                        this.updateProgress()
-                    }, 100)
                 },
                 onstop: () => {
                     this.playing = false
-                    this.progress = 0.0
-                    clearInterval(this.progressInterval)
                 },
                 onend: () => {
                     this.playing = false
-                    this.progress = 1.0
-                    clearInterval(this.progressInterval)
                 },
             })
             this.audio.play()
@@ -214,35 +216,22 @@ export default {
         onFavoriteToggle: async function (id) {
             await this.$store.dispatch('sound/toggleFavoriteSound', { id })
         },
-        formatSecondsToString(seconds) {
-            const date = new Date(0)
-            date.setSeconds(seconds) // specify value for SECONDS here
-            const timeString = date.toISOString().substr(14, 5)
-            return timeString
-        },
         stopAudioPlaying() {
             if (this.audio) {
                 this.audio.stop()
                 this.audio.unload()
                 this.audio = undefined
-                this.updateProgress()
             }
         },
-        updateProgress() {
-            if (this.playing && this.audio) {
-                const progress = (
-                    this.audio.seek() / this.audio.duration()
-                ).toFixed(2)
-                this.progress = Number(progress)
-                this.audioLengthCurrentFormatted = this.formatSecondsToString(
-                    this.audio.seek()
-                )
-                this.audioLengthSecondsFormatted = this.formatSecondsToString(
-                    this.audio.duration()
-                )
+        onPlayedSoundIconClicked() {
+            if (this.playing) return
+
+            if (!this.playedSound) {
+                this.$store.dispatch('player/playRandomSound')
             } else {
-                this.audioLengthSecondsFormatted = '--:--'
-                this.audioLengthCurrentFormatted = '--:--'
+                this.$store.dispatch('player/playRemoteSound', {
+                    id: this.playedSound.soundId,
+                })
             }
         },
         onPlayRandomSoundClicked() {
