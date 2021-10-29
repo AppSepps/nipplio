@@ -1,5 +1,5 @@
 import firebase from 'firebase'
-import { sendToIPCRenderer } from '../../helpers/electron.helper'
+import {sendToIPCRenderer} from '../../helpers/electron.helper'
 
 function initialState() {
     return {
@@ -19,6 +19,11 @@ const getters = {
 }
 
 const actions = {
+    async logAnalytics({ rootState }) {
+        firebase.analytics().setUserProperties({
+            themeId: rootState.theme.currentThemeId
+        })
+    },
     async getBoardUsers({ rootState, commit }) {
         const { activeBoard } = rootState.board
 

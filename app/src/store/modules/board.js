@@ -1,6 +1,7 @@
 import firebase from 'firebase'
-import { useRoute } from 'vue-router'
+import {useRoute} from 'vue-router'
 import hotkeys from 'hotkeys-js'
+import {sendToIPCRenderer} from '../../helpers/electron.helper'
 
 function initialState() {
     return {
@@ -136,6 +137,8 @@ const actions = {
                     )
                 }
                 focusCallback()
+            } else if (event.key === "Escape") {
+                sendToIPCRenderer('escPressed')
             }
         })
     },

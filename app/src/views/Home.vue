@@ -121,8 +121,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
-import { mapState, mapGetters } from 'vuex'
+import {ref} from 'vue'
+import {mapGetters, mapState} from 'vuex'
 import Settings from './Settings.vue'
 import Sound from '../components/Sound.vue'
 import AddBoardDialog from '../components/AddBoardDialog.vue'
@@ -246,6 +246,7 @@ export default {
         await this.$store.dispatch('player/subscribeToRemotePlayer')
         await this.$store.dispatch('settings/subscribeToRemoteDevices')
         await this.$store.dispatch('board/getApiKeys')
+        await this.$store.dispatch('user/logAnalytics')
     },
 }
 </script>

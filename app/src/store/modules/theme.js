@@ -1,4 +1,5 @@
-import { setCssVar } from 'quasar'
+import {setCssVar} from 'quasar'
+import firebase from "firebase";
 
 function initialState() {
     return {
@@ -53,7 +54,7 @@ function initialState() {
 const getters = {}
 
 const actions = {
-    setTheme({ commit, state }, { id = null }) {
+    setTheme({ commit, state, dispatch }, { id = null, manuallyClicked = false }) {
         const themeId = id !== null ? id : state.currentThemeId
         const theme = state.themes.filter((t) => t.id === themeId)[0]
 
@@ -62,6 +63,12 @@ const actions = {
             setCssVar('secondary', theme.secondary)
 
             commit('setThemeId', themeId)
+            if (manuallyClicked) {
+                firebase.analytics().logEvent('select_theme', {
+                    themeId
+                })
+                dispatch('user/logAnalytics', {}, {root: true})
+            }
         }
     },
 }
