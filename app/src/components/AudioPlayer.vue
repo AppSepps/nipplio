@@ -1,6 +1,6 @@
 <template>
     <q-toolbar class="bg-dark row footer shadow-1 q-py-md">
-        <div class="col-auto row">
+        <div class="col-auto row items-center">
             <q-avatar
                 :color="playingColor"
                 @click="onPlayedSoundIconClicked"
@@ -26,10 +26,19 @@
                 <div class="text-bold audio-player-sound-name">
                     {{ soundName }}
                 </div>
-                <div v-if="playedBy" class="text-caption">
-                    {{ playedBy.displayName }} <q-icon :name="sourceIcon" /> ({{
-                        soundDate
-                    }})
+                <div v-if="playedBy">
+                    <div>
+                        <q-icon :name="sourceIcon" />
+                        <span class="text-caption q-ml-sm">{{
+                            playedBy.displayName
+                        }}</span>
+                    </div>
+                    <div>
+                        <q-icon name="schedule" />
+                        <span class="text-caption q-ml-sm">{{
+                            soundDate
+                        }}</span>
+                    </div>
                 </div>
             </div>
             <div class="column justify-center">
@@ -143,7 +152,7 @@ export default {
                 }
             },
             sourceIcon: function (state) {
-                if (!state.player.playedSound) return ''
+                if (!state.player.playedSound) return 'person'
                 switch (state.player.playedSound.source) {
                     case 'web':
                         return 'web'
@@ -154,7 +163,7 @@ export default {
                     case 'api':
                         return 'code'
                     default:
-                        return ''
+                        return 'person'
                 }
             },
             playedSound: (state) => state.player.playedSound,

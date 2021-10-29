@@ -30,6 +30,44 @@
                         </template>
                     </q-input>
                 </q-form>
+                <q-list>
+                    <q-item-label header>Manage Users</q-item-label>
+                    <q-item v-for="user in boardUsers" :key="user.id">
+                        <q-item-section avatar>
+                            <q-avatar v-if="user.photoURL">
+                                <img :src="user.photoURL" />
+                            </q-avatar>
+                            <q-avatar
+                                v-else
+                                color="secondary"
+                                text-color="white"
+                            >
+                                <div>
+                                    {{ user.displayName[0].toUpperCase() }}
+                                </div>
+                            </q-avatar>
+                        </q-item-section>
+                        <q-item-section>{{ user.displayName }}</q-item-section>
+                        <q-item-section v-if="user.id !== currentUser.uid" side>
+                            <q-btn
+                                unelevated
+                                flat
+                                round
+                                icon="person_remove"
+                                color="red"
+                                @click="onUserRemoveClicked(user.id)"
+                            >
+                                <q-tooltip
+                                    class="bg-grey-9"
+                                    :delay="500"
+                                    :offset="[0, 10]"
+                                    >Remove {{ user.displayName }} from
+                                    board</q-tooltip
+                                >
+                            </q-btn>
+                        </q-item-section>
+                    </q-item>
+                </q-list>
             </q-card-section>
         </q-card>
     </q-dialog>
@@ -48,11 +86,17 @@ export default {
         ...mapState({
             activeBoard: (state) => state.board.activeBoard,
             boardUsers: (state) => state.user.boardUsers,
-            user: (state) => state.user.user,
+            currentUser: (state) => state.user.user,
         }),
     },
     mounted() {
-        this.boardName = this.activeBoard !== undefined ? this.activeBoard.name :  "No Board"
+        this.boardName =
+            this.activeBoard !== undefined ? this.activeBoard.name : 'No Board'
+    },
+    watch: {
+        activeBoard(val) {
+            this.boardName = val !== undefined ? val.name : 'No Board'
+        },
     },
     components: {},
     methods: {
@@ -60,6 +104,10 @@ export default {
             this.$store.dispatch('board/changeBoardName', {
                 boardName: this.boardName,
             })
+        },
+        onUserRemoveClicked: function (id) {
+            this.$emit('openRemoveUserDialog')
+            this.bus.emit('onUserRemoveClick', id)
         },
     },
 }

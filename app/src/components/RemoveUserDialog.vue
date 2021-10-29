@@ -2,10 +2,10 @@
     <q-dialog persistent position="top">
         <q-card>
             <q-card-section class="row items-center">
-                <div class="text-h6">Confirm delete</div>
+                <div class="text-h6">Confirm user remove</div>
             </q-card-section>
             <q-card-section class="row items-center">
-                Are you sure, you want to delete this sound from the board?
+                Are you sure, you want to remove this user from the board?
             </q-card-section>
             <q-card-actions align="right">
                 <q-btn
@@ -17,7 +17,7 @@
                 />
                 <q-btn
                     no-caps
-                    label="Delete"
+                    label="Remove"
                     color="red"
                     v-close-popup
                     @click="onRemoveConfirm"
@@ -29,20 +29,20 @@
 
 <script>
 export default {
-    name: 'RemoveSoundDialog',
+    name: 'RemoveUserDialog',
     data() {
         return {
-            soundId: undefined,
+            userId: undefined,
         }
     },
     mounted() {
-        this.bus.on('onSoundRemoveClick', (soundId) => {
-            this.soundId = soundId
+        this.bus.on('onUserRemoveClick', (userId) => {
+            this.userId = userId
         })
     },
     methods: {
         onRemoveConfirm() {
-            this.$store.dispatch('sound/removeSound', { soundId: this.soundId })
+            // TODO:
         },
     },
 }

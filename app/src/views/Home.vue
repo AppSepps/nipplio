@@ -57,7 +57,11 @@
                                     :key="tag"
                                     :selected="isSelected(tag)"
                                     @click="onClickTag(tag)"
-                                    :color="isSelected(tag) ? 'primary' : 'secondary'"
+                                    :color="
+                                        isSelected(tag)
+                                            ? 'primary'
+                                            : 'secondary'
+                                    "
                                     text-color="white"
                                 >
                                     {{ tag }}
@@ -111,12 +115,16 @@
         />
         <board-invite-dialog v-model="showBoardInviteDialog" />
         <remove-sound-dialog v-model="showRemoveSoundDialog" />
+        <remove-user-dialog v-model="showRemoveUserDialog" />
         <edit-sound-dialog v-model="showEditSoundDialog" />
         <sound-info-dialog v-model="showSoundInfoDialog" />
         <slot-mapping-dialog v-model="showSlotMappingDialog" />
         <customize-dialog v-model="showCustomizeDialog" />
         <leave-board-dialog v-model="showLeaveBoardDialog" />
-        <manage-board-dialog v-model="showManageBoardDialog" />
+        <manage-board-dialog
+            v-model="showManageBoardDialog"
+            v-on:openRemoveUserDialog="showRemoveUserDialog = true"
+        />
     </q-layout>
 </template>
 
@@ -139,6 +147,7 @@ import CustomizeDialog from '../components/CustomizeDialog.vue'
 import BoardTitleDropdown from '../components/BoardTitleDropdown.vue'
 import LeaveBoardDialog from '../components/LeaveBoardDialog.vue'
 import ManageBoardDialog from '../components/ManageBoardDialog.vue'
+import RemoveUserDialog from '../components/RemoveUserDialog.vue'
 
 const columns = [
     {
@@ -181,6 +190,7 @@ export default {
         BoardTitleDropdown,
         LeaveBoardDialog,
         ManageBoardDialog,
+        RemoveUserDialog,
     },
     data() {
         return {
@@ -194,6 +204,7 @@ export default {
             showCustomizeDialog: false,
             showLeaveBoardDialog: false,
             showManageBoardDialog: false,
+            showRemoveUserDialog: false,
             columns,
             drawerLeft: ref(true),
         }
