@@ -78,13 +78,15 @@
                                 unelevated
                                 round
                                 dense
-                                icon="download"
+                                icon="launch"
                                 color="secondary"
                                 @click="onGenerateDownloadUrl(sound.id)"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label>Download this sound!</q-item-label>
+                            <q-item-label
+                                >Open this sound externally</q-item-label
+                            >
                         </q-item-section>
                     </q-item>
                 </q-list>
