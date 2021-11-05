@@ -1,24 +1,37 @@
 <template>
-  <div>
-    <h5>{{ playlist.name }}</h5>
-    <q-btn
-        class="board-select-btn"
-        color="primary"
-        @click="$refs.file.click()">
-      <span class="text-bold">Add Sound to Playlist</span>
-      <input
-          type="file"
-          ref="file"
-          style="display: none"
-          accept="audio/*, video/*"
-          multiple="multiple"
-          @change="onFileUpload"
-      />
-    </q-btn>
-    <div v-for="(sound) in sounds" :key="sound.id">
-      <p>{{ sound.name }}</p>
-    </div>
-  </div>
+  <q-item>
+    <q-item-section top avatar>
+      <q-item-label>{{ playlist.name }}</q-item-label>
+      <q-btn
+          round
+          class="board-select-btn"
+          color="primary"
+          @click="$refs.file.click()">
+        <span class="text-bold">+</span>
+        <input
+            type="file"
+            ref="file"
+            style="display: none"
+            accept="audio/*, video/*"
+            multiple="multiple"
+            @change="onFileUpload"
+        />
+      </q-btn>
+    </q-item-section>
+    <q-item-section top>
+      <div v-for="(sound) in sounds" :key="sound.id">
+        <q-item-label>{{ sound.name }}</q-item-label>
+        <q-btn
+            round
+            class="board-select-btn"
+            color="primary"
+            @click="playLocalSound(sound)">
+          <span class="text-bold">Play</span>
+        </q-btn>
+      </div>
+    </q-item-section>
+  </q-item>
+
 </template>
 
 <script>
@@ -49,6 +62,9 @@ export default {
         },
       })
     },
+    playLocalSound: function () {
+      this.$store.dispatch('')
+    }
   },
 }
 </script>
