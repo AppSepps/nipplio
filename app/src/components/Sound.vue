@@ -10,7 +10,15 @@
             />
         </q-td>
         <q-td key="name" :props="props">
-            {{ props.row.name }}
+            <q-chip
+                dense
+                color="grey-9"
+                square
+                class="q-mr-sm"
+                v-if="hasVisibleIndex(props.row)"
+                >{{ getReadableIndex(props.row) }}</q-chip
+            >
+            <span>{{ props.row.name }}</span>
         </q-td>
         <q-td>
             <q-chip
@@ -87,6 +95,12 @@ export default {
     },
     components: {},
     methods: {
+        hasVisibleIndex: function (sound) {
+            return sound.index < 9
+        },
+        getReadableIndex: function (sound) {
+            return sound.index + 1
+        },
         getTags: function (tag) {
             return tag ? tag.split(',') : []
         },
