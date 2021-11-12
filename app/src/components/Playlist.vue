@@ -8,12 +8,15 @@
         >
           <div class="absolute-bottom text-subtitle2 text-center">
             {{ playlist.name }}
+            <q-item-label caption>by {{playlist.ownerName}}</q-item-label>
           </div>
         </q-img>
 
         <q-card-section class="col">
-          <div>
+          <q-item-label>
             {{ playlist.description }}
+          </q-item-label>
+          <div>
           </div>
           <q-list>
             <q-item v-if="sounds.length == 0">
@@ -46,8 +49,8 @@
             </q-item>
           </q-list>
         </q-card-section>
-        <q-separator vertical/>
-        <q-card-actions vertical class="justify-around">
+        <q-separator v-if="isOwner"  vertical/>
+        <q-card-actions v-if="isOwner"  vertical class="justify-around">
           <q-btn flat round color="primary" icon="add" @click="$refs.file.click()">
             <input
                 type="file"
@@ -68,6 +71,7 @@
 
 <script>
 import {mapState} from "vuex";
+import firebase from "firebase";
 
 export default {
   name: "Playlist",
@@ -75,6 +79,12 @@ export default {
   mounted() {
   },
   computed: {
+    isOwner: function () {
+      return (
+          this.$props.playlist.owner ===
+          firebase.auth().currentUser.uid
+      )
+    },
     ...mapState({
       boards(state) {
         return state.board.boards

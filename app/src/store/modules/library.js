@@ -30,6 +30,7 @@ const actions = {
             owner: firebase.auth().currentUser.uid,
             ownerName: firebase.auth().currentUser.displayName,
             likes: 0,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
         })
         await dispatch('getPlaylists')
     },
