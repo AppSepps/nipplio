@@ -27,7 +27,10 @@
 
               <q-item-section>
                 <q-item-label>{{ sound.name }}</q-item-label>
-                <q-item-label caption>Have a drink.</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-btn flat round color="primary" icon="add_to_photos" @click="addLibrarySoundToBoard(sound)">
+                </q-btn>
               </q-item-section>
             </q-item>
           </q-list>
@@ -86,6 +89,9 @@ export default {
     },
     onDeleteClicked: async function () {
       this.$store.dispatch('library/removePlaylistWithId', this.$props.id)
+    },
+    addLibrarySoundToBoard: async function (sound) {
+      this.$store.dispatch('library/addLibrarySoundToBoard', sound)
     }
   },
 }

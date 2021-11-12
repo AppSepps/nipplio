@@ -61,6 +61,7 @@ const actions = {
                 await firebase.storage().ref(`library/${doc.id}`).delete()
                 await firebase.firestore().collection('sounds').doc(doc.id).delete()
             } else {
+                // this sound has multiple playlists stored -> remove only the deleted one
                 await doc.ref.update({
                     playlists: firebase.firestore.FieldValue.arrayRemove(id)
                 })
@@ -68,6 +69,30 @@ const actions = {
         }
         await firebase.firestore().collection('playlists').doc(id).delete()
         await dispatch('getPlaylists')
+    },
+    async addLibrarySoundToBoard({rootState}, sound) {
+        console.log(sound)
+        // TODO: show dialog which Board to add the sound
+        const boardId = rootState.board.boards[0].id
+        const newSoundKey = await firebase
+            .database()
+            .ref(`/sounds/${boardId}`)
+            .push()
+
+        const copySoundFromLibrary = firebase.functions().httpsCallable('copySoundFromLibrary')
+        await copySoundFromLibrary({librarySoundId: sound.id, boardSoundId: newSoundKey, boardId})
+
+        await firebase
+            .database()
+            .ref(
+                `/sounds/${boardId}/${newSoundKey.key}`
+            )
+            .set({
+                name: sound.name,
+                type: sound.type,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                createdBy: firebase.auth().currentUser.uid,
+            })
     }
 }
 
