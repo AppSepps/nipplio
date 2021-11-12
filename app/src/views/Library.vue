@@ -1,21 +1,30 @@
 <template>
-  <div>
-    <p>Public Dashboard</p>
-    <q-btn
-        class="board-select-btn"
-        color="primary"
-        @click="addPlaylistClicked()">
-      <span class="text-bold">Create new Playlist</span>
-    </q-btn>
-    <div v-for="(playlist, id) in playlists" :key="id">
-      <playlist
-          :playlist="playlist"
-          :id="id"
-          v-on:openEditPlaylistDialog="showEditSoundDialog = true"
-      ></playlist>
-    </div>
-    <edit-playlist-dialog v-model="showEditSoundDialog"/>
-  </div>
+  <q-layout view="lHh LpR lFf" container style="height: 100vh">
+    <q-header class="shadow-1">
+      <q-toolbar class="bg-dark text-white">
+        <q-btn
+            flat
+            @click="addPlaylistClicked()"
+            round
+            dense
+            class="q-ml-sm"
+            icon="add"
+        />
+        <q-space/>
+      </q-toolbar>
+    </q-header>
+
+    <q-page-container>
+      <div v-for="(playlist, id) in playlists" :key="id">
+        <playlist
+            :playlist="playlist"
+            :id="id"
+            v-on:openEditPlaylistDialog="showEditSoundDialog = true"
+        ></playlist>
+      </div>
+      <edit-playlist-dialog v-model="showEditSoundDialog"/>
+    </q-page-container>
+  </q-layout>
 </template>
 
 <script>

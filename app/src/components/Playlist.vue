@@ -29,7 +29,18 @@
                 <q-item-label>{{ sound.name }}</q-item-label>
               </q-item-section>
               <q-item-section avatar>
-                <q-btn flat round color="primary" icon="add_to_photos" @click="addLibrarySoundToBoard(sound)">
+                <q-btn flat round color="primary" icon="add_to_photos" >
+                  <q-menu
+                      auto-close
+                      transition-show="jump-down"
+                      transition-hide="jump-up"
+                  >
+                    <q-list style="min-width: 100px">
+                      <q-item clickable v-for="board in boards" :key="board.id" @click="addLibrarySoundToBoard(sound, board.id)">
+                        <q-item-section>{{board.name}}</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
                 </q-btn>
               </q-item-section>
             </q-item>
@@ -65,6 +76,9 @@ export default {
   },
   computed: {
     ...mapState({
+      boards(state) {
+        return state.board.boards
+      },
       sounds(state) {
         return state.library.playlists[this.$props.id].sounds
       }
@@ -94,8 +108,8 @@ export default {
     onDeleteClicked: async function () {
       this.$store.dispatch('library/removePlaylistWithId', this.$props.id)
     },
-    addLibrarySoundToBoard: async function (sound) {
-      this.$store.dispatch('library/addLibrarySoundToBoard', sound)
+    addLibrarySoundToBoard: async function (sound, boardId) {
+      this.$store.dispatch('library/addLibrarySoundToBoard', {sound, boardId})
     }
   },
 }

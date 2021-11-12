@@ -56,8 +56,8 @@ export default {
         this.bus.on('openEditPlaylistDialog', ({playlist, id}) => {
           this.id = id
           this.playlist = playlist
-          this.name = playlist.name
-          this.description = playlist.description
+          this.name = playlist.name ?? ''
+          this.description = playlist.description ?? ''
         })
     },
     methods: {

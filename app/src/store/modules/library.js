@@ -70,10 +70,8 @@ const actions = {
         await firebase.firestore().collection('playlists').doc(id).delete()
         await dispatch('getPlaylists')
     },
-    async addLibrarySoundToBoard({rootState}, sound) {
+    async addLibrarySoundToBoard(context, {sound, boardId}) {
         console.log(sound)
-        // TODO: show dialog which Board to add the sound
-        const boardId = rootState.board.boards[0].id
         console.log(boardId)
         const newSoundKey = await firebase
             .database()
