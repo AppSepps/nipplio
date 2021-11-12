@@ -168,7 +168,7 @@ const actions = {
                 playlists: [playlistId],
                 views: 0
             })
-            await firebase.storage().ref(`/publicDashboard/${soundDoc.id}`).put(file)
+            await firebase.storage().ref(`/library/${soundDoc.id}`).put(file)
         }
         cbSuccess()
     },

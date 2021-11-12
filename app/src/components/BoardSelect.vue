@@ -52,7 +52,7 @@
             class="board-select-btn q-mt-sm q-mb-sm"
             color="grey-2"
             text-color="primary"
-            @click="openPublicDashboard"
+            @click="openLibrary"
             icon="library_music"
         />
         <q-separator/>
@@ -113,7 +113,7 @@ export default {
     openSettingsDialog: function () {
       this.$emit('openSettingsDialog')
     },
-    openPublicDashboard: function () {
+    openLibrary: function () {
       this.$router.push('/library')
     }
   },

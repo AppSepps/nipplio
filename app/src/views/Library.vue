@@ -16,9 +16,10 @@
 <script>
 import {mapState} from "vuex";
 import Playlist from "../components/Playlist";
+import {Howl} from 'howler'
 
 export default {
-  name: "PublicDashboard",
+  name: "Library",
   components: {Playlist},
   async mounted() {
     await this.$store.dispatch('library/getPlaylists')
@@ -26,11 +27,24 @@ export default {
   computed: {
     ...mapState({
       playlists: (state) => state.library.playlists,
+      playedLocalSound: (state) => state.library.playedLocalSound
     })
   },
   methods: {
     addPlaylistClicked: async function () {
       await this.$store.dispatch('library/addPlaylistClicked')
+    }
+  },
+  watch: {
+    playedLocalSound(sound) {
+      if (this.audio !== undefined) {
+        this.audio.stop()
+      }
+      this.audio = new Howl({
+        src: [sound.soundUrl],
+        format: ['mp3']
+      })
+      this.audio.play()
     }
   }
 }
