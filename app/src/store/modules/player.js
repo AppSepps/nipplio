@@ -3,6 +3,7 @@ import {v4 as uuidv4} from 'uuid'
 
 function initialState() {
     return {
+        soundPlaying: false,
         playedSound: undefined,
         recentlyPlayed: [],
         volume: 50,
@@ -13,16 +14,16 @@ function initialState() {
 const getters = {}
 
 const actions = {
-    onVolumeChange({ commit }, params) {
-        const { volume } = params
-        commit('changeVolume', { volume })
+    onVolumeChange({commit}, params) {
+        const {volume} = params
+        commit('changeVolume', {volume})
     },
-    playRandomSound({ rootState, dispatch }) {
-        const { sounds } = rootState.sound
+    playRandomSound({rootState, dispatch}) {
+        const {sounds} = rootState.sound
         const randomSound = sounds[Math.floor(Math.random() * sounds.length)]
-        dispatch('playRemoteSound', { id: randomSound.id, random: true })
+        dispatch('playRemoteSound', {id: randomSound.id, random: true})
     },
-    subscribeToRemotePlayer({ dispatch }) {
+    subscribeToRemotePlayer({dispatch}) {
         const remotePlayRef = firebase
             .database()
             .ref('/remotePlay/' + firebase.auth().currentUser.uid)
@@ -30,14 +31,14 @@ const actions = {
         remotePlayRef.on('child_changed', snapshot => {
             dispatch(
                 'player/triggerRemotePlaySound',
-                { deviceId: snapshot.key, slotId: snapshot.val()['slotId'] },
-                { root: true }
+                {deviceId: snapshot.key, slotId: snapshot.val()['slotId']},
+                {root: true}
             )
         })
     },
-    triggerRemotePlaySound({ rootState, dispatch }, params) {
-        const { activeBoard } = rootState.board
-        const { remoteDevices } = rootState.settings
+    triggerRemotePlaySound({rootState, dispatch}, params) {
+        const {activeBoard} = rootState.board
+        const {remoteDevices} = rootState.settings
         const device = remoteDevices.filter(
             device => device.id === params.deviceId
         )[0]
@@ -48,13 +49,13 @@ const actions = {
 
         dispatch(
             'player/playRemoteSound',
-            { id: soundId, source: 'hardware' },
-            { root: true }
+            {id: soundId, source: 'hardware'},
+            {root: true}
         )
     },
-    subscribeToPlayer({ rootState, rootGetters, commit }, params) {
-        const { user, boardUsers } = rootState.user
-        const { activeBoard } = rootState.board
+    subscribeToPlayer({rootState, rootGetters, commit}, params) {
+        const {user, boardUsers} = rootState.user
+        const {activeBoard} = rootState.board
         let skipInitial =
             params && params.skipInitial ? params.skipInitial : true
 
@@ -68,6 +69,7 @@ const actions = {
                 return
             }
             const play = snapshot.val()
+
             const soundUrl = await firebase
                 .storage()
                 .ref(`boards/${activeBoard.id}/${play.soundId}`)
@@ -83,7 +85,7 @@ const actions = {
                 soundUrl,
                 timestamp: new Date(),
             }
-            commit('updatePlayedSound', { playedSound })
+            commit('updatePlayedSound', {playedSound})
 
             const sound = rootState.sound.sounds.filter(
                 sound => sound.id === play.soundId
@@ -97,14 +99,18 @@ const actions = {
             })
         })
     },
-    async playRemoteSound({ dispatch, rootState }, params) {
-        const { user, mutedUsers } = rootState.user
-        const { activeBoard } = rootState.board
+    async playRemoteSound({dispatch, rootState, state}, params) {
+        const {user, mutedUsers} = rootState.user
+        const {activeBoard} = rootState.board
         const {
             id,
             source = window.ipcRenderer !== undefined ? 'desktop' : 'web',
             random = false,
         } = params
+        if (state.soundPlaying && state.playedSound.soundId === id) {
+            return
+        }
+
         if (!mutedUsers.includes(user.uid)) {
             dispatch('toggleSoundLoading', true)
         }
@@ -128,11 +134,14 @@ const actions = {
             source,
         })
     },
-    toggleSoundLoading({ commit }, value) {
+    toggleSoundLoading({commit}, value) {
         commit('toggleSoundLoading', value)
     },
-    unsubscribeToPlayer({ rootState }) {
-        const { activeBoard } = rootState.board
+    toggleSoundPlaying({commit}, value) {
+        commit('toggleSoundPlaying', value)
+    },
+    unsubscribeToPlayer({rootState}) {
+        const {activeBoard} = rootState.board
 
         if (!activeBoard) return
 
@@ -144,7 +153,7 @@ const actions = {
 }
 
 const mutations = {
-    addRecentlyPlayed(state, { sound, user }) {
+    addRecentlyPlayed(state, {sound, user}) {
         const recentlyPlayedSound = {
             soundId: sound.id,
             name: sound.name,
@@ -156,13 +165,16 @@ const mutations = {
             state.recentlyPlayed.shift()
         }
     },
-    changeVolume(state, { volume }) {
+    changeVolume(state, {volume}) {
         state.volume = volume
     },
     toggleSoundLoading(state, value) {
         state.isSoundLoading = value
     },
-    updatePlayedSound(state, { playedSound }) {
+    toggleSoundPlaying(state, value) {
+        state.soundPlaying = value
+    },
+    updatePlayedSound(state, {playedSound}) {
         state.playedSound = playedSound
     },
     reset(state) {
