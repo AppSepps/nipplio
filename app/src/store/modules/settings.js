@@ -19,12 +19,6 @@ const getters = {
     openShortcutRecording: function (state) {
         return state.openShortcutRecording
     },
-    isOwner: function (state, getters, rootState) {
-        return (
-            rootState.board.activeBoard.owner ===
-            firebase.auth().currentUser.uid
-        )
-    },
     apiKeys: function (state, getters, rootState) {
         return rootState.board.apiKeys
     },

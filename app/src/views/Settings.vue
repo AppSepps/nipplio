@@ -42,48 +42,7 @@
             <q-separator spaced/>
           </q-list>
         </div>
-        <div v-if="isOwner" class="row q-pb-sm">
-          <q-list class="col-12">
-            <q-item>
-              <q-item-section>
-                <q-item-label header>API Keys</q-item-label>
-              </q-item-section>
-              <q-item-section avatar>
-                <q-btn
-                    no-caps
-                    @click="addApiKey"
-                    color="primary"
-                    icon="add"
-                    label="New"
-                />
-              </q-item-section>
-            </q-item>
-            <q-item v-for="apiKey in apiKeys" :key="apiKey">
-              <q-item-section>
-                <q-item-label>{{ apiKey }}</q-item-label>
-              </q-item-section>
-              <q-item-section avatar>
-                <q-btn
-                    flat
-                    round
-                    color="secondary"
-                    icon="assignment"
-                    @click="copyToClipboard(apiKey)"
-                />
-              </q-item-section>
-              <q-item-section avatar>
-                <q-btn
-                    flat
-                    round
-                    color="red"
-                    icon="delete"
-                    @click="deleteApiKey(apiKey)"
-                />
-              </q-item-section>
-            </q-item>
-            <q-separator spaced/>
-          </q-list>
-        </div>
+
         <!--<div class="row q-pb-sm">
             <q-list class="col-6">
                 <q-item-label header v-if="remoteDevices.length > 0"
@@ -149,9 +108,7 @@ export default {
   computed: {
     ...mapGetters('settings', [
       'filteredDiscoveredDevices',
-      'isOwner',
       'remoteDevices',
-      'apiKeys',
     ]),
     isElectron: function () {
       return isElectron

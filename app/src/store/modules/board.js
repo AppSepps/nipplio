@@ -13,6 +13,12 @@ function initialState() {
 }
 
 const getters = {
+    isOwner: function (state, getters, rootState) {
+        return (
+            rootState.board.activeBoard.owner ===
+            firebase.auth().currentUser.uid
+        )
+    },
     sortedBoards: (state) =>
         state.boards.sort((a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -20,33 +26,36 @@ const getters = {
 }
 
 const actions = {
-    checkForInviteLinkInUrl({ dispatch }) {
+    unmountBoard({commit}) {
+        commit('unmountBoard')
+    },
+    checkForInviteLinkInUrl({dispatch}) {
         const params = useRoute().query
         if (params) {
-            const { boardId, token } = params
+            const {boardId, token} = params
             if (boardId && token) {
-                dispatch('joinBoard', { token, boardId })
+                dispatch('joinBoard', {token, boardId})
             }
         }
     },
-    async changeBoardName({ state }, params) {
-        const { activeBoard } = state
-        const { boardName } = params
+    async changeBoardName({state}, params) {
+        const {activeBoard} = state
+        const {boardName} = params
 
         await firebase.database().ref(`/boards/${activeBoard.id}`).update({
             name: boardName,
         })
     },
-    async createBoard({ commit }, params) {
-        const { boardName, cb } = params
+    async createBoard({commit}, params) {
+        const {boardName, cb} = params
         commit('setCreateBoardLoading', true)
         const createBoard = firebase.functions().httpsCallable('createBoard')
-        await createBoard({ boardName })
+        await createBoard({boardName})
         cb()
         commit('setCreateBoardLoading', false)
         // TODO: selectBoard (Do we get board id from response?)
     },
-    async getApiKeys({ commit, state }) {
+    async getApiKeys({commit, state}) {
         firebase
             .database()
             .ref(`/apiKeys/${state.activeBoard.id}/`)
@@ -58,7 +67,7 @@ const actions = {
                 commit('setApiKeys', apiKeys)
             })
     },
-    async getBoards({ commit }) {
+    async getBoards({commit}) {
         const userBoardsRef = firebase
             .database()
             .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
@@ -88,9 +97,9 @@ const actions = {
             })
         })
     },
-    async inviteUser({ state }, params) {
-        const { activeBoard } = state
-        const { cb } = params
+    async inviteUser({state}, params) {
+        const {activeBoard} = state
+        const {cb} = params
         const snapshot = await firebase
             .database()
             .ref('/boardInvites/' + activeBoard.id)
@@ -98,8 +107,8 @@ const actions = {
         const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
         cb(url)
     },
-    async joinBoard({ dispatch }, params) {
-        const { boardId, token } = params
+    async joinBoard({dispatch}, params) {
+        const {boardId, token} = params
         const inviteUserByToken = firebase
             .functions()
             .httpsCallable('addUserByInvite')
@@ -108,23 +117,23 @@ const actions = {
                 boardId: boardId,
                 token: token,
             }) // TODO: Check response result
-            dispatch('selectBoard', { boardId })
+            dispatch('selectBoard', {boardId})
         } catch (error) {
             console.log(error)
         }
     },
-    joinBoardWithUrl({ dispatch }, params) {
-        const { inviteUrl } = params
+    joinBoardWithUrl({dispatch}, params) {
+        const {inviteUrl} = params
         const url = new URL(inviteUrl)
         const boardId = url.searchParams.get('boardId')
         const token = url.searchParams.get('token')
-        dispatch('joinBoard', { boardId, token })
+        dispatch('joinBoard', {boardId, token})
     },
-    registerShortcuts({ dispatch, rootGetters, rootState }, focusCallback) {
+    registerShortcuts({dispatch, rootGetters, rootState}, focusCallback) {
         hotkeys('*', async function (event) {
             if (event.key.match(/^[1-9]$/)) {
                 const id = rootGetters['sound/filteredSounds'][event.key - 1].id
-                dispatch('player/playRemoteSound', { id }, { root: true })
+                dispatch('player/playRemoteSound', {id}, {root: true})
             } else if (event.key.match(/^[a-zA-Z]$/)) {
                 if (rootState.sound.searchText.length > 0) {
                     // resets the search bar when the user starts typing again and the search field is not in focus
@@ -133,7 +142,7 @@ const actions = {
                         {
                             text: '',
                         },
-                        { root: true }
+                        {root: true}
                     )
                 }
                 focusCallback()
@@ -142,29 +151,32 @@ const actions = {
             }
         })
     },
-    selectBoard({ commit, state, dispatch }, params) {
-        const { boards } = state
-        const { id } = params
+    selectBoard({commit, state, dispatch}, params) {
+        const {boards} = state
+        const {id} = params
         const activeBoard = boards.filter((board) => board.id === id)[0]
 
         if (!activeBoard) return
 
         commit('selectBoard', activeBoard)
-        dispatch('user/updateConnectionStatus', null, { root: true }) // TODO: Mark previous board as disconnected
-        dispatch('user/getBoardUsers', null, { root: true })
-        dispatch('sound/resetSoundsAndTags', null, { root: true })
-        dispatch('sound/getSounds', null, { root: true })
-        dispatch('player/unsubscribeToPlayer', null, { root: true })
+        dispatch('user/updateConnectionStatus', null, {root: true}) // TODO: Mark previous board as disconnected
+        dispatch('user/getBoardUsers', null, {root: true})
+        dispatch('sound/resetSoundsAndTags', null, {root: true})
+        dispatch('sound/getSounds', null, {root: true})
+        dispatch('player/unsubscribeToPlayer', null, {root: true})
         dispatch(
             'player/subscribeToPlayer',
-            { skipInitial: false },
-            { root: true }
+            {skipInitial: false},
+            {root: true}
         )
-        dispatch('board/getApiKeys', null, { root: true })
+        dispatch('board/getApiKeys', null, {root: true})
     },
 }
 
 const mutations = {
+    unmountBoard(state) {
+        state.activeBoard = undefined
+    },
     setApiKeys(state, apiKeys) {
         state.apiKeys = apiKeys
     },
@@ -179,7 +191,7 @@ const mutations = {
             state.activeBoard = board
         }
     },
-    removeBoard(state, { id }) {
+    removeBoard(state, {id}) {
         state.boards = state.boards.filter((board) => board.id !== id)
     },
     selectBoard(state, activeBoard) {
