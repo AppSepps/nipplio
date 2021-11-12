@@ -47,7 +47,7 @@
                 @change="onFileUpload"
             />
           </q-btn>
-          <q-btn flat round color="secondary" icon="edit" @click="onEditClicked"/>
+          <q-btn flat round color="secondary" icon="edit" @click="onEditClick"/>
           <q-btn flat round color="secondary" icon="delete" @click="onDeleteClicked"/>
         </q-card-actions>
       </q-card-section>
@@ -71,6 +71,10 @@ export default {
     }),
   },
   methods: {
+    onEditClick: async function () {
+      this.$emit('openEditPlaylistDialog')
+      this.bus.emit('openEditPlaylistDialog', {id: this.$props.id, playlist: this.$props.playlist})
+    },
     onFileUpload: function (event) {
       this.$store.dispatch('sound/uploadPublicSound', {
         files: event.target.files,

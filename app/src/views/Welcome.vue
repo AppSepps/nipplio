@@ -46,6 +46,7 @@ export default {
                 if (authToken) {
                     await firebase.auth().signInWithCustomToken(authToken)
                     await oneTimeCodeRef.remove()
+                    await this.$store.dispatch('board/getBoards')
                     router.push('/')
                 }
             })

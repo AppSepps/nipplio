@@ -74,13 +74,21 @@ const actions = {
         console.log(sound)
         // TODO: show dialog which Board to add the sound
         const boardId = rootState.board.boards[0].id
+        console.log(boardId)
         const newSoundKey = await firebase
             .database()
             .ref(`/sounds/${boardId}`)
             .push()
 
+        console.log("before oncall")
         const copySoundFromLibrary = firebase.functions().httpsCallable('copySoundFromLibrary')
-        await copySoundFromLibrary({librarySoundId: sound.id, boardSoundId: newSoundKey, boardId})
+        console.log("after oncall")
+        const result = await copySoundFromLibrary({
+            'librarySoundId': sound.id,
+            'boardSoundId': newSoundKey.key,
+            'boardId': boardId
+        })
+        console.log("result", result)
 
         await firebase
             .database()
@@ -93,6 +101,14 @@ const actions = {
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 createdBy: firebase.auth().currentUser.uid,
             })
+    },
+    async updatePlaylistDetails({dispatch}, playlist) {
+        console.log(playlist)
+        await firebase.firestore().collection('playlists').doc(playlist.id).update({
+            name: playlist.name,
+            description: playlist.description
+        })
+        await dispatch('getPlaylists')
     }
 }
 

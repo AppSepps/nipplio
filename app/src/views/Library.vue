@@ -8,8 +8,13 @@
       <span class="text-bold">Create new Playlist</span>
     </q-btn>
     <div v-for="(playlist, id) in playlists" :key="id">
-      <playlist :playlist="playlist" :id="id"></playlist>
+      <playlist
+          :playlist="playlist"
+          :id="id"
+          v-on:openEditPlaylistDialog="showEditSoundDialog = true"
+      ></playlist>
     </div>
+    <edit-playlist-dialog v-model="showEditSoundDialog"/>
   </div>
 </template>
 
@@ -17,12 +22,18 @@
 import {mapState} from "vuex";
 import Playlist from "../components/Playlist";
 import {Howl} from 'howler'
+import EditPlaylistDialog from "../components/EditPlaylistDialog";
 
 export default {
   name: "Library",
-  components: {Playlist},
+  components: {EditPlaylistDialog, Playlist},
   async mounted() {
     await this.$store.dispatch('library/getPlaylists')
+  },
+  data() {
+    return {
+      showEditSoundDialog: false
+    }
   },
   computed: {
     ...mapState({
