@@ -16,10 +16,10 @@ moment.locale(locale)
 
 firebase.initializeApp(config)
 if (location.hostname === 'localhost') {
-    //firebase.auth().useEmulator('http://localhost:9099')
-    //firebase.database().useEmulator('localhost', 9000)
-    //firebase.storage().useEmulator('localhost', 9199)
-    //firebase.functions().useEmulator('localhost', 5001)
+    firebase.auth().useEmulator('http://localhost:9099')
+    firebase.database().useEmulator('localhost', 9000)
+    firebase.storage().useEmulator('localhost', 9199)
+    firebase.functions().useEmulator('localhost', 5001)
 }
 firebase.analytics();
 let app
