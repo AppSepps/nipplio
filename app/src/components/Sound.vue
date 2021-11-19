@@ -78,7 +78,7 @@
               >
                 <q-list style="min-width: 100px">
                   <q-item clickable v-for="playlist in myPlaylists" :key="playlist.id"
-                          @click="onAddToPlaylistClicked(sound, playlist.id)">
+                          @click="onAddToPlaylistClicked(playlist.id)">
                     <q-item-section>{{ playlist.name }}</q-item-section>
                   </q-item>
                 </q-list>
@@ -157,8 +157,8 @@ export default {
       this.$emit('openRemoveDialog')
       this.bus.emit('onSoundRemoveClick', id)
     },
-    onAddToPlaylistClicked: async function (sound, playlistId) {
-      await this.$store.dispatch('library/addBoardSoundToLibrary', {sound, playlistId})
+    onAddToPlaylistClicked: async function (playlistId) {
+      await this.$store.dispatch('library/addBoardSoundToLibrary', {sound: this.sound, playlistId})
     }
   },
 }
