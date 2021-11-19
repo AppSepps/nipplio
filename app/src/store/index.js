@@ -11,6 +11,7 @@ import library from './modules/library'
 
 const persistedAppState = createPersistedState({
     paths: [
+        'board.lastActiveBoard',
         'board.activeBoard',
         'player.volume',
         'sound.favoriteSoundIds',

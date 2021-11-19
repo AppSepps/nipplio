@@ -2,65 +2,70 @@
 @import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&display=swap');
 
 * {
-    font-family: 'Oxygen', sans-serif;
+  font-family: 'Oxygen', sans-serif;
 }
 
 ::-webkit-scrollbar {
-    width: 0px;
+  width: 0px;
 }
 
 body.body--dark {
-    background: #1c1c1d;
+  background: #1c1c1d;
+}
+
+router-link {
+  text-decoration: none;
 }
 
 .q-btn-dropdown {
-    box-shadow: none;
-    button {
-        text-transform: none;
-    }
+  box-shadow: none;
+
+  button {
+    text-transform: none;
+  }
 }
 
 .audio-player-sound-name {
-    white-space: nowrap;
-    overflow: hidden;
-    display: block;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  text-overflow: ellipsis;
 }
 
 .footer {
-    border-top: 1px solid #ffffff1a;
+  border-top: 1px solid #ffffff1a;
 }
 
 .firebase-emulator-warning {
-    display: none;
+  display: none;
 }
 
 .user-disabled {
-    opacity: 0.6;
+  opacity: 0.6;
 }
 
 .rotating {
-    -webkit-animation: rotation 2s infinite linear;
-    -moz-animation: rotation 2s infinite linear;
-    animation: rotation 2s infinite linear;
+  -webkit-animation: rotation 2s infinite linear;
+  -moz-animation: rotation 2s infinite linear;
+  animation: rotation 2s infinite linear;
 }
 
 .sound-table {
 }
 
 .board-select-btn {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 @-webkit-keyframes rotation {
-    from {
-        -webkit-transform: rotate(0deg);
-        -moz-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    to {
-        -webkit-transform: rotate(359deg);
-        -moz-transform: rotate(359deg);
-        transform: rotate(359deg);
-    }
+  from {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+    -moz-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
 }

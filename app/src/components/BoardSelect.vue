@@ -50,8 +50,8 @@
         <q-btn
             round
             class="board-select-btn q-mt-sm q-mb-sm"
-            color="grey-2"
-            text-color="primary"
+            :color="$route.name !== 'library' ? 'grey-2' : 'primary'"
+            :text-color="$route.name === 'library' ? 'grey-2' : 'primary'"
             @click="openLibrary"
             icon="library_music"
         />

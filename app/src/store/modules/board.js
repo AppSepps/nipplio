@@ -1,10 +1,10 @@
 import firebase from 'firebase'
-import {useRoute} from 'vue-router'
 import hotkeys from 'hotkeys-js'
 import {sendToIPCRenderer} from '../../helpers/electron.helper'
 
 function initialState() {
     return {
+        lastActiveBoard: undefined,
         activeBoard: undefined,
         apiKeys: [],
         boards: [],
@@ -29,8 +29,8 @@ const actions = {
     unmountBoard({commit}) {
         commit('unmountBoard')
     },
-    checkForInviteLinkInUrl({dispatch}) {
-        const params = useRoute().query
+    checkForInviteLinkInUrl({dispatch}, query) {
+        const params = query
         if (params) {
             const {boardId, token} = params
             if (boardId && token) {
@@ -56,6 +56,7 @@ const actions = {
         // TODO: selectBoard (Do we get board id from response?)
     },
     async getApiKeys({commit, state}) {
+        if (state.activeBoard === undefined) return
         firebase
             .database()
             .ref(`/apiKeys/${state.activeBoard.id}/`)
@@ -183,6 +184,9 @@ const mutations = {
     addBoard(state, board) {
         state.boards = [...state.boards, board]
     },
+    clearBoards(state) {
+        state.boards = []
+    },
     changeBoard(state, board) {
         state.boards = state.boards.map((b) => {
             return b.id === board.id ? board : b
@@ -196,6 +200,7 @@ const mutations = {
     },
     selectBoard(state, activeBoard) {
         state.activeBoard = activeBoard
+        state.lastActiveBoard = activeBoard
     },
     setCreateBoardLoading(state, loading) {
         state.isCreateBoardLoading = loading

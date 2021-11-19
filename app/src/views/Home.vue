@@ -17,11 +17,18 @@ export default {
   methods: {},
   computed: {
     ...mapState({
-      activeBoard: (state) => state.board.activeBoard,
+      lastActiveBoard: (state) => state.board.lastActiveBoard,
+      boards: (state) => state.board.boards,
     }),
   },
+  watch: {
+    boards(boards) {
+      if (boards.filter((board) => board.id === this.lastActiveBoard.id).length > 0) {
+        this.$router.push(`/board/${this.lastActiveBoard !== undefined ? this.lastActiveBoard.id : this.boards.first.id}`)
+      }
+    }
+  },
   async mounted() {
-    this.$router.push(`/board/${this.activeBoard.id}`)
   },
 }
 </script>

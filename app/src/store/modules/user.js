@@ -19,13 +19,13 @@ const getters = {
 }
 
 const actions = {
-    async logAnalytics({ rootState }) {
+    async logAnalytics({rootState}) {
         firebase.analytics().setUserProperties({
             themeId: rootState.theme.currentThemeId
         })
     },
-    async getBoardUsers({ rootState, commit }) {
-        const { activeBoard } = rootState.board
+    async getBoardUsers({rootState, commit}) {
+        const {activeBoard} = rootState.board
 
         if (!activeBoard) return
 
@@ -48,13 +48,13 @@ const actions = {
             })
         })
     },
-    getUser({ commit }) {
+    getUser({commit}) {
         const user = firebase.auth().currentUser
-        commit('getUser', { user })
+        commit('getUser', {user})
     },
-    async onSelfMuteToggle({ state, rootState }, params) {
-        const { selfMute } = params
-        const { activeBoard } = rootState.board
+    async onSelfMuteToggle({state, rootState}, params) {
+        const {selfMute} = params
+        const {activeBoard} = rootState.board
 
         if (!activeBoard) return
 
@@ -67,20 +67,20 @@ const actions = {
 
         sendToIPCRenderer(selfMute ? 'setIconToMute' : 'setIconToUnmute')
     },
-    selectSpeaker({ commit }, params) {
-        const { id } = params
-        commit('selectSpeaker', { id })
+    selectSpeaker({commit}, params) {
+        const {id} = params
+        commit('selectSpeaker', {id})
     },
-    toggleUserMute({ commit, state }, params) {
-        let { id, selfMute = false } = params
+    toggleUserMute({commit, state}, params) {
+        let {id, selfMute = false} = params
         if (selfMute) {
             id = state.user.uid
         }
-        commit('toggleUserMute', { id })
+        commit('toggleUserMute', {id})
     },
-    async updateConnectionStatus({ rootState, rootGetters }) {
+    async updateConnectionStatus({rootState, rootGetters}) {
         // TODO: Something here isnt working right
-        const { activeBoard } = rootState.board
+        const {activeBoard} = rootState.board
 
         if (!activeBoard) return
 
@@ -98,7 +98,7 @@ const actions = {
             muted: rootGetters['user/selfMute'],
         })
         var connectedRef = firebase.database().ref('.info/connected')
-        connectedRef.on('value', function(snap) {
+        connectedRef.on('value', function (snap) {
             if (snap.val() === true) {
                 boardUserRef.onDisconnect().update({
                     connected: false,
@@ -126,10 +126,10 @@ const mutations = {
             return u.id === user.id ? user : u
         })
     },
-    getUser(state, { user }) {
+    getUser(state, {user}) {
         state.user = user
     },
-    selectSpeaker(state, { id }) {
+    selectSpeaker(state, {id}) {
         if (state.speaker === id) {
             state.speaker = undefined
             state.mutedUsers = []
@@ -140,7 +140,7 @@ const mutations = {
                 .map(user => user.id)
         }
     },
-    toggleUserMute(state, { id }) {
+    toggleUserMute(state, {id}) {
         state.speaker = undefined
         state.mutedUsers = state.mutedUsers.includes(id)
             ? state.mutedUsers.filter(u => u !== id)

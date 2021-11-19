@@ -10,7 +10,7 @@ import Library from "../views/Library";
 const routes = [
     {path: '/', component: Home, meta: {auth: true}},
     {path: '/board/:boardId', component: Board, meta: {auth: true}},
-    {path: '/library', component: Library, meta: {auth: true}},
+    {name: 'library', path: '/library', component: Library, meta: {auth: true}},
     {path: '/welcome', component: Welcome},
     {path: '/auth', component: Login},
 ]

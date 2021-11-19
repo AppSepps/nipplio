@@ -221,11 +221,12 @@ export default {
   },
   async mounted() {
     const that = this
+    await this.$store.dispatch('board/selectBoard', {id: this.$route.params.boardId})
     this.$store.dispatch('board/registerShortcuts', function () {
       console.log('should focus')
       that.$refs.searchBar.focus()
     })
-    await this.$store.dispatch('board/checkForInviteLinkInUrl')
+    await this.$store.dispatch('board/checkForInviteLinkInUrl', this.$route.query)
     await this.$store.dispatch('user/getUser')
     await this.$store.dispatch('user/getBoardUsers')
     await this.$store.dispatch('user/updateConnectionStatus')
