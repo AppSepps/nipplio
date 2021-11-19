@@ -8,7 +8,7 @@
         >
           <div class="absolute-bottom text-subtitle2 text-center">
             {{ playlist.name }}
-            <q-item-label caption>by {{playlist.ownerName}}</q-item-label>
+            <q-item-label caption>by {{ playlist.ownerName }}</q-item-label>
           </div>
         </q-img>
 
@@ -22,35 +22,38 @@
             <q-item v-if="sounds.length == 0">
               Noch keine Sounds verfügbar
             </q-item>
-            <q-item clickable v-for="(sound) in sounds" :key="sound.id">
-              <q-item-section avatar>
-                <q-btn flat round color="primary" icon="play_arrow" @click="playLocalSound(sound)">
-                </q-btn>
-              </q-item-section>
+            <q-scroll-area style="height: 200px">
+              <q-item clickable v-for="(sound) in sounds" :key="sound.id">
+                <q-item-section avatar>
+                  <q-btn flat round color="primary" icon="play_arrow" @click="playLocalSound(sound)">
+                  </q-btn>
+                </q-item-section>
 
-              <q-item-section>
-                <q-item-label>{{ sound.name }}</q-item-label>
-              </q-item-section>
-              <q-item-section avatar>
-                <q-btn flat round color="primary" icon="add_to_photos" >
-                  <q-menu
-                      auto-close
-                      transition-show="jump-down"
-                      transition-hide="jump-up"
-                  >
-                    <q-list style="min-width: 100px">
-                      <q-item clickable v-for="board in boards" :key="board.id" @click="addLibrarySoundToBoard(sound, board.id)">
-                        <q-item-section>{{board.name}}</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
-              </q-item-section>
-            </q-item>
+                <q-item-section>
+                  <q-item-label>{{ sound.name }}</q-item-label>
+                </q-item-section>
+                <q-item-section avatar>
+                  <q-btn flat round color="primary" icon="add_to_photos">
+                    <q-menu
+                        auto-close
+                        transition-show="jump-down"
+                        transition-hide="jump-up"
+                    >
+                      <q-list style="min-width: 100px">
+                        <q-item clickable v-for="board in boards" :key="board.id"
+                                @click="addLibrarySoundToBoard(sound, board.id)">
+                          <q-item-section>{{ board.name }}</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </q-item-section>
+              </q-item>
+            </q-scroll-area>
           </q-list>
         </q-card-section>
-        <q-separator v-if="isOwner"  vertical/>
-        <q-card-actions v-if="isOwner"  vertical class="justify-around">
+        <q-separator v-if="isOwner" vertical/>
+        <q-card-actions v-if="isOwner" vertical class="justify-around">
           <q-btn flat round color="primary" icon="add" @click="$refs.file.click()">
             <input
                 type="file"
