@@ -1,4 +1,4 @@
-import { createStore, createLogger } from 'vuex'
+import {createLogger, createStore} from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
 import board from './modules/board'
@@ -7,9 +7,11 @@ import settings from './modules/settings'
 import sound from './modules/sound'
 import theme from './modules/theme'
 import user from './modules/user'
+import library from './modules/library'
 
 const persistedAppState = createPersistedState({
     paths: [
+        'board.lastActiveBoard',
         'board.activeBoard',
         'player.volume',
         'sound.favoriteSoundIds',
@@ -29,9 +31,10 @@ const store = createStore({
         sound,
         theme,
         user,
+        library,
     },
     actions: {
-        clearAll({ commit }) {
+        clearAll({commit}) {
             commit('board/reset')
             commit('playr/reset')
             commit('settings/reset')
