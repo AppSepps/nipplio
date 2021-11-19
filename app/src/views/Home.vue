@@ -23,8 +23,12 @@ export default {
   },
   watch: {
     boards(boards) {
-      if (boards.filter((board) => board.id === this.lastActiveBoard.id).length > 0) {
-        this.$router.push(`/board/${this.lastActiveBoard !== undefined ? this.lastActiveBoard.id : this.boards.first.id}`)
+      if (this.lastActiveBoard !== undefined) {
+        if (boards.filter((board) => board.id === this.lastActiveBoard.id).length > 0) {
+          this.$router.push(`/board/${this.lastActiveBoard.id}`)
+        }
+      } else {
+        this.$router.push(`/board/${this.boards[0].id}`)
       }
     }
   },
