@@ -7,7 +7,17 @@ function initialState() {
     }
 }
 
-const getters = {}
+const getters = {
+    myPlaylists: (state) => {
+        let array = []
+        for (const [key, value] of Object.entries(state.playlists)) {
+            if (value.owner === firebase.auth().currentUser.uid) {
+                array.push({...value, id: key})
+            }
+        }
+        return array
+    },
+}
 
 const actions = {
     async getSoundsForPlaylists({state, commit}) {
@@ -100,6 +110,18 @@ const actions = {
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 createdBy: firebase.auth().currentUser.uid,
             })
+    },
+    async addLibrarySoundToLibrary({dispatch}, {sound, playlistId}) {
+        await firebase.firestore().collection('sounds').doc(sound.id).update({
+            playlists: firebase.firestore.FieldValue.arrayUnion(playlistId)
+        })
+        await dispatch('getPlaylists')
+    },
+    async deleteSoundFromPlaylist({dispatch}, {sound, playlistId}) {
+        await firebase.firestore().collection('sounds').doc(sound.id).update({
+            playlists: firebase.firestore.FieldValue.arrayRemove(playlistId)
+        })
+        await dispatch('getPlaylists')
     },
     async updatePlaylistDetails({dispatch}, playlist) {
         console.log(playlist)

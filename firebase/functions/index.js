@@ -2,6 +2,7 @@ const onauth = require("./onauth");
 const board = require("./board");
 const invite = require("./invite");
 const api = require("./api");
+const library = require("./library")
 const admin = require("firebase-admin");
 admin.initializeApp();
 
@@ -21,3 +22,4 @@ exports.copySoundFromLibrary = board.copySoundFromLibrary;
 exports.addUserByInvite = invite.addUserByInvite;
 exports.getUserIdForIdToken = onauth.getUserIdForIdToken;
 exports.playApiSound = api.playApiSound;
+exports.soundChangedListener = library.soundChangedListener

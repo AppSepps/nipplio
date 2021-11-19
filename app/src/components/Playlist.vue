@@ -40,13 +40,23 @@
                         transition-hide="jump-up"
                     >
                       <q-list style="min-width: 100px">
+                        <q-item-label header>Boards</q-item-label>
                         <q-item clickable v-for="board in boards" :key="board.id"
                                 @click="addLibrarySoundToBoard(sound, board.id)">
                           <q-item-section>{{ board.name }}</q-item-section>
                         </q-item>
+                        <q-separator/>
+                        <q-item-label header>My Playlists</q-item-label>
+                        <q-item clickable v-for="playlist in myPlaylists" :key="playlist.id"
+                                @click="addLibrarySoundToLibrary(sound, playlist.id)">
+                          <q-item-section>{{ playlist.name }}</q-item-section>
+                        </q-item>
                       </q-list>
                     </q-menu>
                   </q-btn>
+                </q-item-section>
+                <q-item-section avatar>
+                  <q-btn flat round color="secondary" icon="delete" @click="deleteSoundFromPlaylist(sound)"></q-btn>
                 </q-item-section>
               </q-item>
             </q-scroll-area>
@@ -73,7 +83,7 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import {mapGetters, mapState} from "vuex";
 import firebase from "firebase";
 
 export default {
@@ -88,6 +98,7 @@ export default {
           firebase.auth().currentUser.uid
       )
     },
+    ...mapGetters('library', ['myPlaylists']),
     ...mapState({
       boards(state) {
         return state.board.boards
@@ -123,6 +134,12 @@ export default {
     },
     addLibrarySoundToBoard: async function (sound, boardId) {
       this.$store.dispatch('library/addLibrarySoundToBoard', {sound, boardId})
+    },
+    addLibrarySoundToLibrary: async function (sound, playlistId) {
+      this.$store.dispatch('library/addLibrarySoundToLibrary', {sound, playlistId})
+    },
+    deleteSoundFromPlaylist: async function (sound) {
+      this.$store.dispatch('library/deleteSoundFromPlaylist', {sound, playlistId: this.$props.id})
     }
   },
 }
