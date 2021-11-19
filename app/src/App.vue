@@ -57,6 +57,7 @@ export default {
       }
     })
     await this.$store.dispatch('board/getBoards')
+    await this.$store.dispatch('library/getPlaylists')
   },
   beforeUnmount() {
     this.unsubscribeAuth()

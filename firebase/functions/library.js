@@ -10,3 +10,27 @@ exports.soundChangedListener = functions.firestore
         }
     });
 
+
+exports.copySoundFromBoardToLibrary = functions.https.onCall(async (data, context) => {
+    console.log(data)
+    const uid = context.auth.uid;
+    const boardSoundId = data.boardSoundId;
+    const boardId = data.boardId;
+    const playlistId = data.playlistId;
+    const librarySoundId = data.librarySoundId;
+
+    // check if user is owner of playlist
+    const playlistDoc = await admin.firestore().collection('playlists').doc(playlistId).get()
+    if (playlistDoc.data().owner !== uid) {
+        // user is not in Board -> abort
+        console.log("Error: User not the owner of the playlist")
+        return
+    } else {
+        console.log("Error: User is a member of the board")
+    }
+
+    await admin.storage().bucket().file(`boards/${boardId}/${boardSoundId}`).copy(admin.storage().bucket().file(`library/${librarySoundId}`))
+    return {
+        message: "copied sound from library to board",
+    };
+})

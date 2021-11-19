@@ -1,11 +1,10 @@
 import './styles/main.scss'
 import '@quasar/extras/material-icons/material-icons.css'
+import {Notify} from 'quasar'
 
 export default {
-    framework: {
-        plugins: ['Notify'],
-        config: {
-            notify: {},
-        },
+    plugins: [Notify],
+    config: {
+        notify: {},
     },
 }

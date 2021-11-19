@@ -134,6 +134,7 @@ import BoardTitleDropdown from '../components/BoardTitleDropdown.vue'
 import LeaveBoardDialog from '../components/LeaveBoardDialog.vue'
 import ManageBoardDialog from '../components/ManageBoardDialog.vue'
 import RemoveUserDialog from '../components/RemoveUserDialog.vue'
+import {useQuasar} from "quasar";
 
 const columns = [
   {
@@ -217,7 +218,16 @@ export default {
       boardUsers: (state) => state.user.boardUsers,
       sounds: (state) => state.sound.sounds,
       user: (state) => state.user.user,
+      notifyText: (state) => state.board.notifyText
     }),
+  },
+  watch: {
+    notifyText(value) {
+      const $q = useQuasar()
+      $q.notify({
+        message: value,
+      })
+    }
   },
   async mounted() {
     const that = this

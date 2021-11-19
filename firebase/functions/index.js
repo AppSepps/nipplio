@@ -23,3 +23,4 @@ exports.addUserByInvite = invite.addUserByInvite;
 exports.getUserIdForIdToken = onauth.getUserIdForIdToken;
 exports.playApiSound = api.playApiSound;
 exports.soundChangedListener = library.soundChangedListener
+exports.copySoundFromBoardToLibrary = library.copySoundFromBoardToLibrary

@@ -82,22 +82,17 @@ const actions = {
         await dispatch('getPlaylists')
     },
     async addLibrarySoundToBoard(context, {sound, boardId}) {
-        console.log(sound)
-        console.log(boardId)
         const newSoundKey = await firebase
             .database()
             .ref(`/sounds/${boardId}`)
             .push()
 
-        console.log("before oncall")
         const copySoundFromLibrary = firebase.functions().httpsCallable('copySoundFromLibrary')
-        console.log("after oncall")
-        const result = await copySoundFromLibrary({
+        await copySoundFromLibrary({
             'librarySoundId': sound.id,
             'boardSoundId': newSoundKey.key,
             'boardId': boardId
         })
-        console.log("result", result)
 
         await firebase
             .database()
@@ -130,6 +125,28 @@ const actions = {
             description: playlist.description
         })
         await dispatch('getPlaylists')
+    },
+    async addBoardSoundToLibrary({commit, rootState}, {sound, playlistId}) {
+        commit('board/updateNotifyText', "Test", {root: true})
+        const boardId = rootState.board.activeBoard.id
+        const soundDoc = await firebase.firestore().collection('sounds').add({
+            isPublic: true,
+            name: sound.name,
+            type: sound.type,
+            createdAt: firebase.firestore.Timestamp.now(),
+            createdBy: firebase.auth().currentUser.uid,
+            owners: [firebase.auth().currentUser.uid],
+            playlists: [playlistId],
+            views: 0
+        })
+        const copySoundFromBoardToLibrary = firebase.functions().httpsCallable('copySoundFromBoardToLibrary')
+        await copySoundFromBoardToLibrary({
+            boardSoundId: sound.id,
+            boardId,
+            playlistId,
+            playlistSoundId: soundDoc.id
+        })
+        commit('board/updateNotifyText', "Successfull", {root: true})
     }
 }
 

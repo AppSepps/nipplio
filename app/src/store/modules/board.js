@@ -9,6 +9,7 @@ function initialState() {
         apiKeys: [],
         boards: [],
         isCreateBoardLoading: false,
+        notifyText: undefined
     }
 }
 
@@ -211,6 +212,9 @@ const mutations = {
             state[key] = s[key]
         })
     },
+    updateNotifyText(state, value) {
+        state.notifyText = value
+    }
 }
 
 export default {
