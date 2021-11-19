@@ -141,10 +141,10 @@ const actions = {
         })
         const copySoundFromBoardToLibrary = firebase.functions().httpsCallable('copySoundFromBoardToLibrary')
         await copySoundFromBoardToLibrary({
-            boardSoundId: sound.id,
-            boardId,
-            playlistId,
-            playlistSoundId: soundDoc.id
+            'boardSoundId': sound.id,
+            'boardId': boardId,
+            'playlistId': playlistId,
+            'playlistSoundId': soundDoc.id
         })
         commit('board/updateNotifyText', "Successfull", {root: true})
     }
