@@ -3,8 +3,8 @@
     <q-card class="col">
       <q-card-section horizontal>
         <q-img
-            class="col-4"
-            src="https://cdn.quasar.dev/img/parallax1.jpg"
+            class="col-3"
+            src="assets/playlist_placeholder.png"
         >
           <div class="absolute-bottom text-subtitle2 text-center">
             {{ playlist.name }}
