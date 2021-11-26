@@ -33,6 +33,7 @@ const actions = {
         const boardUsersRef = firebase
             .database()
             .ref(`/boardUsers/${activeBoard.id}`)
+        boardUsersRef.off()
 
         boardUsersRef.on('child_added', snapshot => {
             commit('addBoardUser', {

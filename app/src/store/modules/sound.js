@@ -77,6 +77,7 @@ const actions = {
 
         commit('clearSounds')
         const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
+        soundsRef.off()
 
         commit('setAreSoundsLoading', true)
         soundsRef.once('value').then(async (snapshot) => {

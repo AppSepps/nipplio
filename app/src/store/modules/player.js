@@ -62,6 +62,7 @@ const actions = {
         if (!activeBoard) return
 
         const playRef = firebase.database().ref('/play/' + activeBoard.id)
+        playRef.off()
 
         playRef.on('value', async snapshot => {
             if (skipInitial) {
