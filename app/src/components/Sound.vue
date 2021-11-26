@@ -66,7 +66,7 @@
               </q-item-section>
               <q-item-section>Edit</q-item-section>
             </q-item>
-            <!--q-item clickable>
+            <q-item clickable>
               <q-item-section avatar>
                 <q-icon name="library_music"/>
               </q-item-section>
@@ -83,7 +83,7 @@
                   </q-item>
                 </q-list>
               </q-menu>
-            </q-item-->
+            </q-item>
             <q-item
                 clickable
                 v-close-popup

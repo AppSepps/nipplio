@@ -24,13 +24,16 @@ const actions = {
         for (const [key] of Object.entries(state.playlists)) {
             const soundsSnapshot = await firebase.firestore().collection('sounds').where('playlists', 'array-contains', key).get()
             soundsSnapshot.forEach((doc) => {
-                commit('addSoundToPlaylist', {
-                    id: key,
-                    sound: {
-                        ...doc.data(),
-                        id: doc.id
-                    }
-                })
+                const foundSoundsWithSameId = state.playlists[key].sounds.filter((sound) => sound.id === doc.id)
+                if (foundSoundsWithSameId.length === 0) {
+                    commit('addSoundToPlaylist', {
+                        id: key,
+                        sound: {
+                            ...doc.data(),
+                            id: doc.id
+                        }
+                    })
+                }
             })
         }
     },
@@ -87,12 +90,9 @@ const actions = {
             .ref(`/sounds/${boardId}`)
             .push()
 
-        const copySoundFromLibrary = firebase.functions().httpsCallable('copySoundFromLibrary')
-        await copySoundFromLibrary({
-            'librarySoundId': sound.id,
-            'boardSoundId': newSoundKey.key,
-            'boardId': boardId
-        })
+        const downloadUrl = await firebase.storage().ref(`library/${sound.id}`).getDownloadURL()
+        const response = await fetch(downloadUrl)
+        await firebase.storage().ref(`boards/${boardId}/${newSoundKey.key}`).put(await response.arrayBuffer())
 
         await firebase
             .database()
@@ -126,8 +126,8 @@ const actions = {
         })
         await dispatch('getPlaylists')
     },
-    async addBoardSoundToLibrary({commit, rootState}, {sound, playlistId}) {
-        commit('board/updateNotifyText', "Test", {root: true})
+    async addBoardSoundToLibrary({rootState}, {sound, playlistId}) {
+        //commit('board/updateNotifyText', "Test", {root: true})
         const boardId = rootState.board.activeBoard.id
         const soundDoc = await firebase.firestore().collection('sounds').add({
             isPublic: true,
@@ -139,14 +139,12 @@ const actions = {
             playlists: [playlistId],
             views: 0
         })
-        const copySoundFromBoardToLibrary = firebase.functions().httpsCallable('copySoundFromBoardToLibrary')
-        await copySoundFromBoardToLibrary({
-            'boardSoundId': sound.id,
-            'boardId': boardId,
-            'playlistId': playlistId,
-            'playlistSoundId': soundDoc.id
-        })
-        commit('board/updateNotifyText', "Successfull", {root: true})
+
+        const downloadUrl = await firebase.storage().ref(`boards/${boardId}/${sound.id}`).getDownloadURL()
+        const response = await fetch(downloadUrl)
+        await firebase.storage().ref(`library/${soundDoc.id}`).put(await response.arrayBuffer())
+
+        //commit('board/updateNotifyText', "Successfull", {root: true})
     }
 }
 
