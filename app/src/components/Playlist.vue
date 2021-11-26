@@ -47,7 +47,7 @@
                         </q-item>
                         <q-separator/>
                         <q-item-label header>My Playlists</q-item-label>
-                        <q-item v-for="pList in myPlaylists" :key="pList.id"
+                        <q-item clickable v-for="pList in myPlaylists" :key="pList.id"
                                 @click="addLibrarySoundToLibrary(sound, pList.id)">
                           <q-item-section v-if="pList.id !== id">{{ pList.name }}
                           </q-item-section>
