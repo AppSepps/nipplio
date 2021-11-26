@@ -1,6 +1,6 @@
 <template>
-  <q-item>
-    <q-card class="col-8">
+  <q-item class="col">
+    <q-card class="col">
       <q-card-section horizontal>
         <q-img
             class="col-4"

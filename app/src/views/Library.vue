@@ -15,12 +15,14 @@
     </q-header>
 
     <q-page-container>
-      <div v-for="(playlist, id) in playlists" :key="id">
-        <playlist
-            :playlist="playlist"
-            :id="id"
-            v-on:openEditPlaylistDialog="showEditSoundDialog = true"
-        ></playlist>
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" v-for="(playlist, id) in playlists" :key="id">
+          <playlist
+              :playlist="playlist"
+              :id="id"
+              v-on:openEditPlaylistDialog="showEditSoundDialog = true"
+          ></playlist>
+        </div>
       </div>
       <edit-playlist-dialog v-model="showEditSoundDialog"/>
     </q-page-container>
