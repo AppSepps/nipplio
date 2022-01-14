@@ -23,10 +23,9 @@
 <script>
 import firebase from 'firebase'
 import BoardSelect from './components/BoardSelect.vue'
-import AddBoardDialog from "./components/AddBoardDialog";
-import CustomizeDialog from "./components/CustomizeDialog";
-import Settings from "./views/Settings";
-
+import AddBoardDialog from './components/AddBoardDialog'
+import CustomizeDialog from './components/CustomizeDialog'
+import Settings from './views/Settings'
 
 export default {
   name: 'App',

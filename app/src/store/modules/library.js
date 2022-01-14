@@ -3,7 +3,11 @@ import firebase from "firebase";
 function initialState() {
     return {
         playlists: {},
-        playedLocalSound: undefined
+        playedLocalSound: undefined,
+        selectedPlaylist: {
+            name: '',
+            sounds: []
+        }
     }
 }
 
@@ -17,9 +21,26 @@ const getters = {
         }
         return array
     },
+    selectedPlaylist: (state) => {
+        return state.selectedPlaylist
+    }
 }
 
 const actions = {
+    async getSoundsForSelectedPlaylist({commit}, playlistId) {
+        const soundsSnapshot = await firebase.firestore().collection('sounds').where('playlists', 'array-contains', playlistId).get()
+        const soundsArray = []
+        soundsSnapshot.forEach((doc) => {
+            soundsArray.push({
+                ...doc.data(),
+                id: doc.id
+            })
+        })
+        commit('addSoundsToSelectedPlaylist', soundsArray)
+    },
+    async selectedPlaylist({commit}, playlistData) {
+        commit('setSelectedPlaylist', playlistData)
+    },
     async getSoundsForPlaylists({state, commit}) {
         for (const [key] of Object.entries(state.playlists)) {
             const soundsSnapshot = await firebase.firestore().collection('sounds').where('playlists', 'array-contains', key).get()
@@ -47,13 +68,12 @@ const actions = {
         })
         await dispatch('getPlaylists')
     },
-    async getPlaylists({commit, dispatch}) {
+    async getPlaylists({commit}) {
         commit('clearPlaylist')
         const playlistSnapshot = await firebase.firestore().collection('playlists').get()
         playlistSnapshot.forEach((doc) => {
-            commit('addPlaylist', {playlist: {...doc.data(), sounds: []}, id: doc.id})
+            commit('addPlaylist', {playlist: {...doc.data()}, id: doc.id})
         })
-        await dispatch('getSoundsForPlaylists')
     },
     async playLocalSound({commit}, sound) {
         const soundUrl = await firebase
@@ -119,7 +139,6 @@ const actions = {
         await dispatch('getPlaylists')
     },
     async updatePlaylistDetails({dispatch}, playlist) {
-        console.log(playlist)
         await firebase.firestore().collection('playlists').doc(playlist.id).update({
             name: playlist.name,
             description: playlist.description
@@ -159,8 +178,15 @@ const mutations = {
         state.playlists[id] = playlist
     },
     addSoundToPlaylist(state, data) {
-        console.log(data)
         state.playlists[data.id].sounds.push(data.sound)
+    },
+    addSoundsToSelectedPlaylist(state, soundsArray) {
+        state.selectedPlaylist.sounds = soundsArray
+    },
+    setSelectedPlaylist(state, data) {
+        state.selectedPlaylist = {
+            ...data
+        }
     },
     setPlayedLocalSound(state, sound) {
         state.playedLocalSound = sound

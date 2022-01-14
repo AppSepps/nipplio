@@ -68,3 +68,4 @@ node_modules/
 .env
 
 emulator-export/*
+saved-data/*

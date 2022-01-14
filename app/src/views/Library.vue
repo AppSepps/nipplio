@@ -1,14 +1,14 @@
 <template>
-  <q-layout view="lHh LpR lFf" container style="height: 100vh">
+  <q-layout container style="height: 100vh" view="lHh LpR lFf">
     <q-header class="shadow-1">
       <q-toolbar class="bg-dark text-white">
         <q-btn
-            flat
-            @click="addPlaylistClicked()"
-            round
-            dense
             class="q-ml-sm"
+            dense
+            flat
             icon="add"
+            round
+            @click="addPlaylistClicked()"
         />
         <q-space/>
       </q-toolbar>
@@ -16,46 +16,118 @@
 
     <q-page-container>
       <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" v-for="(playlist, id) in playlists" :key="id">
-          <playlist
-              :playlist="playlist"
-              :id="id"
-              v-on:openEditPlaylistDialog="showEditSoundDialog = true"
-          ></playlist>
-        </div>
+        <q-table
+            :columns="columns"
+            :filter="filter"
+            :rows="playlistsArray"
+            :rows-per-page-options="[0]"
+            class="col"
+            flat
+            hide-bottom
+            row-key="id"
+            separator="none"
+            title="Library"
+            virtual-scroll
+        >
+          <template v-slot:top-right>
+            <q-input v-model="filter" borderless debounce="300" dense placeholder="Search">
+              <template v-slot:append>
+                <q-icon name="search"/>
+              </template>
+            </q-input>
+          </template>
+          <template v-slot:body="props">
+            <playlist-cell
+                :id="props.row.name"
+                :playlist="props.row"
+                :props="props"
+                v-on:row-click="onPlaylistSelected"
+                v-on:edit-click="onEditClick(props.row, props.row.id)"
+                v-on:delete-click="onDeleteClicked"
+            />
+          </template>
+        </q-table>
+        <SelectedPlaylist class="col"/>
+        <edit-playlist-dialog v-model="showEditSoundDialog"/>
       </div>
-      <edit-playlist-dialog v-model="showEditSoundDialog"/>
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
 import {mapState} from "vuex";
-import Playlist from "../components/Playlist";
-import {Howl} from 'howler'
 import EditPlaylistDialog from "../components/EditPlaylistDialog";
+import {Howl} from 'howler'
+import {ref} from "vue";
+import SelectedPlaylist from "@/components/SelectedPlaylist";
+import PlaylistCell from "@/components/PlaylistCell";
+
+const columns = [
+  {
+    name: 'name',
+    required: true,
+    label: 'Name',
+    align: 'left',
+    field: (row) => row.name,
+    sortable: true,
+  },
+  {
+    name: 'ownerName',
+    required: true,
+    label: 'Created by',
+    field: (row) => row.ownerName,
+    sortable: true,
+  },
+  {
+    name: 'likes',
+    required: true,
+    label: 'Likes',
+    field: (row) => row.likes,
+    sortable: true,
+  }
+]
 
 export default {
   name: "Library",
-  components: {EditPlaylistDialog, Playlist},
+  components: {SelectedPlaylist, EditPlaylistDialog, PlaylistCell},
   async mounted() {
     await this.$store.dispatch('library/getPlaylists')
   },
   data() {
     return {
-      showEditSoundDialog: false
+      showEditSoundDialog: false,
+      columns,
+      filter: ref(''),
     }
   },
   computed: {
     ...mapState({
       playlists: (state) => state.library.playlists,
       playedLocalSound: (state) => state.library.playedLocalSound
-    })
+    }),
+    playlistsArray() {
+      let array = []
+      for (const [key, value] of Object.entries(this.playlists)) {
+        array.push({...value, id: key})
+      }
+      return array
+    }
   },
   methods: {
     addPlaylistClicked: async function () {
       await this.$store.dispatch('library/addPlaylistClicked')
-    }
+    },
+    onPlaylistSelected: async function (evt, row) {
+      console.log('clicked row: ', row)
+      await this.$store.dispatch('library/selectedPlaylist', row)
+      await this.$store.dispatch('library/getSoundsForSelectedPlaylist', row.id)
+    },
+    onEditClick: async function (playlist, id) {
+      console.log(playlist)
+      //this.$emit('openEditPlaylistDialog')
+      this.bus.emit('openEditPlaylistDialog', {playlist, id})
+      this.showEditSoundDialog = true
+    },
   },
   watch: {
     playedLocalSound(sound) {
