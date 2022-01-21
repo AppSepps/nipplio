@@ -18,6 +18,10 @@ module.exports = {
             builderOptions: {
                 appId: 'com.appsepps.nipplio',
                 mac: {
+                    target: {
+                        target: 'default',
+                        arch: 'universal'
+                    },
                     icon: 'src/assets/icon.icns',
                     category: 'public.app-category.entertainment',
                 },
