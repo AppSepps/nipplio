@@ -222,6 +222,10 @@ app.on('ready', async () => {
         win.hide()
     })
 
+    ipcMain.on('networkStatusOnline', () => {
+       win.reload()
+    })
+
     if (!isDevelopment) {
         app.setLoginItemSettings({
             openAtLogin: true,
