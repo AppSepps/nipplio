@@ -47,8 +47,10 @@
         />
       </template>
     </q-table>
-    <div v-else>
-      Currently no Playlist selected
+    <div v-else class="row full-height justify-center items-center">
+      <div class="text-h4">
+        No playlist selected
+      </div>
     </div>
   </div>
 </template>
