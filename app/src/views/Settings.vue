@@ -133,7 +133,7 @@ export default {
   async mounted() {
     sendToIPCRenderer('startScanForDevices')
     sendToIPCRenderer('sendOpenShortcutToRenderer')
-    await this.$store.dispatch('settings/autoConnect')
+    //await this.$store.dispatch('settings/autoConnect')
   },
   unmounted() {
     sendToIPCRenderer('stopScanForDevices')

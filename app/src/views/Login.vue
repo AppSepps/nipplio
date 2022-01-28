@@ -14,6 +14,7 @@
 
 <script>
 import firebase from 'firebase/compat/app';
+import {getFunctions, httpsCallable} from "firebase/functions";
 import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 
@@ -82,9 +83,7 @@ export default {
             const code = params.get('ot-auth-code')
             console.log('code', code)
 
-            const addUserByInvite = firebase
-                .functions()
-                .httpsCallable('createAuthToken')
+            const addUserByInvite = httpsCallable(getFunctions(), 'createAuthToken')
             const result = await addUserByInvite({
                 'ot-auth-code': code,
                 'id-token': token,

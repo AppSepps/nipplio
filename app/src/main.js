@@ -1,5 +1,6 @@
 import {createApp} from 'vue'
 import { initializeApp } from 'firebase/app'
+import firebase from 'firebase/compat/app';
 import {getAuth, onAuthStateChanged } from 'firebase/auth'
 import { getAnalytics } from "firebase/analytics";
 import "firebase/analytics";
@@ -16,7 +17,9 @@ import 'moment/min/locales'
 const locale = window.navigator.userLanguage || window.navigator.language
 moment.locale(locale)
 
+firebase.initializeApp(config)
 initializeApp(config)
+
 if (location.hostname === 'localhost') {
     /*firebase.auth().useEmulator('http://localhost:9099')
     firebase.database().useEmulator('localhost', 9000)
