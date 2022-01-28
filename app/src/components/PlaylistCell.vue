@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
     <q-card @click="onPlaylistSelected(this, props.row)">
-        <q-img src="https://cdn.quasar.dev/img/parallax2.jpg">
+        <q-img :ratio="1/1" :src="imageURL">
           <div class="absolute-bottom text-subtitle2 text-center">
             {{props.row.name}}
               <q-btn color="white" class="" flat icon="more_horiz" round unelevated @click.stop>
@@ -19,7 +19,7 @@
                     </q-item>
                     <q-item
                         v-close-popup
-                        disabled
+                        clickable
                         @click="onDeleteClicked"
                     >
                       <q-item-section avatar>
@@ -45,7 +45,15 @@ export default {
   props: ['playlist', 'id', 'props'],
   mounted() {
   },
-  computed: {},
+  computed: {
+    imageURL: function() {
+      if (this.playlist !== undefined && this.playlist.thumbnailURL !== undefined) {
+        return this.playlist.thumbnailURL
+      } else {
+        return "https://recordsale.de/assets/record_placeholder-f6f9c8ec7c95af894337c529945c4f77cfbe802ee073e672cd264c1186ad0238.svg"
+      }
+    }
+  },
   methods: {
     onPlaylistSelected: async function (evt, row) {
       console.log('clicked row within: ', row)

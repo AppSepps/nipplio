@@ -71,19 +71,23 @@ const actions = {
         })
         await dispatch('getPlaylists')
     },
-    async getPlaylists({commit}) {
+    async getPlaylists({commit, dispatch}) {
         commit('clearPlaylist')
         const playlistSnapshot = await getDocs(query(collection(getFirestore(), 'playlists')))
         playlistSnapshot.forEach((doc) => {
             commit('addPlaylist', {playlist: {...doc.data()}, id: doc.id})
+            dispatch('addThumbnailToPlaylist', doc.id)
         })
+    },
+    async addThumbnailToPlaylist({commit}, playlistId) {
+        const thumbnailURL = await getDownloadURL(ref(getStorage(), `/libraryThumbnails/${playlistId}`))
+        commit('addThumbnailURLToPlaylist', { playlistId, thumbnailURL})
     },
     async playLocalSound({commit}, sound) {
         const soundUrl = await getDownloadURL(ref(getStorage(), `library/${sound.id}`))
         commit('setPlayedLocalSound', {...sound, soundUrl})
     },
     async removePlaylistWithId({dispatch}, id) {
-        await getFirestore().collection('sounds')
         const soundsSnapshot = await getDocs(query(collection(getFirestore(), 'sounds'), where('playlists', 'array-contains', id)))
         let tempCollection = [];
         soundsSnapshot.forEach(collection => {
@@ -182,6 +186,9 @@ const mutations = {
     },
     setPlayedLocalSound(state, sound) {
         state.playedLocalSound = sound
+    },
+    addThumbnailURLToPlaylist(state, {playlistId, thumbnailURL}) {
+        state.playlists[playlistId].thumbnailURL = thumbnailURL
     }
 }
 

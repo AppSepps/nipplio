@@ -23,15 +23,22 @@
                     placeholder="Awesome description"
                 />
               </q-card-section>
-                <q-card-actions align="right">
-                    <q-btn
-                        no-caps
-                        label="Save"
-                        color="primary"
-                        v-close-popup
-                        type="submit"
-                    />
-                </q-card-actions>
+              <q-card-section>
+                <library-image-upload-component
+                    label="Upload photos"
+                    auto-upload
+                    @upload="addImage"
+                    :fileName="id" />
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn
+                    no-caps
+                    label="Save"
+                    color="primary"
+                    v-close-popup
+                    type="submit"
+                />
+              </q-card-actions>
             </q-form>
         </q-card>
     </q-dialog>
@@ -39,9 +46,14 @@
 
 <script>
 
+
+import LibraryImageUploadComponent from "@/components/LibraryImageUploadComponent";
+
 export default {
     name: 'EditPlaylistDialog',
-    components: {},
+    components: {
+      LibraryImageUploadComponent
+    },
     data() {
         return {
             id: undefined,
@@ -61,6 +73,9 @@ export default {
         })
     },
     methods: {
+      addImage (item) {
+        console.log(item)
+      },
         onSubmit() {
             this.$store.dispatch('library/updatePlaylistDetails', {
                 ...this.playlist,

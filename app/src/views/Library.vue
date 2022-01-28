@@ -44,7 +44,7 @@
                   :props="props"
                   v-on:row-click="onPlaylistSelected"
                   v-on:edit-click="onEditClick(props.row, props.row.id)"
-                  v-on:delete-click="onDeleteClicked"
+                  v-on:delete-click="onDeleteClicked(props.row.id)"
               />
             </template>
           </q-table>
@@ -136,8 +136,8 @@ export default {
       this.bus.emit('openEditPlaylistDialog', {playlist, id})
       this.showEditSoundDialog = true
     },
-    onDeleteClicked: async function () {
-
+    onDeleteClicked: async function (id) {
+      await this.$store.dispatch('library/removePlaylistWithId', id)
     }
   },
   watch: {
