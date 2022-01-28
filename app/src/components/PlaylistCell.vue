@@ -1,46 +1,42 @@
 <template>
-  <q-tr :props="props" @click="onPlaylistSelected(this, props.row)">
-    <q-td key="name" :props="props">
-      <span>{{ props.row.name }}</span>
-    </q-td>
-    <q-td key="ownerName" :props="props">
-      {{ props.row.ownerName }}
-    </q-td>
-    <q-td key="likes" :props="props">
-      {{ props.row.likes }}
-    </q-td>
-    <q-td auto-width>
-      <q-btn color="white" flat icon="more_horiz" round unelevated @click.stop>
-        <q-menu>
-          <q-list style="min-width: 100px">
-            <q-item
-                v-close-popup
-                clickable
-                @click="onEditClicked"
-            >
-              <q-item-section avatar>
-                <q-icon name="edit"/>
-              </q-item-section>
-              <q-item-section>Edit</q-item-section>
-            </q-item>
-            <q-item
-                v-close-popup
-                disabled
-                @click="onDeleteClicked"
-            >
-              <q-item-section avatar>
-                <q-icon color="red" name="delete"/>
-              </q-item-section>
-              <q-item-section class="text-red"
-              >Delete
-              </q-item-section
-              >
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
-    </q-td>
-  </q-tr>
+  <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
+    <q-card @click="onPlaylistSelected(this, props.row)">
+        <q-img src="https://cdn.quasar.dev/img/parallax2.jpg">
+          <div class="absolute-bottom text-subtitle2 text-center">
+            {{props.row.name}}
+              <q-btn color="white" class="" flat icon="more_horiz" round unelevated @click.stop>
+                <q-menu>
+                  <q-list style="min-width: 100px">
+                    <q-item
+                        v-close-popup
+                        clickable
+                        @click="onEditClicked"
+                    >
+                      <q-item-section avatar>
+                        <q-icon name="edit"/>
+                      </q-item-section>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item
+                        v-close-popup
+                        disabled
+                        @click="onDeleteClicked"
+                    >
+                      <q-item-section avatar>
+                        <q-icon color="red" name="delete"/>
+                      </q-item-section>
+                      <q-item-section class="text-red"
+                      >Delete
+                      </q-item-section
+                      >
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+          </div>
+        </q-img>
+    </q-card>
+  </div>
 </template>
 <script>
 

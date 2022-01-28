@@ -1,4 +1,20 @@
-import firebase from 'firebase'
+import {getDownloadURL, getStorage, ref, deleteObject, uploadBytes} from "firebase/storage";
+import {
+    getDatabase,
+    serverTimestamp,
+    ref as databaseRef,
+    off,
+    get,
+    onChildChanged,
+    onChildRemoved,
+    query,
+    limitToLast,
+    orderByChild,
+    startAt, onChildAdded, update, remove, push, set
+} from "firebase/database";
+import {getAnalytics, logEvent} from "firebase/analytics";
+import {addDoc, collection, getFirestore, Timestamp} from "firebase/firestore";
+import {getAuth} from "firebase/auth";
 
 function initialState() {
     return {
@@ -64,10 +80,7 @@ const getters = {
 
 const actions = {
     async generateDownloadUrl({rootState}, {id, cb}) {
-        const soundUrl = await firebase
-            .storage()
-            .ref(`boards/${rootState.board.activeBoard.id}/${id}`)
-            .getDownloadURL()
+        const soundUrl = await getDownloadURL(ref(getStorage(), `boards/${rootState.board.activeBoard.id}/${id}`))
         cb(soundUrl)
     },
     getSounds({commit, rootState}) {
@@ -76,11 +89,11 @@ const actions = {
         if (!activeBoard) return
 
         commit('clearSounds')
-        const soundsRef = firebase.database().ref('/sounds/' + activeBoard.id)
-        soundsRef.off()
+        const soundsRef = databaseRef(getDatabase(), '/sounds/' + activeBoard.id)
+        off(soundsRef)
 
         commit('setAreSoundsLoading', true)
-        soundsRef.once('value').then(async (snapshot) => {
+        get(soundsRef).then(async (snapshot) => {
             const sounds = []
             snapshot.forEach((s) => {
                 sounds.push({id: s.key, ...s.val()})
@@ -89,25 +102,21 @@ const actions = {
             commit('addSounds', sounds)
             commit('setAreSoundsLoading', false)
 
-            soundsRef
-                .limitToLast(1)
-                .orderByChild('createdAt')
-                .startAt(Date.now())
-                .on('child_added', async (snapshot) => {
-                    commit('addSound', {
-                        id: snapshot.key,
-                        ...snapshot.val(),
-                    })
+            onChildAdded(query(soundsRef, limitToLast(1), orderByChild('createdAt'), startAt(Date.now())), async (snapshot) => {
+                commit('addSound', {
+                    id: snapshot.key,
+                    ...snapshot.val(),
                 })
+            })
 
-            soundsRef.on('child_changed', async (snapshot) => {
+            onChildChanged(soundsRef, async (snapshot) => {
                 commit('changeSound', {
                     id: snapshot.key,
                     ...snapshot.val(),
                 })
             })
 
-            soundsRef.on('child_removed', (snapshot) => {
+            onChildRemoved(soundsRef, (snapshot) => {
                 commit('removeSound', {
                     id: snapshot.key,
                 })
@@ -119,14 +128,11 @@ const actions = {
         commit('changeSearch', {text})
     },
     async onSoundEdit({rootState}, sound) {
-        await firebase
-            .database()
-            .ref(`/sounds/${rootState.board.activeBoard.id}/${sound.id}`)
-            .update({
-                name: sound.name,
-                tags: sound.tags,
-            })
-        await firebase.analytics().logEvent('sound_edit', sound)
+        await update(databaseRef(getDatabase(), `/sounds/${rootState.board.activeBoard.id}/${sound.id}`), {
+            name: sound.name,
+            tags: sound.tags,
+        })
+        await logEvent(getAnalytics(), 'sound_edit', sound)
     },
     onTagClicked({commit}, {tagName}) {
         commit('toggleSelectedTag', {tagName})
@@ -135,15 +141,11 @@ const actions = {
         const {activeBoard} = context.rootState.board
         const {soundId} = params
 
-        const soundRef = firebase
-            .database()
-            .ref(`/sounds/${activeBoard.id}/${soundId}`)
-        await soundRef.remove()
-        await firebase
-            .storage()
-            .ref(`/boards/${activeBoard.id}/${soundId}`)
-            .delete()
-        await firebase.analytics().logEvent('sound_delete', {soundId})
+        const soundRef = databaseRef(getDatabase(), `/sounds/${activeBoard.id}/${soundId}`)
+        await remove(soundRef)
+
+        await deleteObject(ref(getStorage(), `/boards/${activeBoard.id}/${soundId}`))
+        await logEvent(getAnalytics(), 'sound_delete', {soundId})
     },
     resetSoundsAndTags({commit}) {
         commit('resetSounds')
@@ -152,53 +154,40 @@ const actions = {
     async toggleFavoriteSound({commit, rootState}, params) {
         const {id} = params
         commit('toggleFavoriteSound', {id})
-        firebase.analytics().logEvent(rootState.sound.favoriteSoundIds.includes(id) ? 'add_favorite' : 'remove_favorite', {
+        logEvent(getAnalytics(), rootState.sound.favoriteSoundIds.includes(id) ? 'add_favorite' : 'remove_favorite', {
             favoriteId: id
         })
     },
     async uploadPublicSound(context, params) {
         const {files, cbSuccess, playlistId} = params
         for (let file of files) {
-            const soundDoc = await firebase.firestore().collection('sounds').add({
+            const soundDoc = await addDoc(collection(getFirestore(), 'sounds'), {
                 isPublic: true,
                 name: file.name,
                 type: file.type,
-                createdAt: firebase.firestore.Timestamp.now(),
-                createdBy: firebase.auth().currentUser.uid,
-                owners: [firebase.auth().currentUser.uid],
+                createdAt: Timestamp.now(),
+                createdBy: getAuth().currentUser.uid,
+                owners: [getAuth().currentUser.uid],
                 playlists: [playlistId],
                 views: 0
             })
-            await firebase.storage().ref(`/library/${soundDoc.id}`).put(file)
+            await uploadBytes(ref(getStorage(), `/library/${soundDoc.id}`), file)
         }
         cbSuccess()
     },
     async uploadSoundFile({rootState}, params) {
         const {files, cbSuccess} = params
         for (let file of files) {
-            const newSoundKey = await firebase
-                .database()
-                .ref(`/sounds/${rootState.board.activeBoard.id}`)
-                .push()
+            const newSoundKey = await push(databaseRef(getDatabase(), `/sounds/${rootState.board.activeBoard.id}`))
 
-            await firebase
-                .storage()
-                .ref(
-                    `/boards/${rootState.board.activeBoard.id}/${newSoundKey.key}`
-                )
-                .put(file)
+            await uploadBytes(ref(getStorage(), `/boards/${rootState.board.activeBoard.id}/${newSoundKey.key}`), file)
 
-            await firebase
-                .database()
-                .ref(
-                    `/sounds/${rootState.board.activeBoard.id}/${newSoundKey.key}`
-                )
-                .set({
-                    name: file.name,
-                    type: file.type,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP,
-                    createdBy: firebase.auth().currentUser.uid,
-                })
+            await set(databaseRef(getDatabase(), `/sounds/${rootState.board.activeBoard.id}/${newSoundKey.key}`), {
+                name: file.name,
+                type: file.type,
+                createdAt: serverTimestamp(),
+                createdBy: getAuth().currentUser.uid,
+            })
         }
 
         cbSuccess()

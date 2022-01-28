@@ -21,11 +21,11 @@
 </template>
 
 <script>
-import firebase from 'firebase'
 import BoardSelect from './components/BoardSelect.vue'
 import AddBoardDialog from './components/AddBoardDialog'
 import CustomizeDialog from './components/CustomizeDialog'
 import Settings from './views/Settings'
+import {getAuth} from "firebase/auth";
 
 export default {
   name: 'App',
@@ -41,10 +41,9 @@ export default {
   async created() {
     this.$store.dispatch('theme/setTheme', {id: null})
     this.$q.dark.set(true)
-    this.unsubscribeAuth = firebase.auth().onAuthStateChanged((user) => {
+    this.unsubscribeAuth = getAuth().onAuthStateChanged((user) => {
       if (user) {
-        firebase
-            .auth()
+        getAuth()
             .currentUser.getIdToken()
             .then((idToken) => {
               console.log(idToken)

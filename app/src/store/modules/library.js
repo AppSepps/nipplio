@@ -1,4 +1,7 @@
-import firebase from "firebase";
+import {getAuth} from "firebase/auth";
+import {getFirestore, arrayRemove, arrayUnion, Timestamp, getDocs, query, collection, where, addDoc, deleteDoc, doc, updateDoc} from "firebase/firestore";
+import {getDatabase, push, serverTimestamp, ref as databaseRef, set} from "firebase/database";
+import {getDownloadURL, getStorage, ref, deleteObject, uploadBytes} from "firebase/storage";
 
 function initialState() {
     return {
@@ -15,7 +18,7 @@ const getters = {
     myPlaylists: (state) => {
         let array = []
         for (const [key, value] of Object.entries(state.playlists)) {
-            if (value.owner === firebase.auth().currentUser.uid) {
+            if (value.owner === getAuth().currentUser.uid) {
                 array.push({...value, id: key})
             }
         }
@@ -28,7 +31,7 @@ const getters = {
 
 const actions = {
     async getSoundsForSelectedPlaylist({commit}, playlistId) {
-        const soundsSnapshot = await firebase.firestore().collection('sounds').where('playlists', 'array-contains', playlistId).get()
+        const soundsSnapshot = await getDocs(query(collection(getFirestore(), "sounds"), where('playlists', 'array-contains', playlistId)))
         const soundsArray = []
         soundsSnapshot.forEach((doc) => {
             soundsArray.push({
@@ -43,7 +46,7 @@ const actions = {
     },
     async getSoundsForPlaylists({state, commit}) {
         for (const [key] of Object.entries(state.playlists)) {
-            const soundsSnapshot = await firebase.firestore().collection('sounds').where('playlists', 'array-contains', key).get()
+            const soundsSnapshot = await getDocs(query(collection(getFirestore(), "sounds"), where('playlists', 'array-contains', key)))
             soundsSnapshot.forEach((doc) => {
                 const foundSoundsWithSameId = state.playlists[key].sounds.filter((sound) => sound.id === doc.id)
                 if (foundSoundsWithSameId.length === 0) {
@@ -59,87 +62,76 @@ const actions = {
         }
     },
     async addPlaylistClicked({dispatch}) {
-        await firebase.firestore().collection('playlists').add({
+        await addDoc(collection(getFirestore(), 'playlists'),{
             name: 'Neue Playlist',
-            owner: firebase.auth().currentUser.uid,
-            ownerName: firebase.auth().currentUser.displayName,
+            owner: getAuth().currentUser.uid,
+            ownerName: getAuth().currentUser.displayName,
             likes: 0,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
+            createdAt: serverTimestamp()
         })
         await dispatch('getPlaylists')
     },
     async getPlaylists({commit}) {
         commit('clearPlaylist')
-        const playlistSnapshot = await firebase.firestore().collection('playlists').get()
+        const playlistSnapshot = await getDocs(query(collection(getFirestore(), 'playlists')))
         playlistSnapshot.forEach((doc) => {
             commit('addPlaylist', {playlist: {...doc.data()}, id: doc.id})
         })
     },
     async playLocalSound({commit}, sound) {
-        const soundUrl = await firebase
-            .storage()
-            .ref(`library/${sound.id}`)
-            .getDownloadURL()
+        const soundUrl = await getDownloadURL(ref(getStorage(), `library/${sound.id}`))
         commit('setPlayedLocalSound', {...sound, soundUrl})
     },
     async removePlaylistWithId({dispatch}, id) {
-        await firebase.firestore().collection('sounds')
-        const soundsSnapshot = await firebase.firestore().collection('sounds').where('playlists', 'array-contains', id).get()
-        var tempCollection = [];
+        await getFirestore().collection('sounds')
+        const soundsSnapshot = await getDocs(query(collection(getFirestore(), 'sounds'), where('playlists', 'array-contains', id)))
+        let tempCollection = [];
         soundsSnapshot.forEach(collection => {
             tempCollection.push(collection);
         });
-        for await(let doc of tempCollection) {
-            if (doc.data().playlists.length === 1) {
+        for await(let document of tempCollection) {
+            if (document.data().playlists.length === 1) {
                 // this sound has only this playlist set -> delete the sound from database and storage
-                await firebase.storage().ref(`library/${doc.id}`).delete()
-                await firebase.firestore().collection('sounds').doc(doc.id).delete()
+                await deleteObject(ref(getStorage(), `library/${document.id}`))
+                await deleteDoc(doc(getFirestore(), `sounds/${document.id}`))
             } else {
                 // this sound has multiple playlists stored -> remove only the deleted one
-                await doc.ref.update({
-                    playlists: firebase.firestore.FieldValue.arrayRemove(id)
+                await updateDoc(document.ref, {
+                    playlists: arrayRemove(id)
                 })
             }
         }
-        await firebase.firestore().collection('playlists').doc(id).delete()
+        await deleteDoc(doc(getFirestore(), `playlists/${id}`))
         await dispatch('getPlaylists')
     },
     async addLibrarySoundToBoard(context, {sound, boardId}) {
-        const newSoundKey = await firebase
-            .database()
-            .ref(`/sounds/${boardId}`)
-            .push()
+        const newSoundKey = await push(databaseRef(getDatabase()), `/sounds/${boardId}`)
 
-        const downloadUrl = await firebase.storage().ref(`library/${sound.id}`).getDownloadURL()
+        const downloadUrl = await getDownloadURL(ref(getStorage(), `library/${sound.id}`))
         const response = await fetch(downloadUrl)
-        await firebase.storage().ref(`boards/${boardId}/${newSoundKey.key}`).put(await response.arrayBuffer())
+        await uploadBytes(ref(getStorage(), `boards/${boardId}/${newSoundKey.key}`), await response.arrayBuffer())
 
-        await firebase
-            .database()
-            .ref(
-                `/sounds/${boardId}/${newSoundKey.key}`
-            )
-            .set({
-                name: sound.name,
-                type: sound.type,
-                createdAt: firebase.database.ServerValue.TIMESTAMP,
-                createdBy: firebase.auth().currentUser.uid,
-            })
+        await set(databaseRef(getDatabase(), `/sounds/${boardId}/${newSoundKey.key}`), {
+            name: sound.name,
+            type: sound.type,
+            createdAt: serverTimestamp(),
+            createdBy: getAuth().currentUser.uid,
+        })
     },
     async addLibrarySoundToLibrary({dispatch}, {sound, playlistId}) {
-        await firebase.firestore().collection('sounds').doc(sound.id).update({
-            playlists: firebase.firestore.FieldValue.arrayUnion(playlistId)
+        await updateDoc(doc(getFirestore(), 'sounds', sound.id), {
+            playlists: arrayUnion(playlistId)
         })
         await dispatch('getPlaylists')
     },
     async deleteSoundFromPlaylist({dispatch}, {sound, playlistId}) {
-        await firebase.firestore().collection('sounds').doc(sound.id).update({
-            playlists: firebase.firestore.FieldValue.arrayRemove(playlistId)
+        await updateDoc(doc(getFirestore(), 'sounds', sound.id), {
+            playlists: arrayRemove(playlistId)
         })
         await dispatch('getPlaylists')
     },
     async updatePlaylistDetails({dispatch}, playlist) {
-        await firebase.firestore().collection('playlists').doc(playlist.id).update({
+        await updateDoc(doc(getFirestore(), 'playlists', playlist.id), {
             name: playlist.name,
             description: playlist.description
         })
@@ -148,20 +140,20 @@ const actions = {
     async addBoardSoundToLibrary({rootState}, {sound, playlistId}) {
         //commit('board/updateNotifyText', "Test", {root: true})
         const boardId = rootState.board.activeBoard.id
-        const soundDoc = await firebase.firestore().collection('sounds').add({
+        const soundDoc = await addDoc(doc(getFirestore(), 'sounds'), {
             isPublic: true,
             name: sound.name,
             type: sound.type,
-            createdAt: firebase.firestore.Timestamp.now(),
-            createdBy: firebase.auth().currentUser.uid,
-            owners: [firebase.auth().currentUser.uid],
+            createdAt: Timestamp.now(),
+            createdBy: getAuth().currentUser.uid,
+            owners: [getAuth().currentUser.uid],
             playlists: [playlistId],
             views: 0
         })
 
-        const downloadUrl = await firebase.storage().ref(`boards/${boardId}/${sound.id}`).getDownloadURL()
+        const downloadUrl = await getDownloadURL(ref(getStorage(), `boards/${boardId}/${sound.id}`))
         const response = await fetch(downloadUrl)
-        await firebase.storage().ref(`library/${soundDoc.id}`).put(await response.arrayBuffer())
+        await uploadBytes(ref(getStorage(), `library/${soundDoc.id}`), await response.arrayBuffer())
 
         //commit('board/updateNotifyText', "Successfull", {root: true})
     }

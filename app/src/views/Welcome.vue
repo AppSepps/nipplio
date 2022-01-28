@@ -23,11 +23,12 @@
 </template>
 
 <script>
-import firebase from 'firebase'
 import router from '../router'
 import { sendToIPCRenderer } from '../helpers/electron.helper'
 import { v4 as uuidv4 } from 'uuid'
 import 'firebaseui/dist/firebaseui.css'
+import {getDatabase} from "firebase/database";
+import {getAuth} from "firebase/auth";
 
 export default {
     name: 'Login',
@@ -36,15 +37,14 @@ export default {
         onSignInClicked() {
             const id = uuidv4()
             console.log('onSignInClicked', id)
-            const oneTimeCodeRef = firebase
-                .database()
+            const oneTimeCodeRef = getDatabase()
                 .ref(`ot-auth-codes/${id}`)
 
             oneTimeCodeRef.on('value', async snapshot => {
                 const authToken = snapshot.val()
                 console.log('authToken', authToken)
                 if (authToken) {
-                    await firebase.auth().signInWithCustomToken(authToken)
+                    await getAuth().signInWithCustomToken(authToken)
                     await oneTimeCodeRef.remove()
                     await this.$store.dispatch('board/getBoards')
                     router.push('/')

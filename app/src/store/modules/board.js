@@ -1,6 +1,8 @@
-import firebase from 'firebase'
 import hotkeys from 'hotkeys-js'
-import {sendToIPCRenderer} from '../../helpers/electron.helper'
+import {sendToIPCRenderer} from '@/helpers/electron.helper'
+import {getAuth} from "firebase/auth";
+import {getDatabase, push, ref, onValue, update, get, onChildRemoved, onChildChanged, onChildAdded} from 'firebase/database'
+import {getFunctions, httpsCallable} from 'firebase/functions'
 
 function initialState() {
     return {
@@ -17,7 +19,7 @@ const getters = {
     isOwner: function (state, getters, rootState) {
         return (
             rootState.board.activeBoard.owner ===
-            firebase.auth().currentUser.uid
+            getAuth().currentUser.uid
         )
     },
     sortedBoards: (state) =>
@@ -43,14 +45,14 @@ const actions = {
         const {activeBoard} = state
         const {boardName} = params
 
-        await firebase.database().ref(`/boards/${activeBoard.id}`).update({
-            name: boardName,
+        await update(ref(getDatabase(), `/boards/${activeBoard.id}`), {
+            name: boardName
         })
     },
     async createBoard({commit}, params) {
         const {boardName, cb} = params
         commit('setCreateBoardLoading', true)
-        const createBoard = firebase.functions().httpsCallable('createBoard')
+        const createBoard = httpsCallable(getFunctions(), 'createBoard')
         await createBoard({boardName})
         cb()
         commit('setCreateBoardLoading', false)
@@ -58,32 +60,27 @@ const actions = {
     },
     async getApiKeys({commit, state}) {
         if (state.activeBoard === undefined) return
-        firebase
-            .database()
-            .ref(`/apiKeys/${state.activeBoard.id}/`)
-            .on('value', (snapshot) => {
-                let apiKeys = []
-                snapshot.forEach((apiKey) => {
-                    apiKeys.push(apiKey.key)
-                })
-                commit('setApiKeys', apiKeys)
+        onValue(ref(getDatabase(), `/apiKeys/${state.activeBoard.id}/`), (snapshot) => {
+            let apiKeys = []
+            snapshot.forEach((apiKey) => {
+                apiKeys.push(apiKey.key)
             })
+            commit('setApiKeys', apiKeys)
+        })
     },
     async getBoards({commit}) {
-        const userBoardsRef = firebase
-            .database()
-            .ref('/users/' + firebase.auth().currentUser.uid + '/boards')
+        const userBoardsRef = ref(getDatabase(), '/users/' + getAuth().currentUser.uid + '/boards')
 
-        userBoardsRef.on('child_added', (snapshot) => {
-            const boardRef = firebase.database().ref('/boards/' + snapshot.key)
+        onChildAdded(userBoardsRef, (snapshot) => {
+            const boardRef = ref(getDatabase(), '/boards/' + snapshot.key)
 
-            boardRef.once('value').then((boardSnapshot) => {
+            get(boardRef).then((boardSnapshot) => {
                 commit('addBoard', {
                     id: boardSnapshot.key,
                     ...boardSnapshot.val(),
                 })
 
-                boardRef.on('child_changed', (snapshot) => {
+                onChildChanged(boardRef, (snapshot) => {
                     commit('changeBoard', {
                         id: boardSnapshot.key,
                         ...boardSnapshot.val(),
@@ -91,7 +88,7 @@ const actions = {
                     })
                 })
 
-                boardRef.on('child_removed', (snapshot) => {
+                onChildRemoved(boardRef, (snapshot) => {
                     commit('removeBoard', {
                         id: snapshot.key,
                     })
@@ -102,18 +99,13 @@ const actions = {
     async inviteUser({state}, params) {
         const {activeBoard} = state
         const {cb} = params
-        const snapshot = await firebase
-            .database()
-            .ref('/boardInvites/' + activeBoard.id)
-            .push(true)
+        const snapshot = await push(ref(getDatabase(), '/boardInvites/' + activeBoard.id), true)
         const url = `${window.location.origin}${window.location.pathname}?boardId=${activeBoard.id}&token=${snapshot.key}`
         cb(url)
     },
     async joinBoard({dispatch}, params) {
         const {boardId, token} = params
-        const inviteUserByToken = firebase
-            .functions()
-            .httpsCallable('addUserByInvite')
+        const inviteUserByToken = httpsCallable(getFunctions(), 'addUserByInvite')
         try {
             await inviteUserByToken({
                 boardId: boardId,

@@ -16,37 +16,39 @@
 
     <q-page-container>
       <div class="row">
-        <q-table
-            :columns="columns"
-            :filter="filter"
-            :rows="playlistsArray"
-            :rows-per-page-options="[0]"
-            class="col"
-            flat
-            hide-bottom
-            row-key="id"
-            separator="none"
-            title="Library"
-            virtual-scroll
-        >
-          <template v-slot:top-right>
-            <q-input v-model="filter" borderless debounce="300" dense placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search"/>
-              </template>
-            </q-input>
-          </template>
-          <template v-slot:body="props">
-            <playlist-cell
-                :id="props.row.name"
-                :playlist="props.row"
-                :props="props"
-                v-on:row-click="onPlaylistSelected"
-                v-on:edit-click="onEditClick(props.row, props.row.id)"
-                v-on:delete-click="onDeleteClicked"
-            />
-          </template>
-        </q-table>
+        <div class="col">
+          <q-table
+              grid
+              :columns="columns"
+              :filter="filter"
+              :rows="playlistsArray"
+              :rows-per-page-options="[0]"
+              class="col"
+              hide-bottom
+              row-key="id"
+              separator="none"
+              title="Library"
+              virtual-scroll
+          >
+            <template v-slot:top-right>
+              <q-input v-model="filter" borderless debounce="300" dense placeholder="Search">
+                <template v-slot:append>
+                  <q-icon name="search"/>
+                </template>
+              </q-input>
+            </template>
+            <template v-slot:item="props">
+              <playlist-cell
+                  :id="props.row.name"
+                  :playlist="props.row"
+                  :props="props"
+                  v-on:row-click="onPlaylistSelected"
+                  v-on:edit-click="onEditClick(props.row, props.row.id)"
+                  v-on:delete-click="onDeleteClicked"
+              />
+            </template>
+          </q-table>
+        </div>
         <SelectedPlaylist class="col"/>
         <edit-playlist-dialog v-model="showEditSoundDialog"/>
       </div>
@@ -61,6 +63,7 @@ import {Howl} from 'howler'
 import {ref} from "vue";
 import SelectedPlaylist from "@/components/SelectedPlaylist";
 import PlaylistCell from "@/components/PlaylistCell";
+import {useQuasar} from "quasar";
 
 const columns = [
   {
@@ -97,7 +100,7 @@ export default {
     return {
       showEditSoundDialog: false,
       columns,
-      filter: ref(''),
+      filter: ref('')
     }
   },
   computed: {
@@ -105,6 +108,11 @@ export default {
       playlists: (state) => state.library.playlists,
       playedLocalSound: (state) => state.library.playedLocalSound
     }),
+    cardContainerClass() {
+      return useQuasar().screen.gt.xs
+          ? 'grid-masonry grid-masonry--' + (useQuasar().screen.gt.sm ? '3' : '2')
+          : null
+    },
     playlistsArray() {
       let array = []
       for (const [key, value] of Object.entries(this.playlists)) {
@@ -128,6 +136,9 @@ export default {
       this.bus.emit('openEditPlaylistDialog', {playlist, id})
       this.showEditSoundDialog = true
     },
+    onDeleteClicked: async function () {
+
+    }
   },
   watch: {
     playedLocalSound(sound) {
@@ -144,6 +155,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="sass">
+.grid-masonry
+  flex-direction: column
+  height: 700px
 </style>

@@ -1,5 +1,7 @@
-import firebase from 'firebase'
-import {sendToIPCRenderer} from '../../helpers/electron.helper'
+import {sendToIPCRenderer} from '@/helpers/electron.helper'
+import {getAnalytics, setUserProperties} from "firebase/analytics";
+import {getDatabase, off, onChildAdded, onChildChanged, ref, update, set, onValue, child, onDisconnect} from "firebase/database";
+import {getAuth} from "firebase/auth";
 
 function initialState() {
     return {
@@ -20,7 +22,7 @@ const getters = {
 
 const actions = {
     async logAnalytics({rootState}) {
-        firebase.analytics().setUserProperties({
+        setUserProperties(getAnalytics(), {
             themeId: rootState.theme.currentThemeId
         })
     },
@@ -30,19 +32,17 @@ const actions = {
         if (!activeBoard) return
 
         commit('emptyBoardUsers')
-        const boardUsersRef = firebase
-            .database()
-            .ref(`/boardUsers/${activeBoard.id}`)
-        boardUsersRef.off()
+        const boardUsersRef = ref(getDatabase(), `/boardUsers/${activeBoard.id}`)
+        off(boardUsersRef)
 
-        boardUsersRef.on('child_added', snapshot => {
+        onChildAdded(boardUsersRef, snapshot => {
             commit('addBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        boardUsersRef.on('child_changed', snapshot => {
+        onChildChanged(boardUsersRef, snapshot => {
             commit('changeBoardUser', {
                 id: snapshot.key,
                 ...snapshot.val(),
@@ -50,7 +50,7 @@ const actions = {
         })
     },
     getUser({commit}) {
-        const user = firebase.auth().currentUser
+        const user = getAuth().currentUser
         commit('getUser', {user})
     },
     async onSelfMuteToggle({state, rootState}, params) {
@@ -59,12 +59,7 @@ const actions = {
 
         if (!activeBoard) return
 
-        await firebase
-            .database()
-            .ref(`/boardUsers/${activeBoard.id}/${state.user.uid}`)
-            .update({
-                muted: selfMute,
-            })
+        await update(ref(getDatabase(), `/boardUsers/${activeBoard.id}/${state.user.uid}`), { muted: selfMute })
 
         sendToIPCRenderer(selfMute ? 'setIconToMute' : 'setIconToUnmute')
     },
@@ -85,31 +80,29 @@ const actions = {
 
         if (!activeBoard) return
 
-        const boardUserRef = firebase
-            .database()
-            .ref(
+        const boardUserRef = ref(getDatabase(),
                 `/boardUsers/${activeBoard.id}/${
-                    firebase.auth().currentUser.uid
+                    getAuth().currentUser.uid
                 }`
             )
-        await boardUserRef.set({
-            displayName: firebase.auth().currentUser.displayName,
-            photoURL: firebase.auth().currentUser.photoURL,
+        await set(boardUserRef, {
+            displayName: getAuth().currentUser.displayName,
+            photoURL: getAuth().currentUser.photoURL,
             connected: true,
             muted: rootGetters['user/selfMute'],
         })
-        var connectedRef = firebase.database().ref('.info/connected')
-        connectedRef.on('value', function (snap) {
+        let connectedRef = ref(getDatabase(), '.info/connected')
+        onValue(connectedRef, function (snap) {
             if (snap.val() === true) {
-                boardUserRef.onDisconnect().update({
-                    connected: false,
+                onDisconnect(boardUserRef).update({
+                    connected: false
                 })
             }
         })
         // Keeps the user as connected when another tab gets closed
-        boardUserRef.child('connected').on('value', snap => {
-            if (snap.val() == false) {
-                boardUserRef.child('connected').set(true)
+        onValue(child(boardUserRef, 'connected'),  snap => {
+            if (snap.val() === false) {
+                set(child(boardUserRef, 'connected'), true)
             }
         })
     },

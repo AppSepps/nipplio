@@ -1,5 +1,8 @@
-import firebase from 'firebase'
 import {v4 as uuidv4} from 'uuid'
+import {getDatabase, onChildChanged, ref, off, onValue, set} from "firebase/database";
+import {getAuth} from "firebase/auth";
+import {getDownloadURL, getStorage, ref as storageRef} from "firebase/storage";
+import {getAnalytics, logEvent} from "firebase/analytics";
 
 function initialState() {
     return {
@@ -24,11 +27,9 @@ const actions = {
         dispatch('playRemoteSound', {id: randomSound.id, random: true})
     },
     subscribeToRemotePlayer({dispatch}) {
-        const remotePlayRef = firebase
-            .database()
-            .ref('/remotePlay/' + firebase.auth().currentUser.uid)
+        const remotePlayRef = ref(getDatabase(), '/remotePlay/' + getAuth().currentUser.uid)
 
-        remotePlayRef.on('child_changed', snapshot => {
+        onChildChanged(remotePlayRef, snapshot => {
             dispatch(
                 'player/triggerRemotePlaySound',
                 {deviceId: snapshot.key, slotId: snapshot.val()['slotId']},
@@ -61,20 +62,17 @@ const actions = {
 
         if (!activeBoard) return
 
-        const playRef = firebase.database().ref('/play/' + activeBoard.id)
-        playRef.off()
+        const playRef = ref(getDatabase(), '/play/' + activeBoard.id)
+        off(playRef)
 
-        playRef.on('value', async snapshot => {
+        onValue(playRef, async snapshot => {
             if (skipInitial) {
                 skipInitial = false
                 return
             }
             const play = snapshot.val()
 
-            const soundUrl = await firebase
-                .storage()
-                .ref(`boards/${activeBoard.id}/${play.soundId}`)
-                .getDownloadURL()
+            const soundUrl = await getDownloadURL(storageRef(getStorage(), `boards/${activeBoard.id}/${play.soundId}`))
 
             const skipByRemote =
                 play.mutedUsers && play.mutedUsers.includes(user.uid)
@@ -115,20 +113,17 @@ const actions = {
         if (!mutedUsers.includes(user.uid)) {
             dispatch('toggleSoundLoading', true)
         }
-        await firebase
-            .database()
-            .ref('/play/' + activeBoard.id)
-            .set({
-                uuid: uuidv4(),
-                soundId: id,
-                playedBy: user.uid,
-                mutedUsers,
-                random,
-                source,
-            })
+        await set(ref(getDatabase(), '/play/' + activeBoard.id), {
+            uuid: uuidv4(),
+            soundId: id,
+            playedBy: user.uid,
+            mutedUsers,
+            random,
+            source,
+        })
 
         const soundName = rootState.sound.sounds.filter(sound => sound.id === id)[0].name
-        await firebase.analytics().logEvent('play_sound', {
+        await logEvent(getAnalytics(), 'play_sound',{
             soundId: id,
             soundName,
             boardId: activeBoard.id,
@@ -146,10 +141,7 @@ const actions = {
 
         if (!activeBoard) return
 
-        firebase
-            .database()
-            .ref('/play/' + activeBoard.id)
-            .off()
+        off(ref(getDatabase(), '/play/' + activeBoard.id))
     },
 }
 

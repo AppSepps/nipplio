@@ -1,8 +1,10 @@
-import firebase from 'firebase'
 import axios from 'axios'
 import {v4 as uuidv4} from 'uuid'
 import hotkeys from "hotkeys-js";
 import {sendToIPCRenderer} from "@/helpers/electron.helper";
+import {getDatabase, ref, set, get, onChildChanged, onChildAdded, onChildRemoved, remove} from "firebase/database";
+import {getAuth} from "firebase/auth";
+import {getFunctions, httpsCallable} from "firebase/functions"
 
 function initialState() {
     return {
@@ -95,16 +97,10 @@ const actions = {
         commit('changeOpenShortcutText', {text})
     },
     async addApiKey({rootState}) {
-        await firebase
-            .database()
-            .ref(`/apiKeys/${rootState.board.activeBoard.id}/${uuidv4()}`)
-            .set(true)
+        await set(ref(getDatabase(), `/apiKeys/${rootState.board.activeBoard.id}/${uuidv4()}`), true)
     },
     async deleteApiKey({rootState}, apiKey) {
-        await firebase
-            .database()
-            .ref(`/apiKeys/${rootState.board.activeBoard.id}/${apiKey}`)
-            .set(null)
+        await set(ref(getDatabase(), `/apiKeys/${rootState.board.activeBoard.id}/${apiKey}`), null)
     },
     async bleButtonScanClicked({dispatch}) {
         try {
@@ -161,14 +157,8 @@ const actions = {
         const slots = JSON.parse(new TextDecoder().decode(slotsRaw))
         console.log(slots)
         // Write Slot mapping to firebase
-        await firebase
-            .database()
-            .ref(
-                `users/${firebase.auth().currentUser.uid}/remoteDevices/${
-                    this.bluetoothDevice.name
-                }/slots`
-            )
-            .set(slots)
+
+        await set(ref(getDatabase(), `users/${getAuth().currentUser.uid}/remoteDevices/${this.bluetoothDevice.name}/slots`), slots)
 
         await myCharacteristic.startNotifications()
 
@@ -211,10 +201,7 @@ const actions = {
     },
     async getAvailableSlotSounds({commit}, {boardId}) {
         try {
-            const sounds = await firebase
-                .database()
-                .ref(`sounds/${boardId}`)
-                .once('value')
+            const sounds = await get(ref(getDatabase(), `sounds/${boardId}`))
             commit('addAvailableSlotSounds', sounds.val())
         } catch (error) {
             console.log(error)
@@ -223,10 +210,8 @@ const actions = {
     async registerRemoteDevice({dispatch, commit}, ipAddress) {
         commit('setDeviceLoading', ipAddress)
         try {
-            const idToken = await firebase.auth().currentUser.getIdToken()
-            const createAndReturnAuthToken = firebase
-                .functions()
-                .httpsCallable('createAndReturnAuthToken')
+            const idToken = await getAuth().currentUser.getIdToken()
+            const createAndReturnAuthToken = httpsCallable(getFunctions(), 'createAndReturnAuthToken')
             const result = await createAndReturnAuthToken({
                 'id-token': idToken,
             })
@@ -264,13 +249,7 @@ const actions = {
         }
     },
     async saveSlotMapping(context, {device, boardId, selectedSounds}) {
-        const slotMappingRef = firebase
-            .database()
-            .ref(
-                `/users/${firebase.auth().currentUser.uid}/remoteDevices/${
-                    device.id
-                }/${boardId}/slots`
-            )
+        const slotMappingRef = ref(getDatabase(),`/users/${getAuth().currentUser.uid}/remoteDevices/${device.id}/${boardId}/slots`)
         try {
             const slotMapping = {}
             device.slots.forEach((slot, index) => {
@@ -278,32 +257,30 @@ const actions = {
                     ? selectedSounds[index].id
                     : null
             })
-            await slotMappingRef.set(slotMapping)
+            await set(slotMappingRef, slotMapping)
         } catch (error) {
             console.log(error)
         }
     },
     subscribeToRemoteDevices({commit}) {
-        const user = firebase.auth().currentUser
-        const deviceRef = firebase
-            .database()
-            .ref(`/users/${user.uid}/remoteDevices`)
+        const user = getAuth().currentUser
+        const deviceRef = ref(getDatabase(), `/users/${user.uid}/remoteDevices`)
 
-        deviceRef.on('child_added', snapshot => {
+        onChildAdded(deviceRef, snapshot => {
             commit('addRemoteDevice', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        deviceRef.on('child_changed', snapshot => {
+        onChildChanged(deviceRef, snapshot => {
             commit('changeRemoteDevice', {
                 id: snapshot.key,
                 ...snapshot.val(),
             })
         })
 
-        deviceRef.on('child_removed', snapshot => {
+        onChildRemoved(deviceRef, snapshot => {
             commit('removeRemoteDevice', {
                 id: snapshot.key,
             })
@@ -312,16 +289,13 @@ const actions = {
     async unlinkRemoteDevice({commit}, device) {
         console.log(device)
         commit('setRemoteDeviceLoadingStatus', {device, isLoading: true})
-        const idToken = await firebase.auth().currentUser.getIdToken()
+        const idToken = await getAuth().currentUser.getIdToken()
         const url =
             'http://' + device.ipAddress + '/unpairDevice?idToken=' + idToken
         try {
             await axios.get(url)
-            const user = firebase.auth().currentUser
-            await firebase
-                .database()
-                .ref(`/users/${user.uid}/remoteDevices/${device.id}`)
-                .remove()
+            const user = getAuth().currentUser
+            await remove(ref(getDatabase(), `/users/${user.uid}/remoteDevices/${device.id}`))
         } catch (error) {
             console.log(error)
         }

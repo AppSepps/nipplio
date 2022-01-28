@@ -90,11 +90,11 @@
 
 <script>
 import {isElectron, sendToIPCRenderer} from '../helpers/electron.helper'
-import firebase from 'firebase'
 import {mapActions, mapGetters} from 'vuex'
 import RemoteDevice from '@/components/RemoteDevice.vue'
 import {copyToClipboard} from 'quasar'
 import OpenShortcutItem from "@/components/OpenShortcutItem";
+import {getAuth} from "firebase/auth";
 
 export default {
   name: 'Settings',
@@ -124,7 +124,7 @@ export default {
       this.$emit('openSlotMappingDialog')
     },
     signOut: async function () {
-      await firebase.auth().signOut()
+      await getAuth().signOut()
       this.$store.dispatch('player/unsubscribeToPlayer')
       this.$store.dispatch('clearAll')
       this.$router.push('/welcome')

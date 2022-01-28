@@ -1,11 +1,11 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import firebase from 'firebase'
 
 import Home from '../views/Home.vue'
 import Board from '../views/Board.vue'
 import Welcome from '../views/Welcome.vue'
 import Login from '../views/Login.vue'
 import Library from "../views/Library";
+import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const routes = [
     {path: '/', component: Home, meta: {auth: true}},
@@ -32,7 +32,7 @@ router.beforeResolve(async (to, from, next) => {
 
 const getCurrentUser = () => {
     return new Promise((resolve, reject) => {
-        const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+        const unsubscribe = onAuthStateChanged(getAuth(), (user) => {
             unsubscribe()
             resolve(user)
         }, reject)

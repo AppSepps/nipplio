@@ -1,5 +1,5 @@
 import {setCssVar} from 'quasar'
-import firebase from "firebase";
+import {getAnalytics, logEvent} from "firebase/analytics";
 
 function initialState() {
     return {
@@ -64,9 +64,7 @@ const actions = {
 
             commit('setThemeId', themeId)
             if (manuallyClicked) {
-                firebase.analytics().logEvent('select_theme', {
-                    themeId
-                })
+                logEvent(getAnalytics(), 'select_theme', { themeId })
                 dispatch('user/logAnalytics', {}, {root: true})
             }
         }
