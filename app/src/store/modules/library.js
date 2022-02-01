@@ -109,7 +109,7 @@ const actions = {
         await dispatch('getPlaylists')
     },
     async addLibrarySoundToBoard(context, {sound, boardId}) {
-        const newSoundKey = await push(databaseRef(getDatabase()), `/sounds/${boardId}`)
+        const newSoundKey = await push(databaseRef(getDatabase(), `/sounds/${boardId}`))
 
         const downloadUrl = await getDownloadURL(ref(getStorage(), `library/${sound.id}`))
         const response = await fetch(downloadUrl)
