@@ -144,7 +144,7 @@ const actions = {
     async addBoardSoundToLibrary({rootState}, {sound, playlistId}) {
         //commit('board/updateNotifyText', "Test", {root: true})
         const boardId = rootState.board.activeBoard.id
-        const soundDoc = await addDoc(doc(getFirestore(), 'sounds'), {
+        const soundDoc = await addDoc(collection(getFirestore(), 'sounds'), {
             isPublic: true,
             name: sound.name,
             type: sound.type,
