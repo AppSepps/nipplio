@@ -13,6 +13,7 @@ import App from './App.vue'
 import config from './config'
 import moment from 'moment'
 import 'moment/min/locales'
+import {sendToIPCRenderer} from "@/helpers/electron.helper";
 
 const locale = window.navigator.userLanguage || window.navigator.language
 moment.locale(locale)
@@ -45,6 +46,9 @@ onAuthStateChanged(getAuth(), () => {
 })
 
 try {
+    setInterval(() => {
+        sendToIPCRenderer('heartbeat')
+    }, 1000)
     window.ipcRenderer.on('mute', async () => {
         await store.dispatch('user/toggleUserMute', {selfMute: true})
     })

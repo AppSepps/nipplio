@@ -33,6 +33,8 @@ protocol.registerSchemesAsPrivileged([
     {scheme: 'app', privileges: {secure: true, standard: true}},
 ])
 
+let heartbeatTimestampMillis = new Date().valueOf();
+
 const createTray = () => {
     const platform = process.platform
     let icon
@@ -177,6 +179,17 @@ app.on('ready', async () => {
     }
     createWindow()
     autoUpdater.checkForUpdatesAndNotify()
+
+    ipcMain.on('heartbeat', () => {
+        heartbeatTimestampMillis = new Date().valueOf()
+    })
+    // check every second if the last heartbeat is not older than 10 seconds. If so, reload the window
+    setInterval(() => {
+        if (heartbeatTimestampMillis <= new Date().valueOf()-10000) {
+            heartbeatTimestampMillis = new Date().valueOf()
+            win.reload()
+        }
+    }, 1000)
 
     ipcMain.on('changeOpenShortcut', (event, data) => {
         globalShortcut.unregister(store.get(OPEN_SHORTCUT))
