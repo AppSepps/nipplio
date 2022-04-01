@@ -8,6 +8,7 @@ import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 import bonjour from 'bonjour'
 import Store from 'electron-store'
 import windowStateKeeper from "electron-window-state";
+import {update} from "firebase/database";
 
 let mainWindowState
 
@@ -35,17 +36,20 @@ protocol.registerSchemesAsPrivileged([
 
 let heartbeatTimestampMillis = new Date().valueOf();
 
-const createTray = () => {
+const createTray = (currentlyCheckingForUpdates = false) => {
     const platform = process.platform
     let icon
 
-    if (platform === 'darwin' || platform === 'linux') {
-        icon = path.join(__static, 'assets', '/icon_tray.png')
-    } else if (platform === 'win32') {
-        icon = path.join(__static, 'assets', '/icon.ico')
+    if(!tray) {
+        if (platform === 'darwin' || platform === 'linux') {
+            icon = path.join(__static, 'assets', '/icon_tray.png')
+        } else if (platform === 'win32') {
+            icon = path.join(__static, 'assets', '/icon.ico')
+        }
+        const trayImage = nativeImage.createFromPath(icon)
+        tray = new Tray(trayImage)
     }
-    const trayImage = nativeImage.createFromPath(icon)
-    tray = new Tray(trayImage)
+
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'Show App',
@@ -54,9 +58,12 @@ const createTray = () => {
             },
         },
         {
-            label: 'Check for Updates',
-            click: () => {
-                autoUpdater.checkForUpdatesAndNotify()
+            label: currentlyCheckingForUpdates ? 'checking for update...' :'Check for Updates',
+            enabled: !currentlyCheckingForUpdates,
+            click: async () => {
+                createTray(true)
+                await autoUpdater.checkForUpdatesAndNotify()
+                createTray(false)
             },
         },
         {
