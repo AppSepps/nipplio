@@ -115,6 +115,7 @@ async function createWindow() {
         nativeWindowOpen: true,
         autoHideMenuBar: true,
         webPreferences: {
+            backgroundThrottling: false,
             experimentalFeatures: true,
             nodeIntegration: true,
             contextIsolation: false,
@@ -188,12 +189,14 @@ app.on('ready', async () => {
     autoUpdater.checkForUpdatesAndNotify()
 
     ipcMain.on('heartbeat', () => {
+        console.log("received heartbeat")
         heartbeatTimestampMillis = new Date().valueOf()
     })
     // check every second if the last heartbeat is not older than 10 seconds. If so, reload the window
     setInterval(() => {
         if (heartbeatTimestampMillis <= new Date().valueOf()-10000) {
             heartbeatTimestampMillis = new Date().valueOf()
+            console.log("heartbeat too old")
             win.reload()
         }
     }, 1000)

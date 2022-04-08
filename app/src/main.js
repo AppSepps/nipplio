@@ -47,6 +47,7 @@ onAuthStateChanged(getAuth(), () => {
 
 try {
     setInterval(() => {
+        console.log("heartbeat")
         sendToIPCRenderer('heartbeat')
     }, 1000)
     window.ipcRenderer.on('mute', async () => {
