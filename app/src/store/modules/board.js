@@ -84,14 +84,14 @@ const actions = {
         onChildAdded(userBoardsRef, (snapshot) => {
             const boardRef = ref(getDatabase(), '/boards/' + snapshot.key)
 
-            get(boardRef).then(async (boardSnapshot) => {
+            get(boardRef).then((boardSnapshot) => {
                 commit('addBoard', {
                     id: boardSnapshot.key,
                     ...boardSnapshot.val(),
                 })
 
                 // unmute user on initial loading of app/website
-                await dispatch('user/removeSelfFromMutedUsers', null, {root: true})
+                dispatch('user/removeSelfFromMutedUsers', null, {root: true})
 
                 onChildChanged(boardRef, (snapshot) => {
                     commit('changeBoard', {
