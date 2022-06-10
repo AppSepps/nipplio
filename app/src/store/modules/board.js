@@ -1,7 +1,17 @@
 import hotkeys from 'hotkeys-js'
 import {sendToIPCRenderer} from '@/helpers/electron.helper'
 import {getAuth} from "firebase/auth";
-import {getDatabase, push, ref, onValue, update, get, onChildRemoved, onChildChanged, onChildAdded} from 'firebase/database'
+import {
+    getDatabase,
+    push,
+    ref,
+    onValue,
+    update,
+    get,
+    onChildRemoved,
+    onChildChanged,
+    onChildAdded,
+} from 'firebase/database'
 import {getFunctions, httpsCallable} from 'firebase/functions'
 
 function initialState() {
@@ -68,17 +78,20 @@ const actions = {
             commit('setApiKeys', apiKeys)
         })
     },
-    async getBoards({commit}) {
+    async getBoards({commit, dispatch}) {
         const userBoardsRef = ref(getDatabase(), '/users/' + getAuth().currentUser.uid + '/boards')
 
         onChildAdded(userBoardsRef, (snapshot) => {
             const boardRef = ref(getDatabase(), '/boards/' + snapshot.key)
 
-            get(boardRef).then((boardSnapshot) => {
+            get(boardRef).then(async (boardSnapshot) => {
                 commit('addBoard', {
                     id: boardSnapshot.key,
                     ...boardSnapshot.val(),
                 })
+
+                // unmute user on initial loading of app/website
+                await dispatch('user/removeSelfFromMutedUsers', null, {root: true})
 
                 onChildChanged(boardRef, (snapshot) => {
                     commit('changeBoard', {

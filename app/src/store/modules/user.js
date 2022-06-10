@@ -74,6 +74,9 @@ const actions = {
         }
         commit('toggleUserMute', {id})
     },
+    removeSelfFromMutedUsers({commit}) {
+        commit('removeSelfFromMutedUsers')
+    },
     async updateConnectionStatus({rootState, rootGetters}) {
         // TODO: Something here isnt working right
         const {activeBoard} = rootState.board
@@ -145,6 +148,11 @@ const mutations = {
             )[0]
             state.speaker = singleUser.id
         }
+    },
+    removeSelfFromMutedUsers(state) {
+        state.mutedUsers = state.mutedUsers.filter(function(value){
+            return value !== getAuth().currentUser.uid;
+        })
     },
     reset(state) {
         const s = initialState()
