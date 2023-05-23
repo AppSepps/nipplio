@@ -78,7 +78,7 @@ const actions = {
             commit('setApiKeys', apiKeys)
         })
     },
-    async getBoards({commit, dispatch}) {
+    async getBoards({commit}) {
         const userBoardsRef = ref(getDatabase(), '/users/' + getAuth().currentUser.uid + '/boards')
 
         onChildAdded(userBoardsRef, (snapshot) => {
@@ -89,9 +89,6 @@ const actions = {
                     id: boardSnapshot.key,
                     ...boardSnapshot.val(),
                 })
-
-                // unmute user on initial loading of app/website
-                dispatch('user/removeSelfFromMutedUsers', null, {root: true})
 
                 onChildChanged(boardRef, (snapshot) => {
                     commit('changeBoard', {
