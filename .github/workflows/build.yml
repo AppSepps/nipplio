@@ -17,14 +17,16 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 17
+      - run: npm ci
+      - run: npm run electron:build
       - name: Build/release Electron app
         uses: coparse-inc/action-electron-builder@master
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
         with:
-          package_root: "./app/"
-          build_script_name: "electron:build"
+          package_root: './app/'
+          build_script_name: 'electron:build'
           use_vue_cli: true
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
