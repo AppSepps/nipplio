@@ -1,6 +1,6 @@
 {
   "name": "nipplio",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "description": "The best Nippleboard of the World!",
   "author": "AppSepps",
   "repository": "https://github.com/AppSepps/nipplio.git",
@@ -21,13 +21,13 @@
   "main": "background.js",
   "dependencies": {
     "@quasar/extras": "^1.16.12",
-    "axios": "^0.21.1",
-    "bonjour": "^3.5.0",
+    "axios": "^1.7.2",
+    "bonjour": "^3.3.0",
     "bonjour-service": "^1.2.1",
     "core-js": "^3.6.5",
     "dns": "^0.2.2",
     "electron-store": "^8.0.1",
-    "electron-updater": "^4.3.9",
+    "electron-updater": "^6.2.1",
     "electron-window-state": "^5.0.3",
     "fetch": "^1.1.0",
     "firebase": "^9.6.5",
@@ -39,41 +39,23 @@
     "moment": "^2.29.1",
     "path": "^0.12.7",
     "quasar": "^2.16.6",
-    "uuid": "^8.3.2",
+    "uuid": "^10.0.0",
     "vue": "^3.4.32",
     "vue-router": "^4.4.0",
     "vuex": "^4.0.2",
     "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
     "@vue/compiler-sfc": "^3.0.0",
-    "babel-eslint": "^10.1.0",
     "electron": "^31.2.1",
     "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^3.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0",
     "sass": "^1.77.8",
-    "sass-loader": "^10.1.1",
-    "vue-cli-plugin-electron-builder": "~2.0.0",
+    "sass-loader": "^14.2.1",
+    "vue-cli-plugin-electron-builder": "^2.1.1",
     "vue-cli-plugin-quasar": "^5.1.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
   },
   "browserslist": [
     "> 1%",

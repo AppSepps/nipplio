@@ -1,5 +1,4 @@
 <template>
-    <!-- eslint-disable -->
     <q-dialog>
         <q-card style="width: 700px; max-width: 80vw">
             <q-card-section class="row items-center">
