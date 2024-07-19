@@ -1,10 +1,10 @@
-import {createApp} from 'vue'
+import { createApp } from 'vue'
 import { initializeApp } from 'firebase/app'
-import firebase from 'firebase/compat/app';
-import {getAuth, onAuthStateChanged } from 'firebase/auth'
-import { getAnalytics } from "firebase/analytics";
-import "firebase/analytics";
-import {Quasar} from 'quasar'
+import firebase from 'firebase/compat/app'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { getAnalytics } from 'firebase/analytics'
+import 'firebase/analytics'
+import { Quasar } from 'quasar'
 import mitt from 'mitt'
 import quasarConfig from './quasar.conf'
 import store from './store'
@@ -13,7 +13,7 @@ import App from './App.vue'
 import config from './config'
 import moment from 'moment'
 import 'moment/min/locales'
-import {sendToIPCRenderer} from "@/helpers/electron.helper";
+import { sendToIPCRenderer } from '@/helpers/electron.helper'
 
 const locale = window.navigator.userLanguage || window.navigator.language
 moment.locale(locale)
@@ -22,12 +22,13 @@ firebase.initializeApp(config)
 initializeApp(config)
 
 if (location.hostname === 'localhost') {
-    /*firebase.auth().useEmulator('http://localhost:9099')
+    /*
+    firebase.auth().useEmulator('http://localhost:9099')
     firebase.database().useEmulator('localhost', 9000)
     firebase.firestore().useEmulator('localhost', 5003)
     firebase.storage().useEmulator('localhost', 9199)
     firebase.functions().useEmulator('localhost', 5001)
-     */
+    */
 }
 getAnalytics()
 
@@ -47,11 +48,11 @@ onAuthStateChanged(getAuth(), () => {
 
 try {
     setInterval(() => {
-        console.log("heartbeat")
+        console.log('heartbeat')
         sendToIPCRenderer('heartbeat')
     }, 1000)
     window.ipcRenderer.on('mute', async () => {
-        await store.dispatch('user/toggleUserMute', {selfMute: true})
+        await store.dispatch('user/toggleUserMute', { selfMute: true })
     })
     window.ipcRenderer.on('discoveredNipplioDevice', async (event, service) => {
         console.log('discoveredNipplioDevice event', event)

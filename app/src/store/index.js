@@ -1,4 +1,4 @@
-import {createLogger, createStore} from 'vuex'
+import { createLogger, createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
 import board from './modules/board'
@@ -34,9 +34,9 @@ const store = createStore({
         library,
     },
     actions: {
-        clearAll({commit}) {
+        clearAll({ commit }) {
             commit('board/reset')
-            commit('playr/reset')
+            commit('player/reset')
             commit('settings/reset')
             commit('sound/reset')
             commit('user/reset')

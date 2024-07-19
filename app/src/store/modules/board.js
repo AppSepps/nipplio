@@ -79,6 +79,10 @@ const actions = {
         })
     },
     async getBoards({commit}) {
+        if (!getAuth().currentUser) {
+            return Promise.resolve()
+        }
+
         const userBoardsRef = ref(getDatabase(), '/users/' + getAuth().currentUser.uid + '/boards')
 
         onChildAdded(userBoardsRef, (snapshot) => {

@@ -1,14 +1,13 @@
 'use strict'
 
-import {app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, shell, Tray,} from 'electron'
-import {autoUpdater} from 'electron-updater'
+import { app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, shell, Tray } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import path from 'path'
-import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
-import bonjour from 'bonjour'
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+// import bonjour from 'bonjour'
 import Store from 'electron-store'
-import windowStateKeeper from "electron-window-state";
-import {update} from "firebase/database";
+import windowStateKeeper from 'electron-window-state'
 
 let mainWindowState
 
@@ -18,29 +17,29 @@ let willQuitApp = false
 let tray = null
 let win = null
 
-const bonjourInstance = new bonjour()
-let bonjourService
+// const bonjourInstance = new bonjour()
+// let bonjourService
 
-const store = new Store();
+const store = new Store()
 const OPEN_SHORTCUT = 'openShortcut'
 if (!store.get(OPEN_SHORTCUT)) {
-    store.set(OPEN_SHORTCUT, "CommandOrControl+Shift+P")
+    store.set(OPEN_SHORTCUT, 'CommandOrControl+Shift+P')
 }
 
 app.commandLine.appendSwitch('enable-experimental-web-platform-features')
 app.commandLine.appendSwitch('enable-web-bluetooth')
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-    {scheme: 'app', privileges: {secure: true, standard: true}},
+    { scheme: 'app', privileges: { secure: true, standard: true } },
 ])
 
-let heartbeatTimestampMillis = new Date().valueOf();
+let heartbeatTimestampMillis = new Date().valueOf()
 
 const createTray = (currentlyCheckingForUpdates = false) => {
     const platform = process.platform
     let icon
 
-    if(!tray) {
+    if (!tray) {
         if (platform === 'darwin' || platform === 'linux') {
             icon = path.join(__static, 'assets', '/icon_tray.png')
         } else if (platform === 'win32') {
@@ -58,7 +57,7 @@ const createTray = (currentlyCheckingForUpdates = false) => {
             },
         },
         {
-            label: currentlyCheckingForUpdates ? 'checking for update...' :'Check for Updates',
+            label: currentlyCheckingForUpdates ? 'checking for update...' : 'Check for Updates',
             enabled: !currentlyCheckingForUpdates,
             click: async () => {
                 createTray(true)
@@ -95,8 +94,8 @@ async function createWindow() {
     // Load the previous state with fallback to defaults
     mainWindowState = windowStateKeeper({
         defaultWidth: 1400,
-        defaultHeight: 960
-    });
+        defaultHeight: 960,
+    })
     // Create the browser window.
     win = new BrowserWindow({
         userAgent: 'Chrome',
@@ -123,11 +122,11 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         },
     })
-    mainWindowState.manage(win);
-    win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true})
+    mainWindowState.manage(win)
+    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
     win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
-        console.log("select-bluetooth-device")
+        console.log('select-bluetooth-device')
         event.preventDefault()
         const result = deviceList.find((device) => {
             return device.deviceName === 'test'
@@ -173,7 +172,7 @@ app.on('ready', async () => {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
     } catch (error) {
     }
-    reregisterOpenShortcut()
+    reRegisterOpenShortcut()
     globalShortcut.register('CommandOrControl+Shift+S', () => {
         onToggleSelfMuteShortCut()
     })
@@ -189,14 +188,14 @@ app.on('ready', async () => {
     autoUpdater.checkForUpdatesAndNotify()
 
     ipcMain.on('heartbeat', () => {
-        console.log("received heartbeat")
+        console.log('received heartbeat')
         heartbeatTimestampMillis = new Date().valueOf()
     })
     // check every second if the last heartbeat is not older than 10 seconds. If so, reload the window
     setInterval(() => {
-        if (heartbeatTimestampMillis <= new Date().valueOf()-10000) {
+        if (heartbeatTimestampMillis <= new Date().valueOf() - 10000) {
             heartbeatTimestampMillis = new Date().valueOf()
-            console.log("heartbeat too old")
+            console.log('heartbeat too old')
             win.reload()
         }
     }, 1000)
@@ -204,7 +203,7 @@ app.on('ready', async () => {
     ipcMain.on('changeOpenShortcut', (event, data) => {
         globalShortcut.unregister(store.get(OPEN_SHORTCUT))
         store.set(OPEN_SHORTCUT, data)
-        reregisterOpenShortcut();
+        reRegisterOpenShortcut()
     })
     ipcMain.on('sendOpenShortcutToRenderer', () => {
         win.webContents.send('openShortcutRegistered', store.get(OPEN_SHORTCUT))
@@ -217,28 +216,29 @@ app.on('ready', async () => {
     })
     ipcMain.on('setIconToMute', () => {
         const trayImage = nativeImage.createFromPath(
-            path.join(__static, 'assets', '/trayMuteTemplate.png')
+            path.join(__static, 'assets', '/trayMuteTemplate.png'),
         )
         tray.setImage(trayImage)
     })
     ipcMain.on('setIconToUnmute', () => {
         const trayImage = nativeImage.createFromPath(
-            path.join(__static, 'assets', '/trayUnmuteTemplate.png')
+            path.join(__static, 'assets', '/trayUnmuteTemplate.png'),
         )
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
+        /*
         bonjourService = bonjourInstance.find(
-            {type: 'nipplio'},
-            function (service) {
+            { type: 'nipplio' },
+            function(service) {
                 console.log('Found an Nipplio server:', service)
                 win.webContents.send('discoveredNipplioDevice', service)
-            }
-        )
+            },
+        )*/
     })
     ipcMain.on('stopScanForDevices', () => {
         console.log('stop bonjourService')
-        bonjourService.stop()
+        // bonjourService.stop()
     })
 
     ipcMain.on('escPressed', () => {
@@ -246,7 +246,7 @@ app.on('ready', async () => {
     })
 
     ipcMain.on('networkStatusOnline', () => {
-       win.reload()
+        win.reload()
     })
 
     if (!isDevelopment) {
@@ -279,7 +279,7 @@ if (isDevelopment) {
     }
 }
 
-const reregisterOpenShortcut = () => {
+const reRegisterOpenShortcut = () => {
     globalShortcut.register(store.get(OPEN_SHORTCUT), () => {
         onToggleWindowShortCut()
     })

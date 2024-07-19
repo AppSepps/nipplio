@@ -1,4 +1,4 @@
-import {getDownloadURL, getStorage, ref, deleteObject, uploadBytes} from "firebase/storage";
+import { getDownloadURL, getStorage, ref, deleteObject, uploadBytes } from 'firebase/storage'
 import {
     getDatabase,
     serverTimestamp,
@@ -10,11 +10,11 @@ import {
     query,
     limitToLast,
     orderByChild,
-    startAt, onChildAdded, update, remove, push, set
-} from "firebase/database";
-import {getAnalytics, logEvent} from "firebase/analytics";
-import {addDoc, collection, getFirestore, Timestamp} from "firebase/firestore";
-import {getAuth} from "firebase/auth";
+    startAt, onChildAdded, update, remove, push, set,
+} from 'firebase/database'
+import { getAnalytics, logEvent } from 'firebase/analytics'
+import { addDoc, collection, getFirestore, Timestamp } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 
 function initialState() {
     return {
@@ -27,7 +27,7 @@ function initialState() {
 }
 
 const getters = {
-    availableTags: function (state) {
+    availableTags: function(state) {
         const sounds = state.sounds
         const tagSet = new Set()
         sounds.forEach((sound) => {
@@ -39,24 +39,24 @@ const getters = {
         })
 
         return Array.from(tagSet).sort((a, b) =>
-            a.toLowerCase().localeCompare(b.toLowerCase())
+            a.toLowerCase().localeCompare(b.toLowerCase()),
         )
     },
-    filteredSounds: function (state) {
+    filteredSounds: function(state) {
         let sounds = state.sounds
             .map((sound) =>
                 state.favoriteSoundIds.includes(sound.id)
-                    ? {...sound, favorite: true}
-                    : {...sound, favorite: false}
+                    ? { ...sound, favorite: true }
+                    : { ...sound, favorite: false },
             )
             .sort((a, b) =>
-                a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
             )
             .sort((a, b) => b.favorite - a.favorite)
             .filter((sound) =>
                 sound.name
                     .toLowerCase()
-                    .includes(state.searchText.toLowerCase())
+                    .includes(state.searchText.toLowerCase()),
             )
         // filter for tags
         if (state.selectedTags.length > 0) {
@@ -79,12 +79,12 @@ const getters = {
 }
 
 const actions = {
-    async generateDownloadUrl({rootState}, {id, cb}) {
+    async generateDownloadUrl({ rootState }, { id, cb }) {
         const soundUrl = await getDownloadURL(ref(getStorage(), `boards/${rootState.board.activeBoard.id}/${id}`))
         cb(soundUrl)
     },
-    getSounds({commit, rootState}) {
-        const {activeBoard} = rootState.board
+    getSounds({ commit, rootState }) {
+        const { activeBoard } = rootState.board
 
         if (!activeBoard) return
 
@@ -96,7 +96,7 @@ const actions = {
         get(soundsRef).then(async (snapshot) => {
             const sounds = []
             snapshot.forEach((s) => {
-                sounds.push({id: s.key, ...s.val()})
+                sounds.push({ id: s.key, ...s.val() })
             })
 
             commit('addSounds', sounds)
@@ -123,43 +123,43 @@ const actions = {
             })
         })
     },
-    onSearchChange({commit}, params) {
-        const {text} = params
-        commit('changeSearch', {text})
+    onSearchChange({ commit }, params) {
+        const { text } = params
+        commit('changeSearch', { text })
     },
-    async onSoundEdit({rootState}, sound) {
+    async onSoundEdit({ rootState }, sound) {
         await update(databaseRef(getDatabase(), `/sounds/${rootState.board.activeBoard.id}/${sound.id}`), {
             name: sound.name,
             tags: sound.tags,
         })
         await logEvent(getAnalytics(), 'sound_edit', sound)
     },
-    onTagClicked({commit}, {tagName}) {
-        commit('toggleSelectedTag', {tagName})
+    onTagClicked({ commit }, { tagName }) {
+        commit('toggleSelectedTag', { tagName })
     },
     async removeSound(context, params) {
-        const {activeBoard} = context.rootState.board
-        const {soundId} = params
+        const { activeBoard } = context.rootState.board
+        const { soundId } = params
 
         const soundRef = databaseRef(getDatabase(), `/sounds/${activeBoard.id}/${soundId}`)
         await remove(soundRef)
 
         await deleteObject(ref(getStorage(), `/boards/${activeBoard.id}/${soundId}`))
-        await logEvent(getAnalytics(), 'sound_delete', {soundId})
+        await logEvent(getAnalytics(), 'sound_delete', { soundId })
     },
-    resetSoundsAndTags({commit}) {
+    resetSoundsAndTags({ commit }) {
         commit('resetSounds')
         commit('resetTags')
     },
-    async toggleFavoriteSound({commit, rootState}, params) {
-        const {id} = params
-        commit('toggleFavoriteSound', {id})
+    async toggleFavoriteSound({ commit, rootState }, params) {
+        const { id } = params
+        commit('toggleFavoriteSound', { id })
         logEvent(getAnalytics(), rootState.sound.favoriteSoundIds.includes(id) ? 'add_favorite' : 'remove_favorite', {
-            favoriteId: id
+            favoriteId: id,
         })
     },
     async uploadPublicSound(context, params) {
-        const {files, cbSuccess, playlistId} = params
+        const { files, cbSuccess, playlistId } = params
         for (let file of files) {
             const soundDoc = await addDoc(collection(getFirestore(), 'sounds'), {
                 isPublic: true,
@@ -169,15 +169,20 @@ const actions = {
                 createdBy: getAuth().currentUser.uid,
                 owners: [getAuth().currentUser.uid],
                 playlists: [playlistId],
-                views: 0
+                views: 0,
             })
             await uploadBytes(ref(getStorage(), `/library/${soundDoc.id}`), file)
         }
         cbSuccess()
     },
-    async uploadSoundFile({rootState}, params) {
-        const {files, cbSuccess} = params
+    async uploadSoundFile({ rootState }, params) {
+        const { files, cbSuccess } = params
         for (let file of files) {
+            if (!(file instanceof File)) {
+                console.error('Invalid file:', file);
+                continue;
+            }
+
             const newSoundKey = await push(databaseRef(getDatabase(), `/sounds/${rootState.board.activeBoard.id}`))
 
             await uploadBytes(ref(getStorage(), `/boards/${rootState.board.activeBoard.id}/${newSoundKey.key}`), file)
@@ -207,7 +212,7 @@ const mutations = {
     addSounds(state, sounds) {
         state.sounds = sounds
     },
-    changeSearch(state, {text}) {
+    changeSearch(state, { text }) {
         state.searchText = text
     },
     changeSound(state, sound) {
@@ -215,7 +220,7 @@ const mutations = {
             return s.id === sound.id ? sound : s
         })
     },
-    removeSound(state, {id}) {
+    removeSound(state, { id }) {
         state.sounds = state.sounds.filter((sound) => sound.id !== id)
     },
     resetSounds(state) {
@@ -227,12 +232,12 @@ const mutations = {
     setAreSoundsLoading(state, loading) {
         state.areSoundsLoading = loading
     },
-    toggleFavoriteSound(state, {id}) {
+    toggleFavoriteSound(state, { id }) {
         state.favoriteSoundIds = state.favoriteSoundIds.includes(id)
             ? state.favoriteSoundIds.filter((i) => i !== id)
             : [...state.favoriteSoundIds, id]
     },
-    toggleSelectedTag(state, {tagName}) {
+    toggleSelectedTag(state, { tagName }) {
         state.selectedTags = state.selectedTags.includes(tagName)
             ? state.selectedTags.filter((i) => i !== tagName)
             : [...state.selectedTags, tagName]

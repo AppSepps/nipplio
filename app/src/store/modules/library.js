@@ -1,7 +1,20 @@
-import {getAuth} from "firebase/auth";
-import {getFirestore, arrayRemove, arrayUnion, Timestamp, getDocs, query, collection, where, addDoc, deleteDoc, doc, updateDoc} from "firebase/firestore";
-import {getDatabase, push, serverTimestamp, ref as databaseRef, set} from "firebase/database";
-import {getDownloadURL, getStorage, ref, deleteObject, uploadBytes} from "firebase/storage";
+import { getAuth } from 'firebase/auth'
+import {
+    getFirestore,
+    arrayRemove,
+    arrayUnion,
+    Timestamp,
+    getDocs,
+    query,
+    collection,
+    where,
+    addDoc,
+    deleteDoc,
+    doc,
+    updateDoc,
+} from 'firebase/firestore'
+import { getDatabase, push, serverTimestamp, ref as databaseRef, set } from 'firebase/database'
+import { getDownloadURL, getStorage, ref, deleteObject, uploadBytes } from 'firebase/storage'
 
 function initialState() {
     return {
@@ -9,8 +22,8 @@ function initialState() {
         playedLocalSound: undefined,
         selectedPlaylist: {
             name: '',
-            sounds: []
-        }
+            sounds: [],
+        },
     }
 }
 
@@ -19,34 +32,34 @@ const getters = {
         let array = []
         for (const [key, value] of Object.entries(state.playlists)) {
             if (value.owner === getAuth().currentUser.uid) {
-                array.push({...value, id: key})
+                array.push({ ...value, id: key })
             }
         }
         return array
     },
     selectedPlaylist: (state) => {
         return state.selectedPlaylist
-    }
+    },
 }
 
 const actions = {
-    async getSoundsForSelectedPlaylist({commit}, playlistId) {
-        const soundsSnapshot = await getDocs(query(collection(getFirestore(), "sounds"), where('playlists', 'array-contains', playlistId)))
+    async getSoundsForSelectedPlaylist({ commit }, playlistId) {
+        const soundsSnapshot = await getDocs(query(collection(getFirestore(), 'sounds'), where('playlists', 'array-contains', playlistId)))
         const soundsArray = []
         soundsSnapshot.forEach((doc) => {
             soundsArray.push({
                 ...doc.data(),
-                id: doc.id
+                id: doc.id,
             })
         })
         commit('addSoundsToSelectedPlaylist', soundsArray)
     },
-    async selectedPlaylist({commit}, playlistData) {
+    async selectedPlaylist({ commit }, playlistData) {
         commit('setSelectedPlaylist', playlistData)
     },
-    async getSoundsForPlaylists({state, commit}) {
+    async getSoundsForPlaylists({ state, commit }) {
         for (const [key] of Object.entries(state.playlists)) {
-            const soundsSnapshot = await getDocs(query(collection(getFirestore(), "sounds"), where('playlists', 'array-contains', key)))
+            const soundsSnapshot = await getDocs(query(collection(getFirestore(), 'sounds'), where('playlists', 'array-contains', key)))
             soundsSnapshot.forEach((doc) => {
                 const foundSoundsWithSameId = state.playlists[key].sounds.filter((sound) => sound.id === doc.id)
                 if (foundSoundsWithSameId.length === 0) {
@@ -54,45 +67,49 @@ const actions = {
                         id: key,
                         sound: {
                             ...doc.data(),
-                            id: doc.id
-                        }
+                            id: doc.id,
+                        },
                     })
                 }
             })
         }
     },
-    async addPlaylistClicked({dispatch}) {
-        await addDoc(collection(getFirestore(), 'playlists'),{
+    async addPlaylistClicked({ dispatch }) {
+        await addDoc(collection(getFirestore(), 'playlists'), {
             name: 'Neue Playlist',
             owner: getAuth().currentUser.uid,
             ownerName: getAuth().currentUser.displayName,
             likes: 0,
-            createdAt: serverTimestamp()
+            createdAt: serverTimestamp(),
         })
         await dispatch('getPlaylists')
     },
-    async getPlaylists({commit, dispatch}) {
+    async getPlaylists({ commit, dispatch }) {
         commit('clearPlaylist')
         const playlistSnapshot = await getDocs(query(collection(getFirestore(), 'playlists')))
         playlistSnapshot.forEach((doc) => {
-            commit('addPlaylist', {playlist: {...doc.data()}, id: doc.id})
+            commit('addPlaylist', { playlist: { ...doc.data() }, id: doc.id })
             dispatch('addThumbnailToPlaylist', doc.id)
         })
     },
-    async addThumbnailToPlaylist({commit}, playlistId) {
-        const thumbnailURL = await getDownloadURL(ref(getStorage(), `/libraryThumbnails/${playlistId}`))
-        commit('addThumbnailURLToPlaylist', { playlistId, thumbnailURL})
+    async addThumbnailToPlaylist({ commit }, playlistId) {
+        try {
+            const thumbnailURL = await getDownloadURL(ref(getStorage(), `/libraryThumbnails/${playlistId}`))
+            commit('addThumbnailURLToPlaylist', { playlistId, thumbnailURL })
+        } catch (e) {
+            console.log(e.message)
+        }
     },
-    async playLocalSound({commit}, sound) {
+    async playLocalSound({ commit }, sound) {
         const soundUrl = await getDownloadURL(ref(getStorage(), `library/${sound.id}`))
-        commit('setPlayedLocalSound', {...sound, soundUrl})
+        commit('setPlayedLocalSound', { ...sound, soundUrl })
     },
-    async removePlaylistWithId({dispatch}, id) {
+    async removePlaylistWithId({ dispatch }, id) {
         const soundsSnapshot = await getDocs(query(collection(getFirestore(), 'sounds'), where('playlists', 'array-contains', id)))
-        let tempCollection = [];
+        let tempCollection = []
         soundsSnapshot.forEach(collection => {
-            tempCollection.push(collection);
-        });
+            tempCollection.push(collection)
+        })
         for await(let document of tempCollection) {
             if (document.data().playlists.length === 1) {
                 // this sound has only this playlist set -> delete the sound from database and storage
@@ -101,14 +118,14 @@ const actions = {
             } else {
                 // this sound has multiple playlists stored -> remove only the deleted one
                 await updateDoc(document.ref, {
-                    playlists: arrayRemove(id)
+                    playlists: arrayRemove(id),
                 })
             }
         }
         await deleteDoc(doc(getFirestore(), `playlists/${id}`))
         await dispatch('getPlaylists')
     },
-    async addLibrarySoundToBoard(context, {sound, boardId}) {
+    async addLibrarySoundToBoard(context, { sound, boardId }) {
         const newSoundKey = await push(databaseRef(getDatabase(), `/sounds/${boardId}`))
 
         const downloadUrl = await getDownloadURL(ref(getStorage(), `library/${sound.id}`))
@@ -122,26 +139,26 @@ const actions = {
             createdBy: getAuth().currentUser.uid,
         })
     },
-    async addLibrarySoundToLibrary({dispatch}, {sound, playlistId}) {
+    async addLibrarySoundToLibrary({ dispatch }, { sound, playlistId }) {
         await updateDoc(doc(getFirestore(), 'sounds', sound.id), {
-            playlists: arrayUnion(playlistId)
+            playlists: arrayUnion(playlistId),
         })
         await dispatch('getPlaylists')
     },
-    async deleteSoundFromPlaylist({dispatch}, {sound, playlistId}) {
+    async deleteSoundFromPlaylist({ dispatch }, { sound, playlistId }) {
         await updateDoc(doc(getFirestore(), 'sounds', sound.id), {
-            playlists: arrayRemove(playlistId)
+            playlists: arrayRemove(playlistId),
         })
         await dispatch('getPlaylists')
     },
-    async updatePlaylistDetails({dispatch}, playlist) {
+    async updatePlaylistDetails({ dispatch }, playlist) {
         await updateDoc(doc(getFirestore(), 'playlists', playlist.id), {
             name: playlist.name,
-            description: playlist.description
+            description: playlist.description,
         })
         await dispatch('getPlaylists')
     },
-    async addBoardSoundToLibrary({rootState}, {sound, playlistId}) {
+    async addBoardSoundToLibrary({ rootState }, { sound, playlistId }) {
         //commit('board/updateNotifyText', "Test", {root: true})
         const boardId = rootState.board.activeBoard.id
         const soundDoc = await addDoc(collection(getFirestore(), 'sounds'), {
@@ -152,7 +169,7 @@ const actions = {
             createdBy: getAuth().currentUser.uid,
             owners: [getAuth().currentUser.uid],
             playlists: [playlistId],
-            views: 0
+            views: 0,
         })
 
         const downloadUrl = await getDownloadURL(ref(getStorage(), `boards/${boardId}/${sound.id}`))
@@ -160,7 +177,7 @@ const actions = {
         await uploadBytes(ref(getStorage(), `library/${soundDoc.id}`), await response.arrayBuffer())
 
         //commit('board/updateNotifyText', "Successfull", {root: true})
-    }
+    },
 }
 
 const mutations = {
@@ -170,7 +187,7 @@ const mutations = {
     clearPlaylist(state) {
         state.playlists = {}
     },
-    addPlaylist(state, {id, playlist}) {
+    addPlaylist(state, { id, playlist }) {
         state.playlists[id] = playlist
     },
     addSoundToPlaylist(state, data) {
@@ -181,15 +198,15 @@ const mutations = {
     },
     setSelectedPlaylist(state, data) {
         state.selectedPlaylist = {
-            ...data
+            ...data,
         }
     },
     setPlayedLocalSound(state, sound) {
         state.playedLocalSound = sound
     },
-    addThumbnailURLToPlaylist(state, {playlistId, thumbnailURL}) {
+    addThumbnailURLToPlaylist(state, { playlistId, thumbnailURL }) {
         state.playlists[playlistId].thumbnailURL = thumbnailURL
-    }
+    },
 }
 
 export default {
