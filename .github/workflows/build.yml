@@ -20,7 +20,7 @@ jobs:
       - run: cd app && npm ci
       - run: cd app && npm run electron:build
       - name: Build/release Electron app
-        uses: coparse-inc/action-electron-builder@master
+        uses: samuelmeuli/action-electron-builder@v1
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
