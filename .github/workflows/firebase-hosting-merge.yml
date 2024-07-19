@@ -21,6 +21,9 @@ jobs:
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIPPLIO }}
           PROJECT_PATH: "./firebase"
+      - name: Debug Folder Tree
+        if: failure()
+        run: find . -path './node_modules' -prune -o -print
       - name: Upload Firebase Debug Log
         if: failure()
         uses: actions/upload-artifact@v3
