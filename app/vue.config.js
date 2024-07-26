@@ -1,10 +1,17 @@
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+
 module.exports = {
-    configureWebpack: {
-        // Webpack configuration applied to web builds and the electron renderer process
-        target:
-            process.env.NODE_ENV !== 'production' ? 'web' : 'electron-renderer',
-        //target: 'electron-renderer'
-        //target: 'web'
+    configureWebpack: config => {
+        const isElectron = process.env.VUE_APP_TARGET === 'electron';
+
+        if (isElectron) {
+            config.target = 'electron-renderer'
+        } else {
+            config.target = 'web'
+        }
+        config.plugins = [
+            new NodePolyfillPlugin(),
+        ].concat(config.plugins || [])
     },
     pluginOptions: {
         quasar: {
@@ -20,7 +27,7 @@ module.exports = {
                 mac: {
                     target: {
                         target: 'default',
-                        arch: 'universal'
+                        arch: 'universal',
                     },
                     icon: 'src/assets/icon.icns',
                     category: 'public.app-category.entertainment',
