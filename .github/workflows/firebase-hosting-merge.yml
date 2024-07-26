@@ -20,6 +20,13 @@ jobs:
           channelId: live
           projectId: nipplio
           entrypoint: "./firebase"
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy
+        env:
+          PROJECT_PATH: "./firebase"
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIPPLIO }}
       - name: Upload Firebase Debug Log
         if: failure()
         uses: actions/upload-artifact@v4
