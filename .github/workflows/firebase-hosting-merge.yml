@@ -13,13 +13,6 @@ jobs:
       - uses: actions/checkout@v4
       - run: cd app && npm ci && npm run buildForFirebase
       - run: cd ./firebase/functions && npm ci
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIPPLIO }}
-          channelId: live
-          projectId: nipplio
-          entrypoint: "./firebase"
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
