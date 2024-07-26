@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cd app && npm run ci && npm run buildForFirebase
+      - run: cd app && npm ci && npm run buildForFirebase
       - run: cd ./firebase/functions && npm ci
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
