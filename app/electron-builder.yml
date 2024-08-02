@@ -11,3 +11,10 @@ mac:
 win:
   verifyUpdateCodeSignature: false
   icon: src/assets/icon.ico
+
+linux:
+  target:
+    target: AppImage
+    arch: x64
+  icon: src/assets/icon.png
+  category: Audio
