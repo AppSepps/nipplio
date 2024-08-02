@@ -45,7 +45,7 @@
     "@vitejs/plugin-vue": "^5.1.0",
     "cross-env": "^7.0.3",
     "electron": "^31.2.1",
-    "electron-builder": "^25.0.3",
+    "electron-builder": "^23.6.0",
     "electron-devtools-installer": "^3.1.0",
     "sass": "^1.77.8",
     "sass-loader": "^14.2.1",
