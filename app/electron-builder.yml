@@ -1,0 +1,13 @@
+appId: com.appsepps.nipplio
+productName: Nipplio
+
+mac:
+  target:
+    target: default
+    arch: universal
+  icon: src/assets/icon.icns
+  category: public.app-category.entertainment
+
+win:
+  verifyUpdateCodeSignature: false
+  icon: src/assets/icon.ico

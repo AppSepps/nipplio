@@ -1,13 +1,15 @@
 'use strict'
 
-import { app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, shell, Tray } from 'electron'
-import { autoUpdater } from 'electron-updater'
-import path from 'path'
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-// import bonjour from 'bonjour'
-import Store from 'electron-store'
-import windowStateKeeper from 'electron-window-state'
+const { app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, shell, Tray } = require('electron')
+const { autoUpdater } = require('electron-updater')
+const path = require('path')
+const installExtension = require('electron-devtools-installer').default
+const { VUEJS_DEVTOOLS } = require('electron-devtools-installer')
+const Bonjour = require('bonjour')
+const Store = require('electron-store')
+const windowStateKeeper = require('electron-window-state')
+
+const __static = path.join(__dirname, '..', 'public');
 
 let mainWindowState
 
@@ -17,8 +19,8 @@ let willQuitApp = false
 let tray = null
 let win = null
 
-// const bonjourInstance = new bonjour()
-// let bonjourService
+const bonjourInstance = new Bonjour()
+let bonjourService
 
 const store = new Store()
 const OPEN_SHORTCUT = 'openShortcut'
@@ -91,14 +93,13 @@ async function createWindow() {
     if (!tray) {
         createTray()
     }
-    // Load the previous state with fallback to defaults
+
     mainWindowState = windowStateKeeper({
         defaultWidth: 1400,
         defaultHeight: 960,
     })
-    // Create the browser window.
+
     win = new BrowserWindow({
-        userAgent: 'Chrome',
         backgroundColor: '#121212',
         x: mainWindowState.x,
         y: mainWindowState.y,
@@ -111,7 +112,6 @@ async function createWindow() {
         minimizable: true,
         hasShadow: false,
         icon: __dirname + '/icon.png',
-        nativeWindowOpen: true,
         autoHideMenuBar: true,
         webPreferences: {
             backgroundThrottling: false,
@@ -149,25 +149,13 @@ async function createWindow() {
         }
     })
 
-    if (process.env.WEBPACK_DEV_SERVER_URL) {
-        console.log('is WEBPACK_DEV_SERVER_URL')
-        // Load the url of the dev server if in development mode
-        await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL, {
-            userAgent: 'Chrome',
-        })
-        if (!process.env.IS_TEST) win.webContents.openDevTools()
-    } else {
-        createProtocol('app')
-        // Load the index.html when not in development
-        win.loadURL('https://nipplio.web.app')
-        //win.loadURL('app://./index.html')
-    }
+    await win.loadURL('https://nipplio.web.app')
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
+app.whenReady().then(async () => {
     try {
         app.dock.hide() // Maybe find solution for short jump on mac os bar
     } catch (error) {
@@ -184,8 +172,8 @@ app.on('ready', async () => {
             console.error('Vue Devtools failed to install:', e.toString())
         }
     }
-    createWindow()
-    autoUpdater.checkForUpdatesAndNotify()
+    await createWindow()
+    await autoUpdater.checkForUpdatesAndNotify()
 
     ipcMain.on('heartbeat', () => {
         console.log('received heartbeat')
@@ -227,18 +215,17 @@ app.on('ready', async () => {
         tray.setImage(trayImage)
     })
     ipcMain.on('startScanForDevices', () => {
-        /*
         bonjourService = bonjourInstance.find(
             { type: 'nipplio' },
             function(service) {
                 console.log('Found an Nipplio server:', service)
                 win.webContents.send('discoveredNipplioDevice', service)
             },
-        )*/
+        )
     })
     ipcMain.on('stopScanForDevices', () => {
         console.log('stop bonjourService')
-        // bonjourService.stop()
+        bonjourService.stop()
     })
 
     ipcMain.on('escPressed', () => {
