@@ -16,7 +16,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - run: cd app && npm ci
       - name: Build/release Electron app
         uses: Yan-Jobs/action-electron-builder@v1.7.0
