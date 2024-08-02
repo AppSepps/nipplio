@@ -91,7 +91,7 @@
 <script>
 import { isElectron, sendToIPCRenderer } from '@/helpers/electron.helper'
 import { mapActions, mapGetters } from 'vuex'
-import RemoteDevice from '@/components/RemoteDevice.vue'
+import RemoteDevice from '@/components/RemoteDevice'
 import OpenShortcutItem from '@/components/OpenShortcutItem'
 import { getAuth } from 'firebase/auth'
 

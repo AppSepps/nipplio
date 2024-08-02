@@ -44,7 +44,7 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import User from '../components/User.vue'
+import User from '../components/User'
 
 export default {
     name: 'UserDrawer',

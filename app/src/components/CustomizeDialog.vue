@@ -22,7 +22,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import Theme from './Theme.vue'
+import Theme from './Theme'
 
 export default {
     name: 'CustomizeDialog',

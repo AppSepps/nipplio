@@ -76,8 +76,8 @@
 import {mapGetters, mapState} from 'vuex'
 import {Howl} from 'howler'
 import moment from 'moment'
-import RecentlyPlayed from './RecentlyPlayed.vue'
-import VolumeControl from '../components/VolumeControl.vue'
+import RecentlyPlayed from './RecentlyPlayed'
+import VolumeControl from '../components/VolumeControl'
 
 export default {
   name: 'Player',

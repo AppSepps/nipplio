@@ -1,16 +1,16 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
-import Home from '../views/Home.vue'
-import Board from '../views/Board.vue'
-import Welcome from '../views/Welcome.vue'
-import Library from "../views/Library";
-import {getAuth, onAuthStateChanged} from "firebase/auth";
+import Home from '@/views/Home'
+import Board from '@/views/Board'
+import Welcome from '@/views/Welcome'
+import Library from '@/views/Library'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 const routes = [
-    {path: '/', component: Home, meta: {auth: true}},
-    {path: '/board/:boardId', component: Board, meta: {auth: true}},
-    {name: 'library', path: '/library', component: Library, meta: {auth: true}},
-    {path: '/welcome', component: Welcome},
+    { path: '/', component: Home, meta: { auth: true } },
+    { path: '/board/:boardId', component: Board, meta: { auth: true } },
+    { name: 'library', path: '/library', component: Library, meta: { auth: true } },
+    { path: '/welcome', component: Welcome },
 ]
 
 const router = createRouter({

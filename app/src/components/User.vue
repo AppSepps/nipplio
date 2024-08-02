@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import UserMuteIndicator from './UserMuteIndicator.vue'
+import UserMuteIndicator from './UserMuteIndicator'
 
 export default {
     name: 'User',

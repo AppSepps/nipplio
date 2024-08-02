@@ -21,10 +21,10 @@
 </template>
 
 <script>
-import BoardSelect from './components/BoardSelect.vue'
-import AddBoardDialog from './components/AddBoardDialog'
-import CustomizeDialog from './components/CustomizeDialog'
-import Settings from './views/Settings'
+import BoardSelect from '@/components/BoardSelect'
+import AddBoardDialog from '@/components/AddBoardDialog'
+import CustomizeDialog from '@/components/CustomizeDialog'
+import Settings from '@/views/Settings'
 import { getAuth } from 'firebase/auth'
 
 export default {
@@ -47,7 +47,7 @@ export default {
                 getAuth()
                     .currentUser.getIdToken()
                     .then((idToken) => {
-                        console.log(idToken)
+                        // console.log(idToken)
                     })
             }
         })
