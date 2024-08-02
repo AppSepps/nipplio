@@ -7,7 +7,6 @@ mac:
     arch: universal
   icon: src/assets/icon.icns
   category: public.app-category.entertainment
-  mergeASARs: false
 
 win:
   verifyUpdateCodeSignature: false
