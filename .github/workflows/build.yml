@@ -17,12 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: cd app && npm i
+      - run: cd app && npm ci
       - name: Build/release Electron app
         uses: Yan-Jobs/action-electron-builder@v1.7.0
-        env:
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
         with:
           package_root: './app/'
           build_script_name: 'electron:build'
@@ -30,3 +27,5 @@ jobs:
           skip_build: false
           github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          mac_certs: ${{ secrets.MAC_CERTS }}
+          mac_certs_password: ${{ secrets.MAC_CERTS_PASSWORD }}
