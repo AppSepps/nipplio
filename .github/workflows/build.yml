@@ -19,7 +19,7 @@ jobs:
           node-version: 20
       - run: cd app && npm ci
       - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: Yan-Jobs/action-electron-builder@v1.7.0
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
