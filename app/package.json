@@ -11,7 +11,11 @@
     "dev": "vite",
     "serve": "vite preview",
     "electron:dev": "cross-env VUE_APP_TARGET=electron vite",
-    "electron:build": "cross-env VUE_APP_TARGET=electron vite build && electron-builder"
+    "electron:build": "cross-env VUE_APP_TARGET=electron vite build && electron-builder",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "main": "electron/main.js",
   "dependencies": {
