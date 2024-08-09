@@ -3,8 +3,6 @@
 const { app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, protocol, shell, Tray } = require('electron')
 const { autoUpdater } = require('electron-updater')
 const path = require('path')
-const installExtension = require('electron-devtools-installer').default
-const { VUEJS_DEVTOOLS } = require('electron-devtools-installer')
 const Bonjour = require('bonjour')
 const Store = require('electron-store')
 const windowStateKeeper = require('electron-window-state')
@@ -164,14 +162,6 @@ app.whenReady().then(async () => {
     globalShortcut.register('CommandOrControl+Shift+S', () => {
         onToggleSelfMuteShortCut()
     })
-    if (isDevelopment && !process.env.IS_TEST) {
-        // Install Vue Devtools
-        try {
-            await installExtension(VUEJS_DEVTOOLS)
-        } catch (e) {
-            console.error('Vue Devtools failed to install:', e.toString())
-        }
-    }
     await createWindow()
     await autoUpdater.checkForUpdatesAndNotify()
 
